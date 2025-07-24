@@ -1,7 +1,5 @@
 package com.uniclub.domain.club.entity;
 
-
-import com.uniclub.domain.user.entity.User;
 import com.uniclub.global.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,19 +9,14 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "membership")
-public class MemberShip extends BaseTime {
+@Table(name = "media")
+public class Media extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long membershipId;    //PK
+    private Long mediaId;    //PK
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role = Role.MEMBER;    //권한 설정
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId")    //FK
-    private User user;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String mediaLink;   //소개글 이미지, 영상 url
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clubId")    //FK

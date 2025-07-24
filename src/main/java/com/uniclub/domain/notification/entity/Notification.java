@@ -1,5 +1,4 @@
-package com.uniclub.domain.club.entity;
-
+package com.uniclub.domain.notification.entity;
 
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.global.entity.BaseTime;
@@ -7,25 +6,25 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "membership")
-public class MemberShip extends BaseTime {
+@Table(name = "notification")
+public class Notification extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long membershipId;    //PK
+    private Long notificationId;    //PK
 
-    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "TEXT")
+    private String message; //알림 메시지
+
+    @ColumnDefault("false")
     @Column(nullable = false)
-    private Role role = Role.MEMBER;    //권한 설정
+    private Boolean isRead; //읽음 여부
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")    //FK
     private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "clubId")    //FK
-    private Club club;
 }

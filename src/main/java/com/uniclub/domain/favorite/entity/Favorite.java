@@ -1,8 +1,7 @@
-package com.uniclub.domain.club.entity;
+package com.uniclub.domain.favorite.entity;
 
-
+import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.user.entity.User;
-import com.uniclub.global.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,15 +10,11 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "membership")
-public class MemberShip extends BaseTime {
+@Table(name = "favorite")
+public class Favorite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long membershipId;    //PK
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role = Role.MEMBER;    //권한 설정
+    private Long favoriteId;    //PK
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")    //FK
