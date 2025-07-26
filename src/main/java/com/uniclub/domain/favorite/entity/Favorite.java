@@ -23,4 +23,9 @@ public class Favorite {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clubId")    //FK
     private Club club;
+
+    public Favorite(User user, Club club) {
+        this.user = user;
+        this.club = club;
+    }
 }
