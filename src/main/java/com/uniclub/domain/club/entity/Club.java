@@ -3,6 +3,7 @@ package com.uniclub.domain.club.entity;
 import com.uniclub.global.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,8 +22,7 @@ public class Club extends BaseTime {
     private String name;    //동아리명
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private String status;  //모집상태
+    private ClubStatus status = ClubStatus.CLOSED;  //모집상태
 
     @Column
     private LocalDateTime startTime;    //모집 시작일시
@@ -53,4 +53,37 @@ public class Club extends BaseTime {
 
     @Column(columnDefinition = "TEXT")
     private String backgroundImage; //동아리 배경 이미지 url
+
+    @Builder
+    public Club(String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime, String description, String notice, String location, String presidentInfo, String youtubeLink, String instagramLink, String profileImage, String backgroundImage) {
+        this.name = name;
+        this.status = status;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.description = description;
+        this.notice = notice;
+        this.location = location;
+        this.presidentInfo = presidentInfo;
+        this.youtubeLink = youtubeLink;
+        this.instagramLink = instagramLink;
+        this.profileImage = profileImage;
+        this.backgroundImage = backgroundImage;
+    }
+
+    public Club update(Club club) {
+        this.status = club.getStatus();
+        this.startTime = club.getStartTime();
+        this.endTime = club.getEndTime();
+        this.description = club.getDescription();
+        this.notice = club.getNotice();
+        this.location = club.getLocation();
+        this.presidentInfo = club.getPresidentInfo();
+        this.youtubeLink = club.getYoutubeLink();
+        this.instagramLink = club.getInstagramLink();
+        this.profileImage = club.getProfileImage();
+        this.backgroundImage = club.getBackgroundImage();
+        return this;
+    }
+
+
 }

@@ -3,6 +3,7 @@ package com.uniclub.domain.club.entity;
 import com.uniclub.global.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,4 +22,9 @@ public class Media extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clubId")    //FK
     private Club club;
+
+    @Builder
+    public Media(String mediaLink, Club club) {
+        this.mediaLink = mediaLink;
+    }
 }
