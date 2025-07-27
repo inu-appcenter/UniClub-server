@@ -12,4 +12,5 @@ import java.util.List;
 public interface ClubRepository extends JpaRepository<Club, Long> {
     @Query("SELECT c FROM Club c JOIN c.category ca WHERE ca.name = :categoryName")
     List<Club> findByCategoryName(CategoryType categoryName);
+    Boolean existsByName(String name);
 }

@@ -4,7 +4,10 @@ import com.uniclub.domain.category.entity.Category;
 import com.uniclub.global.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
-
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,10 +24,13 @@ public class Club extends BaseTime {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    private ClubStatus status = ClubStatus.CLOSED;
+    private ClubStatus status = ClubStatus.CLOSED;  //모집상태
 
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    @Column
+    private LocalDateTime startTime;    //모집 시작일시
+
+    @Column
+    private LocalDateTime endTime;    //모집 마감일시
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -46,9 +52,9 @@ public class Club extends BaseTime {
 
     @Column(columnDefinition = "TEXT")
     private String profileImage;
-
+ 
     @Column(columnDefinition = "TEXT")
-    private String backgroundImage;
+    private String backgroundImage; //동아리 배경 이미지 url
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -59,6 +65,7 @@ public class Club extends BaseTime {
                 String description, String notice, String location, String presidentInfo,
                 String youtubeLink, String instagramLink, String profileImage, String backgroundImage,
                 Category category) {
+  
         this.name = name;
         this.status = status;
         this.startTime = startTime;
@@ -73,4 +80,20 @@ public class Club extends BaseTime {
         this.backgroundImage = backgroundImage;
         this.category = category;
     }
+
+    public Club update(Club club) {
+        this.status = club.getStatus();
+        this.startTime = club.getStartTime();
+        this.endTime = club.getEndTime();
+        this.description = club.getDescription();
+        this.notice = club.getNotice();
+        this.location = club.getLocation();
+        this.presidentInfo = club.getPresidentInfo();
+        this.youtubeLink = club.getYoutubeLink();
+        this.instagramLink = club.getInstagramLink();
+        this.profileImage = club.getProfileImage();
+        this.backgroundImage = club.getBackgroundImage();
+        return this;
+    }
+
 }
