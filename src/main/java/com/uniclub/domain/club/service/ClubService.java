@@ -7,6 +7,8 @@ import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.favorite.entity.Favorite;
 import com.uniclub.domain.favorite.repository.FavoriteRepository;
 import com.uniclub.domain.user.entity.User;
+import com.uniclub.global.exception.CustomException;
+import com.uniclub.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import com.uniclub.domain.club.dto.ClubCreateRequestDto;
 import com.uniclub.domain.club.dto.ClubPromotionRegisterRequestDto;
@@ -31,7 +33,7 @@ public class ClubService {
     private final FavoriteRepository favoriteRepository;
     private final MediaRepository mediaRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ClubResponseDto> getAllClubs(User user) {
         return clubRepository.findAll().stream()
                 .map(club -> {
@@ -41,7 +43,7 @@ public class ClubService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ClubResponseDto> getClubsByCategory(User user, CategoryType categoryType) {
         return clubRepository.findByCategoryName(categoryType).stream()
                 .map(club -> {
@@ -51,10 +53,9 @@ public class ClubService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     public boolean toggleFavorite(Long clubId, User user) {
         Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 동아리입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
 
         boolean isFavorite = favoriteRepository.existsByUserAndClub(user, club);
 
@@ -62,8 +63,7 @@ public class ClubService {
             favoriteRepository.deleteByUserAndClub(user, club);
             return false;
         } else {
-            Favorite favorite = new Favorite(user, club);
-            favoriteRepository.save(favorite);
+            favoriteRepository.save(new Favorite(user, club));
             return true;
         }
     }
@@ -71,7 +71,7 @@ public class ClubService {
     //동아리 생성 (이름만 있는 상태)
     public void createClub(ClubCreateRequestDto clubCreateRequestDto) {
         if (clubRepository.existsByName(clubCreateRequestDto.getName())){   //동아리 이름 중복 검증
-            throw new RuntimeException();   //임시
+            throw new CustomException(ErrorCode.DUPLICATE_CLUB_NAME);   //임시
         };
         Club club = clubCreateRequestDto.toClubEntity(clubCreateRequestDto);
         clubRepository.save(club);
@@ -85,7 +85,7 @@ public class ClubService {
 
         Club existingClub = clubRepository.findById(clubId) //실제 존재하는 동아리인지 확인
                 .orElseThrow(
-                        () -> new RuntimeException("Club not found")    //임시
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
 
         //동아리 소개글 수정사항 반영
@@ -105,7 +105,7 @@ public class ClubService {
     public ClubPromotionResponseDto getClubPromotion(Long clubId) {
         Club club = clubRepository.findById(clubId) //실제 존재하는 동아리인지 확인
                 .orElseThrow(
-                        () -> new RuntimeException("Club not found")    //임시
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)  //임시
                 );
         ClubPromotionResponseDto clubPromotionResponseDto = ;
     }
@@ -114,7 +114,7 @@ public class ClubService {
     public void deleteClub(/*UserDetails user*/Long clubId) {
 
         clubRepository.findById(clubId).orElseThrow(
-                () -> new RuntimeException("Club not found")    //임시
+                () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
         );
 
         /*

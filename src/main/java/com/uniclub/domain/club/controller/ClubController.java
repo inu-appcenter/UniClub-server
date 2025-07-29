@@ -4,6 +4,7 @@ import com.uniclub.domain.category.entity.CategoryType;
 import com.uniclub.domain.club.dto.ClubResponseDto;
 import com.uniclub.domain.club.service.ClubService;
 import com.uniclub.domain.user.entity.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,15 +37,12 @@ public class ClubController {
 
     @GetMapping("/category")
     public ResponseEntity<List<ClubResponseDto>> getClubsByCategory(User user, @RequestParam String category) {
-        try {
-            CategoryType categoryType = CategoryType.valueOf(category);
-            List<ClubResponseDto> result = clubService.getClubsByCategory(user, categoryType);
-            if (result.isEmpty()) return ResponseEntity.noContent().build();
-            return ResponseEntity.ok(result);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        CategoryType categoryType = CategoryType.valueOf(category);
+        List<ClubResponseDto> result = clubService.getClubsByCategory(user, categoryType);
+        if (result.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(result);
     }
+
 
     @PostMapping("/{clubId}/favorite")
     public ResponseEntity<String> toggleFavorite(@PathVariable Long clubId, User user) {
@@ -55,7 +53,7 @@ public class ClubController {
 
 
     @PostMapping
-    public ResponseEntity<Void> createClub(@RequestBody ClubCreateRequestDto clubCreateRequestDto) {
+    public ResponseEntity<Void> createClub(@Valid @RequestBody ClubCreateRequestDto clubCreateRequestDto) {
         clubService.createClub(clubCreateRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
