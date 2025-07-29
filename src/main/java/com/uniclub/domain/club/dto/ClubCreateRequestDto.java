@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ClubCreateRequestDto {
 
-    @NotBlank
+    @NotBlank(message = "동아리 이름을 입력해주세요.")
     private String name;    //동아리 이름
 
 
