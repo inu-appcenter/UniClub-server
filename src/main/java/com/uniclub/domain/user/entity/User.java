@@ -19,7 +19,10 @@ public class User extends BaseTime {
     private String name;    //이름
 
     @Column(nullable = false, length = 15, unique = true)
-    private String studentNumber;   //학번
+    private String studentId;   //학번
+
+    @Column(nullable = false)
+    private String password;
 
     @Column(nullable = false, length = 20)
     private String major;    //전공
