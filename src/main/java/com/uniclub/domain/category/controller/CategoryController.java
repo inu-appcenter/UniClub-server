@@ -3,6 +3,7 @@ package com.uniclub.domain.category.controller;
 import com.uniclub.domain.category.dto.CategoryRequestDto;
 import com.uniclub.domain.category.dto.CategoryRequestDto;
 import com.uniclub.domain.category.service.CategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<Long> createCategory(@RequestBody CategoryRequestDto request) {
+    public ResponseEntity<Long> createCategory(@Valid @RequestBody CategoryRequestDto request) {
         Long id = categoryService.createCategory(request);
         return ResponseEntity.ok(id);
     }

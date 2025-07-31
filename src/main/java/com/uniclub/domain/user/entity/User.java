@@ -28,4 +28,21 @@ public class User extends BaseTime {
     private String major;    //전공
 
 
+    public User(String name, String studentId, String password, String major) {
+        this.name = name;
+        this.studentId = studentId;
+        this.password = password;
+        this.major = major;
+    }
+
+    public void updateInfo(String name, String major) {
+        if (name != null && !name.isBlank()) {
+            this.name = name;
+        }
+        if (major != null && !major.isBlank()) {
+            this.major = major;
+        }
+    }
+
+
 }
