@@ -27,7 +27,9 @@ public class ClubPromotionRegisterRequestDto {
 
     private String location;
 
-    private String presidentInfo;
+    private String presidentName;
+
+    private String presidentPhone;
 
     private String youtubeLink;
 
@@ -37,7 +39,7 @@ public class ClubPromotionRegisterRequestDto {
 
     private String backgroundImage;
 
-    private List<String> mediaLink; //이건 Media에 저장
+    private List<String> mediaLinks; //이건 Media에 저장
 
     //저장을 위해 Club Entity로 변환
     public Club toClubEntity(ClubPromotionRegisterRequestDto clubPromotionRegisterRequestDto) {
@@ -49,12 +51,17 @@ public class ClubPromotionRegisterRequestDto {
                 .description(clubPromotionRegisterRequestDto.getDescription())
                 .notice(clubPromotionRegisterRequestDto.getNotice())
                 .location(clubPromotionRegisterRequestDto.getLocation())
-                .presidentInfo(clubPromotionRegisterRequestDto.getPresidentInfo())
+                .presidentName(clubPromotionRegisterRequestDto.getPresidentName())
+                .presidentPhone(clubPromotionRegisterRequestDto.getPresidentPhone())
                 .youtubeLink(clubPromotionRegisterRequestDto.getYoutubeLink())
                 .instagramLink(clubPromotionRegisterRequestDto.getInstagramLink())
                 .profileImage(clubPromotionRegisterRequestDto.getProfileImage())
                 .backgroundImage(clubPromotionRegisterRequestDto.getBackgroundImage())
                 .build();
+    }
+
+    public List<String> getMediaLink() {
+        return mediaLinks;
     }
 
 

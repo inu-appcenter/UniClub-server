@@ -12,54 +12,70 @@ import java.util.List;
 
 @Getter
 public class ClubPromotionResponseDto {
-    private String name;
 
-    private ClubStatus status;
+    private final String name;
 
-    private LocalDateTime startTime;
+    private final ClubStatus status;
 
-    private LocalDateTime endTime;
+    private final LocalDateTime startTime;
 
-    private String description;
+    private final LocalDateTime endTime;
 
-    private String notice;
+    private final String description;
 
-    private String location;
+    private final String notice;
 
-    private String presidentInfo;
+    private final String location;
 
-    private String youtubeLink;
+    private final String presidentName;
 
-    private String instagramLink;
+    private final String presidentPhone;
 
-    private String profileImage;
+    private final String youtubeLink;
 
-    private String backgroundImage;
+    private final String instagramLink;
 
-    private List<String> mediaLink;
+    private final String profileImage;
+
+    private final String backgroundImage;
+
+    private final List<String> mediaLinks;
 
     @Builder
-    private ClubPromotionResponseDto(Club club, Media media) {
-        this.name = club.getName();
-        this.status = club.getStatus();
-        this.startTime = club.getStartTime();
-        this.endTime = club.getEndTime();
-        this.description = club.getDescription();
-        this.notice = club.getNotice();
-        this.location = club.getLocation();
-        this.presidentInfo = club.getPresidentInfo();
-        this.youtubeLink = club.getYoutubeLink();
-        this.instagramLink = club.getInstagramLink();
-        this.profileImage = club.getProfileImage();
-        this.backgroundImage = club.getBackgroundImage();
-
-        //미디어 리스트 추가
-
+    public ClubPromotionResponseDto(String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime, String description, String notice, String location, String presidentName, String presidentPhone, String youtubeLink, String instagramLink, String profileImage, String backgroundImage, List<String> mediaLinks) {
+        this.name = name;
+        this.status = status;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.description = description;
+        this.notice = notice;
+        this.location = location;
+        this.presidentName = presidentName;
+        this.presidentPhone = presidentPhone;
+        this.youtubeLink = youtubeLink;
+        this.instagramLink = instagramLink;
+        this.profileImage = profileImage;
+        this.backgroundImage = backgroundImage;
+        this.mediaLinks = mediaLinks;
     }
 
-    /*
-    public static ClubPromotionResponseDto from(Club club, Media media) {
-        return ClubPromotionResponseDto.
+
+    public static ClubPromotionResponseDto from(Club club, List<String> mediaLinks) {
+        return ClubPromotionResponseDto.builder()
+                .name(club.getName())
+                .status(club.getStatus())
+                .startTime(club.getStartTime())
+                .endTime(club.getEndTime())
+                .description(club.getDescription())
+                .notice(club.getNotice())
+                .location(club.getLocation())
+                .presidentName(club.getPresidentName())
+                .presidentPhone(club.getPresidentPhone())
+                .youtubeLink(club.getYoutubeLink())
+                .instagramLink(club.getInstagramLink())
+                .profileImage(club.getProfileImage())
+                .backgroundImage(club.getBackgroundImage())
+                .mediaLinks(mediaLinks)
+                .build();
     }
-     */
 }

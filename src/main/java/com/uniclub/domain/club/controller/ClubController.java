@@ -3,6 +3,7 @@ package com.uniclub.domain.club.controller;
 import com.uniclub.domain.category.entity.CategoryType;
 import com.uniclub.domain.club.dto.ClubCreateRequestDto;
 import com.uniclub.domain.club.dto.ClubPromotionRegisterRequestDto;
+import com.uniclub.domain.club.dto.ClubPromotionResponseDto;
 import com.uniclub.domain.club.dto.ClubResponseDto;
 import com.uniclub.domain.club.service.ClubService;
 import com.uniclub.domain.user.entity.User;
@@ -64,13 +65,12 @@ public class ClubController {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
-    /*
+
     @GetMapping("/{clubId}")
     private ResponseEntity<ClubPromotionResponseDto> getClubPromotion(@PathVariable Long clubId) {
         ClubPromotionResponseDto clubPromotionResponseDto = clubService.getClubPromotion(clubId);
         return ResponseEntity.status(HttpStatus.OK).body(clubPromotionResponseDto);
     }
-    */
 
     @DeleteMapping("/{clubId}")
     private ResponseEntity<Void> deleteClub(@AuthenticationPrincipal UserDetailsImpl user, @PathVariable Long clubId) {

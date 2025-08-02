@@ -41,8 +41,11 @@ public class Club extends BaseTime {
     @Column(length = 20)
     private String location;
 
-    @Column(length = 50)
-    private String presidentInfo;
+    @Column(length = 20)
+    private String presidentName;
+
+    @Column(length = 15)
+    private String presidentPhone;
 
     @Column(columnDefinition = "TEXT")
     private String youtubeLink;
@@ -62,7 +65,7 @@ public class Club extends BaseTime {
 
     @Builder
     public Club(String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime,
-                String description, String notice, String location, String presidentInfo,
+                String description, String notice, String location, String presidentName, String presidentPhone,
                 String youtubeLink, String instagramLink, String profileImage, String backgroundImage,
                 Category category) {
   
@@ -73,7 +76,8 @@ public class Club extends BaseTime {
         this.description = description;
         this.notice = notice;
         this.location = location;
-        this.presidentInfo = presidentInfo;
+        this.presidentName = presidentName;
+        this.presidentPhone = presidentPhone;
         this.youtubeLink = youtubeLink;
         this.instagramLink = instagramLink;
         this.profileImage = profileImage;
@@ -88,7 +92,8 @@ public class Club extends BaseTime {
         this.description = club.getDescription();
         this.notice = club.getNotice();
         this.location = club.getLocation();
-        this.presidentInfo = club.getPresidentInfo();
+        this.presidentName = club.getPresidentName();
+        this.presidentPhone = club.getPresidentPhone();
         this.youtubeLink = club.getYoutubeLink();
         this.instagramLink = club.getInstagramLink();
         this.profileImage = club.getProfileImage();
