@@ -31,6 +31,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
+
+
     public void createUser(RegisterRequestDto request) {
 
         if (!request.isAgreed()){ // 개인정보 약관 동의 안한 경우 예외처리
