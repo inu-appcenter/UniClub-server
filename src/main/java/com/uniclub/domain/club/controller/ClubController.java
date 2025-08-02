@@ -1,26 +1,21 @@
 package com.uniclub.domain.club.controller;
 
 import com.uniclub.domain.category.entity.CategoryType;
+import com.uniclub.domain.club.dto.ClubCreateRequestDto;
+import com.uniclub.domain.club.dto.ClubPromotionRegisterRequestDto;
 import com.uniclub.domain.club.dto.ClubResponseDto;
 import com.uniclub.domain.club.service.ClubService;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import com.uniclub.domain.club.dto.ClubCreateRequestDto;
-import com.uniclub.domain.club.dto.ClubPromotionRegisterRequestDto;
-import com.uniclub.domain.club.dto.ClubPromotionResponseDto;
-import com.uniclub.domain.club.entity.Club;
-import com.uniclub.domain.club.service.ClubService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -64,8 +59,8 @@ public class ClubController {
     }
 
     @PutMapping("/{clubId}")
-    public ResponseEntity<Void> promotionRegister(/*@AuthenticationPrincipal UserDetails user*/ @PathVariable Long clubId, @RequestBody ClubPromotionRegisterRequestDto clubPromotionRegisterRequestDto) {
-        clubService.saveClubPromotion(/*user*/clubId, clubPromotionRegisterRequestDto);
+    public ResponseEntity<Void> promotionRegister(@AuthenticationPrincipal UserDetailsImpl user, @PathVariable Long clubId, @RequestBody ClubPromotionRegisterRequestDto clubPromotionRegisterRequestDto) {
+        clubService.saveClubPromotion(user, clubId, clubPromotionRegisterRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -78,8 +73,8 @@ public class ClubController {
     */
 
     @DeleteMapping("/{clubId}")
-    private ResponseEntity<Void> deleteClub(/*@AuthenticationPrincipal UserDetails user*/@PathVariable Long clubId) {
-        clubService.deleteClub(/*@AuthenticationPrincipal UserDetails user*/clubId);
+    private ResponseEntity<Void> deleteClub(@AuthenticationPrincipal UserDetailsImpl user, @PathVariable Long clubId) {
+        clubService.deleteClub(user, clubId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

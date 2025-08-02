@@ -2,8 +2,10 @@ package com.uniclub.domain.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class RegisterRequestDto {
 
     @NotBlank(message = "학번을 입력해주세요.")

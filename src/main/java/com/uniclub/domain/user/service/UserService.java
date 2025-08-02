@@ -17,10 +17,8 @@ public class UserService {
     private final UserRepository userRepository;
 
     public void updateUser(UserDetailsImpl userDetails, InformationModificationRequestDto request) {
-        String studentId = userDetails.getStudentId();
-
         // 유저 조회, 존재하지 않는 경우 예외처리
-        User user = userRepository.findByStudentId(studentId)
+        User user = userRepository.findByStudentId(userDetails.getStudentId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 영속성 컨택스트 이용(더티체킹)
@@ -28,10 +26,8 @@ public class UserService {
     }
 
     public void deleteUser(UserDetailsImpl userDetails) {
-        String studentId = userDetails.getStudentId();
-
         // 유저 조회, 존재하지 않는 경우 예외처리
-        User user = userRepository.findByStudentId(studentId)
+        User user = userRepository.findByStudentId(userDetails.getStudentId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         userRepository.delete(user);

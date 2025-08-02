@@ -6,7 +6,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/UniClub?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/UniClub?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: root
     password: root
 
@@ -21,6 +21,10 @@ spring:
     hibernate:
       ddl-auto: update
 
-  jwt:
-    secret: 5839c9758dbe763bf370e521c0697f7a04ffea6ae18b9d3ceb6a10f726994d00
-    tokenValidityInMilliseconds: 3600000 # 밀리초 (1시간)
+swagger:
+  server-url: http://localhost:8080
+
+jwt:
+  header: Authorization
+  secret: c2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtc2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQK
+  tokenValidityInMilliseconds: 86400000

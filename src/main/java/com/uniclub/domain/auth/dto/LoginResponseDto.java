@@ -1,14 +1,19 @@
 package com.uniclub.domain.auth.dto;
 
-import com.uniclub.global.exception.ErrorCode;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public class LoginResponseDto {
-    private Long userId;
-    private String accessToken;
+    private final Long userId;
+    private final String accessToken;
     private final String tokenType = "Bearer";
-    private Long expiresIn;
+    private final Long expiresIn;
+
+    @Builder
+    public LoginResponseDto(Long userId, String accessToken, Long expiresIn) {
+        this.userId = userId;
+        this.accessToken = accessToken;
+        this.expiresIn = expiresIn;
+    }
 }

@@ -21,7 +21,6 @@ public class Media extends BaseTime {
     private String mediaLink;   //소개글 이미지, 영상 url
 
     @ColumnDefault("false")
-    @Column(nullable = false, columnDefinition = "TEXT")
     private Boolean isMain; //대표 이미지 설정
 
     @ManyToOne(fetch = FetchType.LAZY)

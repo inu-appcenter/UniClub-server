@@ -14,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,23 +52,27 @@ public class AuthService {
     }
 
     public LoginResponseDto login(LoginRequestDto request) {
-        // 존재하지 않는 유저 정보일 때 예외처리, authentication에서 유저 정보를 추출하면 DB 조회 더 안해도 되지만 에러 핸들링을 위함
-        User user = userRepository.findByStudentId(request.getStudentId())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        System.out.println("Login 요청 들어옴: " + request.getStudentId());
+        //인증 객체 생성
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getStudentId(), request.getPassword());
 
-        //사용자 인증 & authentication 객체 생성
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getStudentId(), request.getPassword())
-        );
+        //인증 메니저로 인증
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
-        // jwt 토큰 생성
+        //인증 성공 시 SecurityContext에 저장
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        //Jwt 토큰 생성
         String token = jwtTokenProvider.createToken(authentication);
 
-        // 토큰 유효기간 (초 단위로 변환)
+        //토큰 유효기간 (초 단위로 변환)
         Long expiresIn = jwtTokenProvider.getTokenValidityInMilliseconds() / 1000;
 
-        return new LoginResponseDto(user.getUserId(), token, expiresIn);
-    }
+        // 인증된 사용자 정보 추출
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getUserId();
 
+        return new LoginResponseDto(userId, token, expiresIn);
+    }
 
 }

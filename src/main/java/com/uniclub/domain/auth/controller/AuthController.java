@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthService authService;
 
+
     @PostMapping("/register")
     public ResponseEntity<Void> createUser(@Valid @RequestBody RegisterRequestDto request) {
         authService.createUser(request);
@@ -34,8 +35,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto request) {
-        LoginResponseDto response = authService.login(request);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+        LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(loginResponseDto);
     }
 }

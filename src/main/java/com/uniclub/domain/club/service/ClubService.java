@@ -1,26 +1,23 @@
 package com.uniclub.domain.club.service;
 
 import com.uniclub.domain.category.entity.CategoryType;
+import com.uniclub.domain.club.dto.ClubCreateRequestDto;
+import com.uniclub.domain.club.dto.ClubPromotionRegisterRequestDto;
 import com.uniclub.domain.club.dto.ClubResponseDto;
 import com.uniclub.domain.club.entity.Club;
+import com.uniclub.domain.club.entity.Media;
 import com.uniclub.domain.club.repository.ClubRepository;
+import com.uniclub.domain.club.repository.MediaRepository;
 import com.uniclub.domain.favorite.entity.Favorite;
 import com.uniclub.domain.favorite.repository.FavoriteRepository;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import com.uniclub.domain.club.dto.ClubCreateRequestDto;
-import com.uniclub.domain.club.dto.ClubPromotionRegisterRequestDto;
-import com.uniclub.domain.club.dto.ClubPromotionResponseDto;
-import com.uniclub.domain.club.entity.Club;
-import com.uniclub.domain.club.entity.Media;
-import com.uniclub.domain.club.repository.ClubRepository;
-import com.uniclub.domain.club.repository.MediaRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,7 +75,7 @@ public class ClubService {
     }
 
     //동아리 소개글 작성
-    public void saveClubPromotion(/*UserDetails user*/ Long clubId, ClubPromotionRegisterRequestDto promotionRegisterRequestDto) {
+    public void saveClubPromotion(UserDetails user, Long clubId, ClubPromotionRegisterRequestDto promotionRegisterRequestDto) {
         /*
             유저 권한 체크 추가 예정
         */
@@ -110,8 +107,9 @@ public class ClubService {
         ClubPromotionResponseDto clubPromotionResponseDto = ;
     }
     */
+
     //동아리 삭제
-    public void deleteClub(/*UserDetails user*/Long clubId) {
+    public void deleteClub(UserDetails user, Long clubId) {
 
         clubRepository.findById(clubId).orElseThrow(
                 () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)

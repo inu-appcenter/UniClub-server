@@ -4,9 +4,12 @@ import com.uniclub.domain.user.entity.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
@@ -39,7 +42,7 @@ public class UserDetailsImpl implements UserDetails {
     //이름
     @Override
     public String getUsername() {
-        return this.user.getName();
+        return this.user.getStudentId();
     }
 
     //계정 만료 여부
@@ -68,6 +71,7 @@ public class UserDetailsImpl implements UserDetails {
 
     // 일반 로그인용 빌더
     public static UserDetailsImpl of(User user) {
-        return new UserDetailsImpl(user, null);
+        List<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
+        return new UserDetailsImpl(user, authorities);
     }
 }

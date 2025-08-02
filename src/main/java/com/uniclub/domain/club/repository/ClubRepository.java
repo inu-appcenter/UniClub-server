@@ -13,4 +13,9 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     @Query("SELECT c FROM Club c JOIN c.category ca WHERE ca.name = :categoryName")
     List<Club> findByCategoryName(CategoryType categoryName);
     Boolean existsByName(String name);
+
+    @Query("SELECT c FROM Club c WHERE " +
+            "(LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(c.description) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    List<Club> findByKeyword(String keyword);
 }
