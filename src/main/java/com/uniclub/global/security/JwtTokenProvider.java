@@ -34,6 +34,9 @@ public class JwtTokenProvider {
         this.tokenValidityInMilliseconds = tokenValidityInMilliseconds;
     }
 
+    public long getTokenValidityInMilliseconds() {
+        return tokenValidityInMilliseconds;
+    }
 
     @PostConstruct
     public void init() {

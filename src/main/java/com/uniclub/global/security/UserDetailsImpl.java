@@ -26,6 +26,10 @@ public class UserDetailsImpl implements UserDetails {
         return this.user.getUserId();
     }
 
+    public String getStudentId() {
+        return this.user.getStudentId();
+    }
+
     //비밀번호
     @Override
     public String getPassword() {

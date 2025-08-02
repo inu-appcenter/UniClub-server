@@ -1,0 +1,26 @@
+# 서버 포트 설정
+server:
+  port: 8080
+
+# database 연동 설정
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/UniClub?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    username: root
+    password: root
+
+  thymeleaf:
+    cache: false
+
+  # spring data jpa 설정
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+  jwt:
+    secret: 5839c9758dbe763bf370e521c0697f7a04ffea6ae18b9d3ceb6a10f726994d00
+    tokenValidityInMilliseconds: 3600000 # 밀리초 (1시간)

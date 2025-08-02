@@ -4,6 +4,7 @@ import com.uniclub.domain.category.entity.CategoryType;
 import com.uniclub.domain.club.dto.ClubResponseDto;
 import com.uniclub.domain.club.service.ClubService;
 import com.uniclub.domain.user.entity.User;
+import com.uniclub.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,24 +30,28 @@ public class ClubController {
     private final ClubService clubService;
 
     @GetMapping
-    public ResponseEntity<List<ClubResponseDto>> getAllClubs(User user) {
-        List<ClubResponseDto> result = clubService.getAllClubs(user);
+    public ResponseEntity<List<ClubResponseDto>> getAllClubs(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<ClubResponseDto> result = clubService.getAllClubs(userDetails.getUser());
         if (result.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/category")
-    public ResponseEntity<List<ClubResponseDto>> getClubsByCategory(User user, @RequestParam String category) {
+    public ResponseEntity<List<ClubResponseDto>> getClubsByCategory(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestParam String category) {
         CategoryType categoryType = CategoryType.valueOf(category);
-        List<ClubResponseDto> result = clubService.getClubsByCategory(user, categoryType);
+        List<ClubResponseDto> result = clubService.getClubsByCategory(userDetails.getUser(), categoryType);
         if (result.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(result);
     }
 
-
     @PostMapping("/{clubId}/favorite")
-    public ResponseEntity<String> toggleFavorite(@PathVariable Long clubId, User user) {
-        boolean isNowFavorite = clubService.toggleFavorite(clubId, user);
+    public ResponseEntity<String> toggleFavorite(
+            @PathVariable Long clubId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        boolean isNowFavorite = clubService.toggleFavorite(clubId, userDetails.getUser());
         String message = isNowFavorite ? "관심 동아리 등록 완료" : "관심 동아리 등록 취소 완료";
         return ResponseEntity.ok(message);
     }
