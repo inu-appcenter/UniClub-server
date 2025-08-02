@@ -13,6 +13,7 @@ import com.uniclub.domain.favorite.repository.FavoriteRepository;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
+import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -75,7 +76,7 @@ public class ClubService {
     }
 
     //동아리 소개글 작성
-    public void saveClubPromotion(UserDetails user, Long clubId, ClubPromotionRegisterRequestDto promotionRegisterRequestDto) {
+    public void saveClubPromotion(UserDetailsImpl user, Long clubId, ClubPromotionRegisterRequestDto promotionRegisterRequestDto) {
         /*
             유저 권한 체크 추가 예정
         */
@@ -109,7 +110,7 @@ public class ClubService {
     */
 
     //동아리 삭제
-    public void deleteClub(UserDetails user, Long clubId) {
+    public void deleteClub(UserDetailsImpl user, Long clubId) {
 
         clubRepository.findById(clubId).orElseThrow(
                 () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)

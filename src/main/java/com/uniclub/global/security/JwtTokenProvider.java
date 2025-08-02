@@ -1,5 +1,7 @@
 package com.uniclub.global.security;
 
+import com.uniclub.domain.user.entity.User;
+import com.uniclub.domain.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -11,7 +13,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
+
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -24,18 +27,16 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
 
+    private final UserRepository userRepository;
     private Key key;
     private final String secret;
     private final long tokenValidityInMilliseconds;
     private static final String AUTHORITIES_KEY = "auth";
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secret, @Value("${jwt.tokenValidityInMilliseconds}") long tokenValidityInMilliseconds) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secret, @Value("${jwt.tokenValidityInMilliseconds}") long tokenValidityInMilliseconds, UserRepository userRepository) {
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInMilliseconds;
-    }
-
-    public long getTokenValidityInMilliseconds() {
-        return tokenValidityInMilliseconds;
+        this.userRepository = userRepository;
     }
 
     @PostConstruct
@@ -78,10 +79,12 @@ public class JwtTokenProvider {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        //객체 생성
-        User principal = new User(claims.getSubject(), "", authorities);
+        //객체 생성 (UserDetailsImpl 객체로 생성)
+        String studentId = claims.getSubject();
+        User user = userRepository.findByStudentId(studentId).orElseThrow(() -> new UsernameNotFoundException(studentId));
+        UserDetailsImpl userDetails = new UserDetailsImpl(user, authorities);
 
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+        return new UsernamePasswordAuthenticationToken(userDetails, token, authorities);
     }
 
     //토큰 검증
@@ -98,4 +101,7 @@ public class JwtTokenProvider {
     }
 
 
+    public Long getTokenValidityInMilliseconds() {
+        return this.tokenValidityInMilliseconds;
+    }
 }
