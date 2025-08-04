@@ -55,7 +55,7 @@ public class ClubPromotionRegisterRequestDto {
     private String backgroundImage;
 
     @Schema(description = "첨부 이미지, 영상 url")
-    private List<String> mediaLink; //이건 Media에 저장
+    private List<String> mediaLinks; //이건 Media에 저장
 
     //저장을 위해 Club Entity로 변환
     public Club toClubEntity(ClubPromotionRegisterRequestDto clubPromotionRegisterRequestDto) {
@@ -74,6 +74,10 @@ public class ClubPromotionRegisterRequestDto {
                 .profileImage(clubPromotionRegisterRequestDto.getProfileImage())
                 .backgroundImage(clubPromotionRegisterRequestDto.getBackgroundImage())
                 .build();
+    }
+
+    public List<String> getMediaLink() {
+        return mediaLinks;
     }
 
 

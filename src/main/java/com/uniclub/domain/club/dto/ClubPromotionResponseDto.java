@@ -16,70 +16,82 @@ import java.util.List;
 public class ClubPromotionResponseDto {
 
     @Schema(description = "동아리 이름", example = "앱센터")
-    private String name;
+    private final String name;
 
     @Schema(description = "동아리 모집 현황", example = "CLOSED")
-    private ClubStatus status;
+    private final ClubStatus status;
 
     @Schema(description = "모집 시작 시간", example = "2025-08-03T14:30:00")
-    private LocalDateTime startTime;
+    private final LocalDateTime startTime;
 
     @Schema(description = "모집 마감 시간", example = "2025-08-03T14:30:00")
-    private LocalDateTime endTime;
+    private final LocalDateTime endTime;
 
     @Schema(description = "소개글")
-    private String description;
+    private final String description;
 
     @Schema(description = "공지")
-    private String notice;
+    private final String notice;
 
     @Schema(description = "동아리방 위치", example = "4호관 107호")
-    private String location;
+    private final String location;
 
     @Schema(description = "회장 이름", example = "홍길동")
-    private String presidentName;
+    private final String presidentName;
 
     @Schema(description = "회장 전화번호", example = "010-1234-5678")
-    private String presidentPhone;
+    private final String presidentPhone;
 
     @Schema(description = "유튜브 url")
-    private String youtubeLink;
+    private final String youtubeLink;
 
     @Schema(description = "인스타그램 url")
-    private String instagramLink;
+    private final String instagramLink;
 
     @Schema(description = "프로필 이미지 url")
-    private String profileImage;
+    private final String profileImage;
 
     @Schema(description = "배경 이미지 url")
-    private String backgroundImage;
+    private final String backgroundImage;
 
     @Schema(description = "첨부 이미지, 영상 url")
-    private List<String> mediaLink; //이건 Media에 저장
+    private final List<String> mediaLinks; //이건 Media에 저장
 
     @Builder
-    private ClubPromotionResponseDto(Club club, Media media) {
-        this.name = club.getName();
-        this.status = club.getStatus();
-        this.startTime = club.getStartTime();
-        this.endTime = club.getEndTime();
-        this.description = club.getDescription();
-        this.notice = club.getNotice();
-        this.location = club.getLocation();
-        this.presidentName = club.getPresidentName();
-        this.presidentPhone = club.getPresidentPhone();
-        this.youtubeLink = club.getYoutubeLink();
-        this.instagramLink = club.getInstagramLink();
-        this.profileImage = club.getProfileImage();
-        this.backgroundImage = club.getBackgroundImage();
-
-        //미디어 리스트 추가
-
+    public ClubPromotionResponseDto(String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime, String description, String notice, String location, String presidentName, String presidentPhone, String youtubeLink, String instagramLink, String profileImage, String backgroundImage, List<String> mediaLinks) {
+        this.name = name;
+        this.status = status;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.description = description;
+        this.notice = notice;
+        this.location = location;
+        this.presidentName = presidentName;
+        this.presidentPhone = presidentPhone;
+        this.youtubeLink = youtubeLink;
+        this.instagramLink = instagramLink;
+        this.profileImage = profileImage;
+        this.backgroundImage = backgroundImage;
+        this.mediaLinks = mediaLinks;
     }
 
-    /*
-    public static ClubPromotionResponseDto from(Club club, Media media) {
-        return ClubPromotionResponseDto.
+
+    public static ClubPromotionResponseDto from(Club club, List<String> mediaLinks) {
+        return ClubPromotionResponseDto.builder()
+                .name(club.getName())
+                .status(club.getStatus())
+                .startTime(club.getStartTime())
+                .endTime(club.getEndTime())
+                .description(club.getDescription())
+                .notice(club.getNotice())
+                .location(club.getLocation())
+                .presidentName(club.getPresidentName())
+                .presidentPhone(club.getPresidentPhone())
+                .youtubeLink(club.getYoutubeLink())
+                .instagramLink(club.getInstagramLink())
+                .profileImage(club.getProfileImage())
+                .backgroundImage(club.getBackgroundImage())
+                .mediaLinks(mediaLinks)
+                .build();
     }
-     */
 }

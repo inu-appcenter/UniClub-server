@@ -2,6 +2,7 @@ package com.uniclub.domain.club.controller;
 
 import com.uniclub.domain.club.dto.ClubCreateRequestDto;
 import com.uniclub.domain.club.dto.ClubPromotionRegisterRequestDto;
+import com.uniclub.domain.club.dto.ClubPromotionResponseDto;
 import com.uniclub.domain.club.dto.ClubResponseDto;
 import com.uniclub.domain.club.service.ClubService;
 import com.uniclub.global.security.UserDetailsImpl;
@@ -59,13 +60,12 @@ public class ClubController implements ClubApiSpecification {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    /*
+
     @GetMapping("/{clubId}")
     private ResponseEntity<ClubPromotionResponseDto> getClubPromotion(@PathVariable Long clubId) {
         ClubPromotionResponseDto clubPromotionResponseDto = clubService.getClubPromotion(clubId);
         return ResponseEntity.status(HttpStatus.OK).body(clubPromotionResponseDto);
     }
-    */
 
     @DeleteMapping("/{clubId}")
     public ResponseEntity<Void> deleteClub(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId) {

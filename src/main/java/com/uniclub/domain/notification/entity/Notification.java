@@ -24,6 +24,10 @@ public class Notification extends BaseTime {
     @Column(nullable = false)
     private Boolean isRead; //읽음 여부
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private NotificationType type;  //알림 유형
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")    //FK
     private User user;
