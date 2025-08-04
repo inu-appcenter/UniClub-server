@@ -54,7 +54,6 @@ public class AuthService {
     }
 
     public LoginResponseDto login(LoginRequestDto request) {
-        System.out.println("Login 요청 들어옴: " + request.getStudentId());
         //인증 객체 생성
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getStudentId(), request.getPassword());
 
