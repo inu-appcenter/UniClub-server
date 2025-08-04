@@ -16,13 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
 
-    public void updateUser(UserDetailsImpl userDetails, InformationModificationRequestDto request) {
+    public void updateUser(UserDetailsImpl userDetails, InformationModificationRequestDto informationModificationRequestDto) {
         // 유저 조회, 존재하지 않는 경우 예외처리
         User user = userRepository.findByStudentId(userDetails.getStudentId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 영속성 컨택스트 이용(더티체킹)
-        user.updateInfo(request.getName(), request.getMajor());
+        user.updateInfo(informationModificationRequestDto.getName(), informationModificationRequestDto.getMajor());
     }
 
     public void deleteUser(UserDetailsImpl userDetails) {

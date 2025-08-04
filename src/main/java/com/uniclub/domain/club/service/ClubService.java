@@ -15,12 +15,16 @@ import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -32,31 +36,50 @@ public class ClubService {
     private final MediaRepository mediaRepository;
 
     @Transactional(readOnly = true)
-    public List<ClubResponseDto> getAllClubs(User user) {
-        return clubRepository.findAll().stream()
-                .map(club -> {
-                    boolean isFavorite = favoriteRepository.existsByUserAndClub(user, club);
-                    return ClubResponseDto.from(club, isFavorite);
-                })
-                .collect(Collectors.toList());
+    public Slice<ClubResponseDto> getClubs(
+            Long userId, String category, String sortBy, String cursorName, int size) {
+
+        // String -> Enum 타입 변경, 카테고리 null인 경우 전체 동아리 조회
+        CategoryType categoryName = (category == null) ? null : CategoryType.from(category);
+        Pageable pageable = PageRequest.of(0, size + 1);
+        // 정렬 기준 별 동아리 목록 조회
+        Slice<Club> clubs = switch (sortBy) {
+            case "name" -> clubRepository.findClubsByCursorOrderByName(categoryName, cursorName, pageable);
+            case "like" -> clubRepository.findClubsByCursorOrderByFavorite(userId, categoryName, cursorName, pageable);
+            case "status" -> clubRepository.findClubsByCursorOrderByStatus(categoryName, cursorName, pageable);
+
+            // 유효하지 않은 정렬 기준 예외처리
+            default -> throw new CustomException(ErrorCode.INVALID_SORT_CONDITION);
+        };
+
+        // 동아리 목록 추출
+        List<Club> clubList = clubs.getContent();
+        // 유저가 관심 등록한 동아리 목록
+        List<Long> favoriteClubIds = favoriteRepository.findClubIdsByUserId(userId);
+        // O(n) -> O(1)
+        Set<Long> favoriteSet = new HashSet<>(favoriteClubIds);
+
+        // 추출된 동아리 목록에서 관심등록 여부 확인 후 DTO 리스트 생성
+        List<ClubResponseDto> content = new ArrayList<>();
+        for (Club club : clubList) {
+            boolean isFavorite = favoriteSet.contains(club.getClubId());
+            ClubResponseDto dto = ClubResponseDto.from(club, isFavorite);
+            content.add(dto);
+        }
+        return new SliceImpl<>(content, pageable, clubs.hasNext());
     }
 
-    @Transactional(readOnly = true)
-    public List<ClubResponseDto> getClubsByCategory(User user, CategoryType categoryType) {
-        return clubRepository.findByCategoryName(categoryType).stream()
-                .map(club -> {
-                    boolean isFavorite = favoriteRepository.existsByUserAndClub(user, club);
-                    return ClubResponseDto.from(club, isFavorite);
-                })
-                .collect(Collectors.toList());
-    }
 
-    public boolean toggleFavorite(Long clubId, User user) {
+    public boolean toggleFavorite(Long clubId, UserDetailsImpl userDetails) {
+        // 존재하는 동아리인지 확인
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+        User user = userDetails.getUser();
 
-        boolean isFavorite = favoriteRepository.existsByUserAndClub(user, club);
+        // 관심 동아리인지 확인
+        boolean isFavorite = favoriteRepository.existsByUserIdAndClubId(user.getUserId(), clubId);
 
+        // true면 관심동아리 등록, false면 취소
         if (isFavorite) {
             favoriteRepository.deleteByUserAndClub(user, club);
             return false;
@@ -76,7 +99,7 @@ public class ClubService {
     }
 
     //동아리 소개글 작성
-    public void saveClubPromotion(UserDetailsImpl user, Long clubId, ClubPromotionRegisterRequestDto promotionRegisterRequestDto) {
+    public void saveClubPromotion(UserDetailsImpl userDetails, Long clubId, ClubPromotionRegisterRequestDto promotionRegisterRequestDto) {
         /*
             유저 권한 체크 추가 예정
         */
@@ -110,7 +133,7 @@ public class ClubService {
     */
 
     //동아리 삭제
-    public void deleteClub(UserDetailsImpl user, Long clubId) {
+    public void deleteClub(UserDetailsImpl userDetails, Long clubId) {
 
         clubRepository.findById(clubId).orElseThrow(
                 () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
