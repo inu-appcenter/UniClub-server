@@ -3,6 +3,7 @@ package com.uniclub.global.swagger;
 import com.uniclub.domain.category.entity.CategoryType;
 import com.uniclub.domain.club.dto.ClubCreateRequestDto;
 import com.uniclub.domain.club.dto.ClubPromotionRegisterRequestDto;
+import com.uniclub.domain.club.dto.ClubPromotionResponseDto;
 import com.uniclub.domain.club.dto.ClubResponseDto;
 import com.uniclub.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,6 +46,9 @@ public interface ClubApiSpecification {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long clubId,
             @RequestBody ClubPromotionRegisterRequestDto clubPromotionRegisterRequestDto);
+
+    @Operation(summary = "동아리 홍보페이지 조회")
+    public ResponseEntity<ClubPromotionResponseDto> getClubPromotion(@PathVariable Long clubId);
 
     @Operation(summary = "동아리 삭제")
     public ResponseEntity<Void> deleteClub(

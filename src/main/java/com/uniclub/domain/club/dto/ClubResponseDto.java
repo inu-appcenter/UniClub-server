@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 
-@Schema(description = "동아리 리스트 조회 응답 DTO")
+@Schema(description = "동아리 조회 응답 DTO")
 @Getter
 public class ClubResponseDto {
 

@@ -76,10 +76,6 @@ public class ClubPromotionRegisterRequestDto {
                 .build();
     }
 
-    public List<String> getMediaLink() {
-        return mediaLinks;
-    }
-
 
 
 }

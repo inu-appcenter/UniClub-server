@@ -104,14 +104,14 @@ public class ClubService {
     }
 
     //동아리 소개글 작성
-    public void saveClubPromotion(UserDetailsImpl user, Long clubId, ClubPromotionRegisterRequestDto promotionRegisterRequestDto) {
+    public void saveClubPromotion(UserDetailsImpl userDetails, Long clubId, ClubPromotionRegisterRequestDto promotionRegisterRequestDto) {
         Club existingClub = clubRepository.findById(clubId) //실제 존재하는 동아리인지 확인
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
 
         //해당 동아리의 회장인지 확인
-        Role userRole = checkRole(user.getUserId(), clubId);
+        Role userRole = checkRole(userDetails.getUserId(), clubId);
         if (userRole != Role.PRESIDENT) {
             throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
         }
@@ -120,7 +120,7 @@ public class ClubService {
         existingClub.update(promotionRegisterRequestDto.toClubEntity(promotionRegisterRequestDto));
 
         //미디어 저장 및 매핑
-        List<String> mediaLinks = promotionRegisterRequestDto.getMediaLink();
+        List<String> mediaLinks = promotionRegisterRequestDto.getMediaLinks();
         for (String mediaLink : mediaLinks) {
             Media media = saveMedia(mediaLink, existingClub);
             mediaRepository.save(media);
@@ -147,7 +147,7 @@ public class ClubService {
 
 
     //(개발자 전용) 동아리 삭제
-    public void deleteClub(UserDetailsImpl user, Long clubId) {
+    public void deleteClub(UserDetailsImpl userDetails, Long clubId) {
 
         clubRepository.findById(clubId).orElseThrow(
                 () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)

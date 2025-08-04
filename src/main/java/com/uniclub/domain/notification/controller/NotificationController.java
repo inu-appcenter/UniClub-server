@@ -3,6 +3,7 @@ package com.uniclub.domain.notification.controller;
 import com.uniclub.domain.notification.dto.NotificationResponseDto;
 import com.uniclub.domain.notification.service.NotificationService;
 import com.uniclub.global.security.UserDetailsImpl;
+import com.uniclub.global.swagger.NotificationApiSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +17,14 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users/notifications")
-public class NotificationController {
+public class NotificationController implements NotificationApiSpecification {
 
     private final NotificationService notificationService;
 
 
     @GetMapping
-    public ResponseEntity<List<NotificationResponseDto>> getNotification(@AuthenticationPrincipal UserDetailsImpl user) {
-        List<NotificationResponseDto> notificationResponseDtoList = notificationService.getNotification(user);
+    public ResponseEntity<List<NotificationResponseDto>> getNotification(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<NotificationResponseDto> notificationResponseDtoList = notificationService.getNotification(userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(notificationResponseDtoList);
     }
 }
