@@ -71,6 +71,7 @@ public class ClubController implements ClubApiSpecification {
     public ResponseEntity<Void> deleteClub(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId) {
         clubService.deleteClub(userDetails, clubId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
     }
 
 }
