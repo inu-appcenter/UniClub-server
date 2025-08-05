@@ -237,7 +237,6 @@ public interface ClubApiSpecification {
             )
     })
     ResponseEntity<Void> deleteClub(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long clubId
     );
 }

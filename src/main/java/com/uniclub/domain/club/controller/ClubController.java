@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/clubs")
-public class ClubController {
+public class ClubController implements ClubApiSpecification {
 
     private final ClubService clubService;
 
@@ -31,6 +31,7 @@ public class ClubController {
         Slice<ClubResponseDto> slice = clubService.getClubs(
                 userDetails.getUser().getUserId(), category, sortBy, cursorName, size
         );
+        // 페이지 응답에 필요한 정보만 주기 위한 DTO로 변환
         PageClubResponseDto<ClubResponseDto> clubResponseDtoList = new PageClubResponseDto<>(slice.getContent(), slice.hasNext());
         return ResponseEntity.status(HttpStatus.OK).body(clubResponseDtoList);
     }
