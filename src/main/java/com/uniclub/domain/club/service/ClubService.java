@@ -40,6 +40,7 @@ public class ClubService {
     private final FavoriteRepository favoriteRepository;
     private final MediaRepository mediaRepository;
 
+    //동아리 목록 조회
     @Transactional(readOnly = true)
     public Slice<ClubResponseDto> getClubs(
             Long userId, String category, String sortBy, String cursorName, int size) {
@@ -75,6 +76,7 @@ public class ClubService {
     }
 
 
+    //좋아요 토글링
     public boolean toggleFavorite(Long clubId, UserDetailsImpl userDetails) {
         // 존재하는 동아리인지 확인
         Club club = clubRepository.findById(clubId)
@@ -130,6 +132,7 @@ public class ClubService {
 
 
     //동아리 소개글 불러오기
+    @Transactional(readOnly = true)
     public ClubPromotionResponseDto getClubPromotion(Long clubId) {
         Club club = clubRepository.findById(clubId) //실제 존재하는 동아리인지 확인
                 .orElseThrow(
@@ -147,7 +150,7 @@ public class ClubService {
 
 
     //(개발자 전용) 동아리 삭제
-    public void deleteClub(UserDetailsImpl userDetails, Long clubId) {
+    public void deleteClub(Long clubId) {
 
         clubRepository.findById(clubId).orElseThrow(
                 () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
@@ -165,6 +168,7 @@ public class ClubService {
     }
 
     //특정 동아리 유저 권한 확인
+    @Transactional(readOnly = true)
     public Role checkRole(Long userId, Long clubId) {
         MemberShip memberShip = membershipRepository.findByUserIdAndClubId(userId, clubId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
