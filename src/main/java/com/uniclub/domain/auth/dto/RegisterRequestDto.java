@@ -22,9 +22,8 @@ public class RegisterRequestDto {
     @NotBlank(message = "이름을 입력해주세요.")
     private String name;
 
-    // 직접 입력받는 방식이면 NotBlank 필요, 선택 방식이면 필요 X
-    // @NotBlank(message = "전공을 입력해주세요.")
     @Schema(description = "사용자 전공", example = "컴퓨터공학부")
+    @NotBlank(message = "전공을 입력해주세요.")
     private String major;
 
     @Schema(description = "개인정보 약관 동의", example = "true")

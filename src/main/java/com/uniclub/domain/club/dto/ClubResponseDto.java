@@ -14,19 +14,19 @@ import lombok.Getter;
 public class ClubResponseDto {
 
     @Schema(description = "동아리 PK", example = "1")
-    private Long id;
+    private final Long id;
 
     @Schema(description = "동아리 이름", example = "앱센터")
-    private String name;
+    private final String name;
 
     @Schema(description = "동아리 소개글")
-    private String info;
+    private final String info;
 
     @Schema(description = "동아리 모집 상태", example = "CLOSED")
-    private ClubStatus status;
+    private final ClubStatus status;
 
     @Schema(description = "관심동아리 여부", example = "true")
-    private boolean favorite;
+    private final boolean favorite;
 
     @Builder
     private ClubResponseDto(Long id, String name, String info, ClubStatus status, boolean favorite) {
