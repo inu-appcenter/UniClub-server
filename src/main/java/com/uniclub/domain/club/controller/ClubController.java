@@ -31,10 +31,10 @@ public class ClubController implements ClubApiSpecification {
             @RequestParam(required = false) String cursorName,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Slice<ClubResponseDto> result = clubService.getClubs(
+        Slice<ClubResponseDto> clubResponseDtoList = clubService.getClubs(
                 userDetails.getUser().getUserId(), category, sortBy, cursorName, size
         );
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        return ResponseEntity.status(HttpStatus.OK).body(clubResponseDtoList);
     }
 
 
