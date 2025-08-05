@@ -19,6 +19,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
 
     //알림 불러오기
+    @Transactional(readOnly = true)
     public List<NotificationResponseDto> getNotification(UserDetailsImpl user) {
         List<Notification> notificationList = notificationRepository.findByUserId(user.getUserId());
         List<NotificationResponseDto> notificationResponseDtoList = new ArrayList<>();

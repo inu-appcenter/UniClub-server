@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/clubs")
-public class ClubController implements ClubApiSpecification {
+public class ClubController {
 
     private final ClubService clubService;
 
@@ -66,9 +66,10 @@ public class ClubController implements ClubApiSpecification {
     }
 
     @DeleteMapping("/{clubId}")
-    public ResponseEntity<Void> deleteClub(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId) {
-        clubService.deleteClub(userDetails, clubId);
+    public ResponseEntity<Void> deleteClub(@PathVariable Long clubId) {
+        clubService.deleteClub(clubId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
     }
 
 }
