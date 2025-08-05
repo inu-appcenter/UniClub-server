@@ -41,7 +41,7 @@ public class Club extends BaseTime {
     @Column(length = 20)
     private String location;
 
-    @Column(length = 20)
+    @Column(length = 50)
     private String presidentName;
 
     @Column(length = 15)

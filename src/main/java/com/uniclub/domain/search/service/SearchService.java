@@ -24,10 +24,10 @@ public class SearchService {
 
 
     @Transactional(readOnly = true)
-    public List<ClubResponseDto> search(UserDetailsImpl user, String keyword) {
+    public List<ClubResponseDto> search(UserDetailsImpl userDetails, String keyword) {
         List<Club> clubs = clubRepository.findByKeyword(keyword);   //키워드를 통해 동아리 명, 설명글을 조회하여 관련 동아리 목록 가져오기
 
-        List<Long> favorites = favoriteRepository.findClubIdsByUserId(user.getUserId());    //좋아요 누른 동아리 아이디 조회
+        List<Long> favorites = favoriteRepository.findClubIdsByUserId(userDetails.getUserId());    //좋아요 누른 동아리 아이디 조회
 
         List<ClubResponseDto> clubResponseDtoList = new ArrayList<>();
         Set<Long> favoriteSet = new HashSet<>(favorites);   //성능 최적화 시간 복잡도 O(n) -> O(1)

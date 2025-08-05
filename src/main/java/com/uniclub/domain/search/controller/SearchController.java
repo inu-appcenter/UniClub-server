@@ -4,6 +4,7 @@ import com.uniclub.domain.club.dto.ClubResponseDto;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.search.service.SearchService;
 import com.uniclub.global.security.UserDetailsImpl;
+import com.uniclub.global.swagger.SearchApiSpecification;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
@@ -19,13 +20,13 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/search")
-public class SearchController {
+public class SearchController implements SearchApiSpecification {
 
     private final SearchService searchService;
 
     @GetMapping
-    public ResponseEntity<List<ClubResponseDto>> search(@AuthenticationPrincipal UserDetailsImpl user, @RequestParam String keyword) {
-        List<ClubResponseDto> clubResponseDtoList = searchService.search(user, keyword);
+    public ResponseEntity<List<ClubResponseDto>> search(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam String keyword) {
+        List<ClubResponseDto> clubResponseDtoList = searchService.search(userDetails, keyword);
         return ResponseEntity.status(HttpStatus.OK).body(clubResponseDtoList);
     }
 }
