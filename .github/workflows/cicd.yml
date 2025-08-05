@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Make application yml
         run: |
-          mkdir ./src/main/resources
+          mkdir -p ./src/main/resources
           touch ./src/main/resources/application.yml
           echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
 
