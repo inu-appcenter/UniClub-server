@@ -2,6 +2,7 @@ package com.uniclub.domain.category.service;
 
 import com.uniclub.domain.category.dto.CategoryRequestDto;
 import com.uniclub.domain.category.entity.Category;
+import com.uniclub.domain.category.entity.CategoryType;
 import com.uniclub.domain.category.repository.CategoryRepository;
 import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.repository.ClubRepository;
@@ -19,11 +20,13 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public Long createCategory(CategoryRequestDto request) {
-        if (categoryRepository.existsByName(request.getName())) { // 카테고리 중복 확인
+    public Long createCategory(CategoryRequestDto categoryRequestDto) {
+        CategoryType categoryName = CategoryType.from(categoryRequestDto.getName());
+
+        if (categoryRepository.existsByName(categoryName)) { // 카테고리 중복 확인
             throw new CustomException(ErrorCode.DUPLICATE_CATEGORY_NAME);
         }
-        Category saved = categoryRepository.save(new Category(request.getName()));
+        Category saved = categoryRepository.save(new Category(categoryName));
         return saved.getCategoryId();
     }
 
