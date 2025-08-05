@@ -1,5 +1,6 @@
 package com.uniclub.domain.club.dto;
 
+import com.uniclub.domain.category.entity.Category;
 import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.entity.ClubStatus;
 import com.uniclub.domain.club.entity.Media;

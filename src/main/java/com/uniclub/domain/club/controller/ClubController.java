@@ -67,13 +67,13 @@ public class ClubController {
 
 
     @GetMapping("/{clubId}")
-    private ResponseEntity<ClubPromotionResponseDto> getClubPromotion(@PathVariable Long clubId) {
+    public ResponseEntity<ClubPromotionResponseDto> getClubPromotion(@PathVariable Long clubId) {
         ClubPromotionResponseDto clubPromotionResponseDto = clubService.getClubPromotion(clubId);
         return ResponseEntity.status(HttpStatus.OK).body(clubPromotionResponseDto);
     }
 
     @DeleteMapping("/{clubId}")
-    private ResponseEntity<Void> deleteClub(@AuthenticationPrincipal UserDetailsImpl user, @PathVariable Long clubId) {
+    public ResponseEntity<Void> deleteClub(@AuthenticationPrincipal UserDetailsImpl user, @PathVariable Long clubId) {
         clubService.deleteClub(user, clubId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
