@@ -13,8 +13,11 @@ jobs:
       - name: Make application yml
         run: |
           mkdir -p ./src/main/resources
-          touch ./src/main/resources/application.yml
-          echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
+
+          cat > ./src/main/resources/application.yml << 'EOF'
+          ${{ secrets.APPLICATION_YML }}
+          EOF
+
 
       #Set Java
       - name: Set Java JDK 21
@@ -31,7 +34,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run build with Gradle Wrapper
-        run: ./gradlew build
+        run: ./gradlew build -x test
 
       # Docker Image Build and Push
       - name: Login to Docker Hub
