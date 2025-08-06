@@ -13,9 +13,11 @@ jobs:
       - name: Make application yml
         run: |
           mkdir -p ./src/main/resources
+
           cat > ./src/main/resources/application.yml << 'EOF'
           ${{ secrets.APPLICATION_YML }}
           EOF
+
 
       #Set Java
       - name: Set Java JDK 21
