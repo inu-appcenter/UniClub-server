@@ -28,12 +28,12 @@ public class UserController implements UserApiSpecification {
             @RequestBody InformationModificationRequestDto informationModificationRequestDto
     ) {
         userService.updateUser(userDetails, informationModificationRequestDto);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @DeleteMapping
     public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         userService.deleteUser(userDetails);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

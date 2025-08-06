@@ -1,9 +1,6 @@
 package com.uniclub.domain.club.controller;
 
-import com.uniclub.domain.club.dto.ClubCreateRequestDto;
-import com.uniclub.domain.club.dto.ClubPromotionRegisterRequestDto;
-import com.uniclub.domain.club.dto.ClubPromotionResponseDto;
-import com.uniclub.domain.club.dto.ClubResponseDto;
+import com.uniclub.domain.club.dto.*;
 import com.uniclub.domain.club.service.ClubService;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.swagger.ClubApiSpecification;
@@ -19,21 +16,23 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/clubs")
-public class ClubController {
+public class ClubController implements ClubApiSpecification {
 
     private final ClubService clubService;
 
     @GetMapping("/clubs")
-    public ResponseEntity<Slice<ClubResponseDto>> getClubs(
+    public ResponseEntity<PageClubResponseDto<ClubResponseDto>> getClubs(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam(required = false) String category,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(required = false) String cursorName,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Slice<ClubResponseDto> clubResponseDtoList = clubService.getClubs(
+        Slice<ClubResponseDto> slice = clubService.getClubs(
                 userDetails.getUser().getUserId(), category, sortBy, cursorName, size
         );
+        // 페이지 응답에 필요한 정보만 주기 위한 DTO로 변환
+        PageClubResponseDto<ClubResponseDto> clubResponseDtoList = new PageClubResponseDto<>(slice.getContent(), slice.hasNext());
         return ResponseEntity.status(HttpStatus.OK).body(clubResponseDtoList);
     }
 
@@ -51,13 +50,13 @@ public class ClubController {
     @PostMapping
     public ResponseEntity<Void> createClub(@Valid @RequestBody ClubCreateRequestDto clubCreateRequestDto) {
         clubService.createClub(clubCreateRequestDto);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/{clubId}")
     public ResponseEntity<Void> promotionRegister(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId, @RequestBody ClubPromotionRegisterRequestDto clubPromotionRegisterRequestDto) {
         clubService.saveClubPromotion(userDetails, clubId, clubPromotionRegisterRequestDto);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 
