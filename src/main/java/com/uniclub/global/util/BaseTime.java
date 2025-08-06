@@ -1,4 +1,4 @@
-package com.uniclub.global.entity;
+package com.uniclub.global.util;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

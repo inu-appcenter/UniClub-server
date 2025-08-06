@@ -1,6 +1,6 @@
 package com.uniclub.domain.user.entity;
 
-import com.uniclub.global.entity.BaseTime;
+import com.uniclub.global.util.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
