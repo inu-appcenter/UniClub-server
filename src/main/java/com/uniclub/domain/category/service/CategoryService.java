@@ -20,14 +20,13 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public Long createCategory(CategoryRequestDto categoryRequestDto) {
+    public void createCategory(CategoryRequestDto categoryRequestDto) {
         CategoryType categoryName = CategoryType.from(categoryRequestDto.getName());
 
         if (categoryRepository.existsByName(categoryName)) { // 카테고리 중복 확인
             throw new CustomException(ErrorCode.DUPLICATE_CATEGORY_NAME);
         }
-        Category saved = categoryRepository.save(new Category(categoryName));
-        return saved.getCategoryId();
+        categoryRepository.save(new Category(categoryName));
     }
 
 

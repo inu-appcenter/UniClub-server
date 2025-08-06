@@ -1,6 +1,8 @@
 package com.uniclub.domain.club.service;
 
+import com.uniclub.domain.category.entity.Category;
 import com.uniclub.domain.category.entity.CategoryType;
+import com.uniclub.domain.category.repository.CategoryRepository;
 import com.uniclub.domain.club.dto.ClubCreateRequestDto;
 import com.uniclub.domain.club.dto.ClubPromotionRegisterRequestDto;
 import com.uniclub.domain.club.dto.ClubPromotionResponseDto;
@@ -35,6 +37,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ClubService {
 
+    private final CategoryRepository categoryRepository;
     private final ClubRepository clubRepository;
     private final MembershipRepository membershipRepository;
     private final FavoriteRepository favoriteRepository;
@@ -101,7 +104,16 @@ public class ClubService {
         if (clubRepository.existsByName(clubCreateRequestDto.getName())){   //동아리 이름 중복 검증
             throw new CustomException(ErrorCode.DUPLICATE_CLUB_NAME);
         };
-        Club club = clubCreateRequestDto.toClubEntity(clubCreateRequestDto);
+
+        // String -> categoryType 변환
+        CategoryType categoryType = CategoryType.from(clubCreateRequestDto.getCategory());
+
+        // 카테고리 조회, 없으면 예외처리
+        Category category = categoryRepository.
+                findByName(categoryType).
+                orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        Club club = clubCreateRequestDto.toClubEntity(category);
         clubRepository.save(club);
     }
 
