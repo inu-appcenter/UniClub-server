@@ -60,22 +60,27 @@ public class ClubService {
             // 유효하지 않은 정렬 기준 예외처리
             default -> throw new CustomException(ErrorCode.INVALID_SORT_CONDITION);
         };
+        boolean hasNext = clubs.hasNext();
 
-        // 동아리 목록 추출
-        List<Club> clubList = clubs.getContent();
+        // 동아리 목록 추출 및 페이지 사이즈와 리스트 요소 개수 일치하도록 조정
+        List<Club> clubList = new ArrayList<>(clubs.getContent());
+        if (hasNext){
+            clubList.removeLast();
+        }
+
         // 유저가 관심 등록한 동아리 목록
-        List<Long> favoriteClubIds = favoriteRepository.findClubIdsByUserId(userId);
-        // O(n) -> O(1)
-        Set<Long> favoriteSet = new HashSet<>(favoriteClubIds);
+        Set<Long> favoriteSet = new HashSet<>(
+                favoriteRepository.findClubIdsByUserId(userId)
+        );
 
         // 추출된 동아리 목록에서 관심등록 여부 확인 후 DTO 리스트 생성
-        List<ClubResponseDto> content = new ArrayList<>();
+        List<ClubResponseDto> clubResponseDtoList = new ArrayList<>();
         for (Club club : clubList) {
             boolean isFavorite = favoriteSet.contains(club.getClubId());
             ClubResponseDto dto = ClubResponseDto.from(club, isFavorite);
-            content.add(dto);
+            clubResponseDtoList.add(dto);
         }
-        return new SliceImpl<>(content, pageable, clubs.hasNext());
+        return new SliceImpl<>(clubResponseDtoList, pageable, hasNext);
     }
 
 

@@ -27,5 +27,6 @@ public class RegisterRequestDto {
     private String major;
 
     @Schema(description = "개인정보 약관 동의", example = "true")
+    @NotBlank(message = "개인정보 약관에 동의해야 합니다.")
     private boolean agreed;
 }

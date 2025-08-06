@@ -18,7 +18,7 @@ import java.util.List;
 @Tag(name = "검색 API")
 public interface SearchApiSpecification {
     @Operation(
-            summary = "동아리 검색 API",
+            summary = "동아리 검색",
             description = "사용자가 입력한 검색어로 동아리를 조회합니다."
     )
     @ApiResponses({
