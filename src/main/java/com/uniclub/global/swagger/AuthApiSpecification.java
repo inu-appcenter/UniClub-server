@@ -20,7 +20,7 @@ public interface AuthApiSpecification {
 
     @Operation(summary = "회원가입", description = "새 사용자 계정을 생성합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "회원가입 성공"),
+            @ApiResponse(responseCode = "201", description = "회원가입 성공"),
             @ApiResponse(
                     responseCode = "400", description = "개인정보 약관에 동의하지 않음",
                     content = @Content(
@@ -56,7 +56,7 @@ public interface AuthApiSpecification {
     @Operation(summary = "로그인", description = "가입된 사용자로 로그인하고 토큰을 발급받습니다.")
     @ApiResponses({
             @ApiResponse(
-                    responseCode = "200", description = "로그인 성공",
+                    responseCode = "204", description = "로그인 성공",
                     content = @Content(
                             schema = @Schema(implementation = LoginResponseDto.class),
                             examples = @ExampleObject("""

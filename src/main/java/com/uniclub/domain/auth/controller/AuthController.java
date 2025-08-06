@@ -32,7 +32,7 @@ public class AuthController implements AuthApiSpecification {
     @PostMapping("/register")
     public ResponseEntity<Void> createUser(@Valid @RequestBody RegisterRequestDto request) {
         authService.createUser(request);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/login")

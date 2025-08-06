@@ -138,7 +138,7 @@ public interface ClubApiSpecification {
 
     @Operation(summary = "동아리 홍보페이지 작성 및 수정", description = "홍보글을 생성하거나 업데이트합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "처리 성공"),
+            @ApiResponse(responseCode = "201", description = "처리 성공"),
             @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없습니다.",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
@@ -174,7 +174,7 @@ public interface ClubApiSpecification {
 
     @Operation(summary = "동아리 홍보페이지 조회", description = "특정 동아리의 홍보글을 반환합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공",
+            @ApiResponse(responseCode = "201", description = "조회 성공",
                     content = @Content(
                             schema = @Schema(implementation = ClubPromotionResponseDto.class),
                             examples = @ExampleObject("""
