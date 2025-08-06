@@ -23,7 +23,7 @@ public interface ClubApiSpecification {
 
     @Operation(summary = "동아리 조회", description = "전체, 카테고리별, 정렬순 조회")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공",
+            @ApiResponse(responseCode = "204", description = "조회 성공",
                     content = @Content(
                             schema = @Schema(implementation = PageClubResponseDto.class),
                             examples = @ExampleObject("""
@@ -117,7 +117,7 @@ public interface ClubApiSpecification {
 
     @Operation(summary = "동아리 등록", description = "새로운 동아리를 생성합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "등록 성공"),
+            @ApiResponse(responseCode = "204", description = "등록 성공"),
             @ApiResponse(responseCode = "409", description = "이미 존재하는 동아리입니다.",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
@@ -138,7 +138,7 @@ public interface ClubApiSpecification {
 
     @Operation(summary = "동아리 홍보페이지 작성 및 수정", description = "홍보글을 생성하거나 업데이트합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "처리 성공"),
+            @ApiResponse(responseCode = "204", description = "처리 성공"),
             @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없습니다.",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),

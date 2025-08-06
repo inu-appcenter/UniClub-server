@@ -19,7 +19,7 @@ public interface CategoryApiSpecification {
 
     @Operation(summary = "카테고리 생성", description = "새 카테고리를 생성하고 ID를 반환합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "생성 성공"),
+            @ApiResponse(responseCode = "204", description = "생성 성공"),
             @ApiResponse(
                     responseCode = "409",
                     description = "이미 존재하는 카테고리입니다.",
