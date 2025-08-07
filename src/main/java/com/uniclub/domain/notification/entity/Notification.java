@@ -4,6 +4,7 @@ import com.uniclub.domain.user.entity.User;
 import com.uniclub.global.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -22,7 +23,7 @@ public class Notification extends BaseTime {
 
     @ColumnDefault("false")
     @Column(nullable = false)
-    private Boolean isRead; //읽음 여부
+    private boolean isRead; //읽음 여부
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -31,4 +32,11 @@ public class Notification extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")    //FK
     private User user;
+
+    @Builder
+    public Notification(String message, NotificationType type, User user) {
+        this.message = message;
+        this.type = type;
+        this.user = user;
+    }
 }
