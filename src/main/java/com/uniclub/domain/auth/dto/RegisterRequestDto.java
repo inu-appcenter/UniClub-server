@@ -2,6 +2,7 @@ package com.uniclub.domain.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,5 +28,6 @@ public class RegisterRequestDto {
     private String major;
 
     @Schema(description = "개인정보 약관 동의", example = "true")
+    @NotNull(message = "개인정보 약관에 동의해야 합니다.")
     private boolean agreed;
 }

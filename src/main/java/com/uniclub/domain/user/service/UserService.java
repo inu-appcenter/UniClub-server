@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
 
+    // 개인정보 수정 디자인 나오면 검증로직 추가 필요
     public void updateUser(UserDetailsImpl userDetails, InformationModificationRequestDto informationModificationRequestDto) {
         // 유저 조회, 존재하지 않는 경우 예외처리
         User user = userRepository.findByStudentId(userDetails.getStudentId())

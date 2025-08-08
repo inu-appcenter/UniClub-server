@@ -118,6 +118,18 @@ public interface ClubApiSpecification {
     @Operation(summary = "동아리 등록", description = "새로운 동아리를 생성합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "등록 성공"),
+            @ApiResponse(responseCode = "404", description = "해당 카테고리가 존재하지 않습니다.",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "CATEGORY_NOT_FOUND",
+                      "message": "해당 카테고리를 찾을 수 없습니다."
+                    }
+                    """)
+                    )
+            ),
             @ApiResponse(responseCode = "409", description = "이미 존재하는 동아리입니다.",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),

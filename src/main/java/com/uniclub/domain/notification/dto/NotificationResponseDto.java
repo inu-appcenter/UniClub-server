@@ -35,7 +35,7 @@ public class NotificationResponseDto {
     public static NotificationResponseDto from(Notification notification) {
         return NotificationResponseDto.builder()
                 .message(notification.getMessage())
-                .isRead(notification.getIsRead())
+                .isRead(notification.isRead())
                 .type(notification.getType())
                 .createdAt(notification.getCreatedAt())
                 .build();
