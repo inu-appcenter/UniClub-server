@@ -49,15 +49,6 @@ public class ClubPromotionRegisterRequestDto {
     @Schema(description = "인스타그램 url")
     private String instagramLink;
 
-    @Schema(description = "프로필 이미지 url")
-    private String profileImage;
-
-    @Schema(description = "배경 이미지 url")
-    private String backgroundImage;
-
-    @Schema(description = "첨부 이미지, 영상 url")
-    private List<String> mediaLinks; //이건 Media에 저장
-
     //저장을 위해 Club Entity로 변환
     public Club toClubEntity(ClubPromotionRegisterRequestDto clubPromotionRegisterRequestDto) {
         return Club.builder()
@@ -72,8 +63,6 @@ public class ClubPromotionRegisterRequestDto {
                 .presidentPhone(clubPromotionRegisterRequestDto.getPresidentPhone())
                 .youtubeLink(clubPromotionRegisterRequestDto.getYoutubeLink())
                 .instagramLink(clubPromotionRegisterRequestDto.getInstagramLink())
-                .profileImage(clubPromotionRegisterRequestDto.getProfileImage())
-                .backgroundImage(clubPromotionRegisterRequestDto.getBackgroundImage())
                 .build();
     }
 

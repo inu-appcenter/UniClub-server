@@ -138,13 +138,6 @@ public class ClubService {
         //동아리 소개글 수정사항 반영
         existingClub.update(promotionRegisterRequestDto.toClubEntity(promotionRegisterRequestDto));
 
-        //미디어 저장 및 매핑
-        List<String> mediaLinks = promotionRegisterRequestDto.getMediaLinks();
-        for (String mediaLink : mediaLinks) {
-            Media media = saveMedia(mediaLink, existingClub);
-            mediaRepository.save(media);
-        }
-
     }
 
 
