@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class MediaUploadRequestDto {
 
-    private List<MultipartFile> files;
+    private List<MultipartFile> multipartFileList;
     private List<MediaType> mediaTypes;
     private List<Boolean> isMainList;
 

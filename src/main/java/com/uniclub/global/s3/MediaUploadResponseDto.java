@@ -7,13 +7,14 @@ import lombok.Getter;
 
 @Getter
 public class MediaUploadResponseDto {
-    private Long mediaId;
-    private String mediaLink;
-    private MediaType mediaType;
-    private Boolean isMain;
+    private final Long mediaId;
+    private final String mediaLink;
+    private final MediaType mediaType;
+    private final Boolean isMain;
 
     @Builder
-    public MediaUploadResponseDto(String mediaLink, MediaType mediaType, Boolean isMain) {
+    public MediaUploadResponseDto(Long mediaId, String mediaLink, MediaType mediaType, Boolean isMain) {
+        this.mediaId = mediaId;
         this.mediaLink = mediaLink;
         this.mediaType = mediaType;
         this.isMain = isMain;
