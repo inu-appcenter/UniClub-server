@@ -1,9 +1,11 @@
 package com.uniclub.global.s3;
 
+import com.uniclub.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +20,8 @@ public class S3Controller {
     //동아리 홍보글 관련 Media file
     @PostMapping("/club/{clubId}/upload")
     @Operation(summary = "동아리 파일 업로드", description = "특정 동아리 파일을 업로드")
-    public ResponseEntity<List<MediaUploadResponseDto>> uploadClubMedia(@PathVariable String clubId, @ModelAttribute MediaUploadRequestDto mediaUploadRequestDto) {
-        List<MediaUploadResponseDto> mediaUploadResponseDtoList = s3Service.uploadClubMedia(clubId, mediaUploadRequestDto);
+    public ResponseEntity<List<MediaUploadResponseDto>> uploadClubMedia(@PathVariable Long clubId, @AuthenticationPrincipal UserDetailsImpl userDetails, @ModelAttribute MediaUploadRequestDto mediaUploadRequestDto) {
+        List<MediaUploadResponseDto> mediaUploadResponseDtoList = s3Service.uploadClubMedia(userDetails, clubId, mediaUploadRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(mediaUploadResponseDtoList);
     }
 
