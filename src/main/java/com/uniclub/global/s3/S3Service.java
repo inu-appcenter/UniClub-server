@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -81,6 +82,11 @@ public class S3Service {
 
     //s3에 파일 업로드
     private String uploadMediaToS3(MultipartFile multipartFile) {
+
+        if (multipartFile.isEmpty()) {
+            throw new CustomException(ErrorCode.EMPTY_FILE);
+        }
+
         String originalFileName = multipartFile.getOriginalFilename();
         String extension = getFileExtension(originalFileName);
         //파일 이름 중복 없도록
@@ -104,11 +110,27 @@ public class S3Service {
 
     //파일 확장자 추출
     private String getFileExtension(String fileName) {
-        /*
-            파일 확장자 예외 처리
-         */
 
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
+        if (fileName.isEmpty()){
+            throw new CustomException(ErrorCode.EMPTY_FILE);
+        }
+
+        String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+
+        // 허용할 확장자 목록
+        Set<String> allowedExtensions = Set.of(
+                // 이미지
+                "jpg", "jpeg", "png", "gif", "webp", "svg",
+                // 비디오
+                "mp4", "avi", "mov", "wmv", "flv", "webm"
+        );
+
+        //확장자 예외처리
+        if (!allowedExtensions.contains(extension)) {
+            throw new CustomException(ErrorCode.INVALID_FILE_TYPE);
+        }
+
+        return extension;
     }
 
     //파일 URL 만들기

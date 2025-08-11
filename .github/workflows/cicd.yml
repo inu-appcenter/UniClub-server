@@ -13,7 +13,6 @@ jobs:
       - name: Make application yml
         run: |
           mkdir -p ./src/main/resources
-
           cat > ./src/main/resources/application.yml << 'EOF'
           ${{ secrets.APPLICATION_YML }}
           EOF
@@ -55,20 +54,14 @@ jobs:
           no-cache: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPONAME }}
 
-      #checkout EC2 접속
-      - name: Credentials AWS
-        uses: aws-actions/configure-aws-credentials@v4
+      # CD 배포
+      - name: Deploy remote ssh commands using password
+        uses: appleboy/ssh-action@master
         with:
-          aws-region:  ${{ secrets.AWS_REGION }}
-          aws-access-key-id: ${{ secrets.AWS_ACCESSKEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRETKEY }}
-
-      - name: Connect EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USERNAME }}
-          key: ${{ secrets.AWS_EC2_SECRETKEY }}
-          script_stop: true
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
           script: |
-            sh deploy.sh
+            cd /home/serverking/uniclub
+            chmod +x ./uniclub-api.sh
+            ./uniclub-api.sh
