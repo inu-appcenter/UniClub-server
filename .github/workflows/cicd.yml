@@ -60,7 +60,7 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.PASSWORD }}
+          password: ${{ secrets.PASSWORD }}
           script: |
             cd /home/serverking/uniclub
             chmod +x ./uniclub-api.sh
