@@ -17,11 +17,8 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
-        Server server = new Server();
-        server.url(serverUrl);
 
         return new OpenAPI()
-                .addServersItem(server)
                 .components(new Components()
                         // JWT 보안 스키마 추가
                         .addSecuritySchemes("bearerAuth",
