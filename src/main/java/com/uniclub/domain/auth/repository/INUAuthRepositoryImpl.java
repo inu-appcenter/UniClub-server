@@ -23,7 +23,6 @@ public class INUAuthRepositoryImpl implements INUAuthRepository {
 
         try{
             String result = jdbcTemplate.queryForObject(sql, String.class, studentId, password);
-            System.out.println("재학생 인증 결과: " + result);
             return "Y".equals(result);
         } catch(DataAccessException e){
             throw new CustomException(ErrorCode.SCHOOL_SERVER_ERROR);
