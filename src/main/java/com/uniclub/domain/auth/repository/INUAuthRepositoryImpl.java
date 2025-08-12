@@ -18,11 +18,12 @@ public class INUAuthRepositoryImpl implements INUAuthRepository {
     }
 
     // 학교 서버에 쿼리를 날리고, Y를 반환받으면 true
-    public boolean verifySchoolLogin(String username, String password) {
+    public boolean verifySchoolLogin(String studentId, String password) {
         String sql = "SELECT F_LOGIN_CHECK(?,?) FROM DUAL";
 
         try{
-            String result = jdbcTemplate.queryForObject(sql, String.class, username, password);
+            String result = jdbcTemplate.queryForObject(sql, String.class, studentId, password);
+            System.out.println("재학생 인증 결과: " + result);
             return "Y".equals(result);
         } catch(DataAccessException e){
             throw new CustomException(ErrorCode.SCHOOL_SERVER_ERROR);
