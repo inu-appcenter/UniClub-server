@@ -54,11 +54,15 @@ public class SecurityConfig {
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+
         //허용할 도메인
         configuration.setAllowedOrigins(Arrays.asList(
                 "https://uniclub-server.inuappcenter.kr",
-                "https://uniclub-server.inuappcenter.kr"
+                "http://uniclub-server.inuappcenter.kr"
+
         ));
+
 
         //모든 경로에 적용
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
