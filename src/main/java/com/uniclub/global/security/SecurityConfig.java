@@ -60,6 +60,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "https://uniclub-server.inuappcenter.kr",
                 "http://uniclub-server.inuappcenter.kr"
+
         ));
 
 
