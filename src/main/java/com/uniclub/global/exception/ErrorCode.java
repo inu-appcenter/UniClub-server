@@ -21,7 +21,17 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 카테고리를 찾을 수 없습니다."),
     DUPLICATE_CATEGORY_NAME(HttpStatus.CONFLICT, 409, "이미 존재하는 카테고리입니다."),
     NOTIFICATION_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 알림 타입을 찾을 수 없습니다."),
-    SCHOOL_SERVER_ERROR(HttpStatus.BAD_GATEWAY, 502, "학교 서버 응답에 문제가 발생했습니다.");
+    SCHOOL_SERVER_ERROR(HttpStatus.BAD_GATEWAY, 502, "학교 서버 응답에 문제가 발생했습니다."),
+
+    //파일 업로드 관련
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "파일을 업로드할 수 없습니다."),
+    INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, 400, "지원하지 않는 파일 형식입니다."),
+    FILE_SIZE_EXCEEDED(HttpStatus.PAYLOAD_TOO_LARGE, 413, "파일 크기가 제한을 초과했습니다."),
+    EMPTY_FILE(HttpStatus.BAD_REQUEST, 400, "빈 파일은 업로드할 수 없습니다."),
+    INVALID_FILE_NAME(HttpStatus.BAD_REQUEST, 400, "유효하지 않은 파일명입니다."),
+    FILE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, 400, "업로드 가능한 파일 개수를 초과했습니다."),
+    S3_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "파일 저장소 연결에 실패했습니다.");
+
 
 
 
