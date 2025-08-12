@@ -1,8 +1,7 @@
 package com.uniclub.domain.auth.service;
 
-import com.uniclub.domain.auth.dto.LoginRequestDto;
-import com.uniclub.domain.auth.dto.LoginResponseDto;
-import com.uniclub.domain.auth.dto.RegisterRequestDto;
+import com.uniclub.domain.auth.dto.*;
+import com.uniclub.domain.auth.repository.INUAuthRepository;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.domain.user.repository.UserRepository;
 import com.uniclub.global.exception.CustomException;
@@ -10,13 +9,10 @@ import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.JwtTokenProvider;
 import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +26,7 @@ public class AuthService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
-
-
+    private final INUAuthRepository inuAuthRepository;
 
     public void createUser(RegisterRequestDto request) {
 
@@ -74,6 +69,12 @@ public class AuthService {
         Long userId = userDetails.getUserId();
 
         return new LoginResponseDto(userId, token, expiresIn);
+    }
+
+    // 재학생 인증
+    public StudentVerificationResponseDto studentVerification(StudentVerificationRequestDto studentVerificationRequestDto) {
+        boolean verification = inuAuthRepository.verifySchoolLogin(studentVerificationRequestDto.getStudentId(), studentVerificationRequestDto.getPassword());
+        return new StudentVerificationResponseDto(verification);
     }
 
 }

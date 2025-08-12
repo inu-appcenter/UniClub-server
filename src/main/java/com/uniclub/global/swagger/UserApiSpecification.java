@@ -1,5 +1,7 @@
 package com.uniclub.global.swagger;
 
+import com.uniclub.domain.auth.dto.StudentVerificationRequestDto;
+import com.uniclub.domain.auth.dto.StudentVerificationResponseDto;
 import com.uniclub.domain.user.dto.InformationModificationRequestDto;
 import com.uniclub.global.exception.ErrorResponse;
 import com.uniclub.global.security.UserDetailsImpl;
@@ -10,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;

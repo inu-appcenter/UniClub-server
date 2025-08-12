@@ -1,4 +1,4 @@
-package com.uniclub.global.config;
+package com.uniclub.global.swagger;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

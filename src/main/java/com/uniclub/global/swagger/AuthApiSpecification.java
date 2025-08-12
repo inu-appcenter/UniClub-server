@@ -1,8 +1,6 @@
 package com.uniclub.global.swagger;
 
-import com.uniclub.domain.auth.dto.LoginRequestDto;
-import com.uniclub.domain.auth.dto.LoginResponseDto;
-import com.uniclub.domain.auth.dto.RegisterRequestDto;
+import com.uniclub.domain.auth.dto.*;
 import com.uniclub.global.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -72,4 +70,36 @@ public interface AuthApiSpecification {
             )
     })
     ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto);
+
+
+    @Operation(summary = "재학생 인증", description = "학교 시스템을 통해 재학생 여부를 확인합니다.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200", description = "인증 결과 반환",
+                    content = @Content(
+                            schema = @Schema(implementation = StudentVerificationResponseDto.class),
+                            examples = @ExampleObject("""
+                    {
+                        "verified": true
+                    }
+                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "502", description = "학교 서버 통신 오류",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                        "code": 502,
+                        "name": "SCHOOL_SERVER_ERROR",
+                        "message": "학교 서버 응답에 문제가 발생했습니다."
+                    }
+                    """)
+                    )
+            )
+    })
+    ResponseEntity<StudentVerificationResponseDto> studentVerification(
+            @Valid @RequestBody StudentVerificationRequestDto studentVerificationRequestDto
+    );
 }
