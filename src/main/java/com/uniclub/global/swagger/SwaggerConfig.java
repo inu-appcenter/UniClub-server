@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Arrays;
+
 @Configuration
 public class SwaggerConfig {
 
@@ -17,6 +19,9 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
 
         return new OpenAPI()
+                .servers(Arrays.asList(
+                        new Server().url("https://uniclub-server.inuappcenter.kr")
+                ))
                 .components(new Components()
                         // JWT 보안 스키마 추가
                         .addSecuritySchemes("bearerAuth",
