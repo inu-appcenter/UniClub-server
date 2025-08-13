@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "동아리 API", description = "동아리 조회·등록·관리 기능")
 public interface ClubApiSpecification {
-/*
+
     @Operation(summary = "동아리 조회", description = "전체, 카테고리별, 정렬순 동아리 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "조회 성공",
@@ -144,7 +144,7 @@ public interface ClubApiSpecification {
                             )
                     )
             )
-    });
+    })
     ResponseEntity<Void> createClub(
             @Valid @RequestBody ClubCreateRequestDto clubCreateRequestDto
     );
@@ -229,7 +229,7 @@ public interface ClubApiSpecification {
             )
     })
     ResponseEntity<ClubPromotionResponseDto> getClubPromotion(
-            @PathVariable Long clubId
+            @AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId
     );
 
     @Operation(summary = "동아리 삭제", description = "동아리 삭제")
@@ -253,5 +253,4 @@ public interface ClubApiSpecification {
             @PathVariable Long clubId
     );
 
- */
 }
