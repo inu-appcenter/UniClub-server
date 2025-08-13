@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Tag(name = "인증 API", description = "회원가입·로그인 관련 기능")
 public interface AuthApiSpecification {
 
-    @Operation(summary = "회원가입", description = "새 사용자 계정을 생성합니다.")
+    @Operation(summary = "회원가입", description = "신규 회원 가입")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "회원가입 성공"),
             @ApiResponse(
-                    responseCode = "400", description = "개인정보 약관에 동의하지 않음",
+                    responseCode = "400", description = "개인정보 약관 미동의",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject("""
@@ -34,7 +34,7 @@ public interface AuthApiSpecification {
                     )
             ),
             @ApiResponse(
-                    responseCode = "409", description = "이미 존재하는 계정",
+                    responseCode = "409", description = "계정 중복",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject("""
@@ -51,7 +51,7 @@ public interface AuthApiSpecification {
     ResponseEntity<Void> createUser(@Valid @RequestBody RegisterRequestDto request);
 
 
-    @Operation(summary = "로그인", description = "가입된 사용자로 로그인하고 토큰을 발급받습니다.")
+    @Operation(summary = "로그인", description = "로그인 및 토큰 발급")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "204", description = "로그인 성공",
@@ -72,7 +72,7 @@ public interface AuthApiSpecification {
     ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto);
 
 
-    @Operation(summary = "재학생 인증", description = "학교 시스템을 통해 재학생 여부를 확인합니다.")
+    @Operation(summary = "재학생 인증", description = "학교 포털 재학생 인증")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200", description = "인증 결과 반환",
