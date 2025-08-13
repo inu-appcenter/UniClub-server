@@ -21,6 +21,6 @@ public class MainService {
 
     @Transactional(readOnly = true)
     public List<MainPageClubResponseDto> getMainPageClubs(UserDetailsImpl userDetails){
-        return clubRepository.getMainPageClubs(PageRequest.of(0,6));
+        return clubRepository.getMainPageClubs(userDetails.getUserId(),PageRequest.of(0,6));
     }
 }
