@@ -22,5 +22,7 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
     @Query("SELECT m FROM Media m WHERE m.mediaType = :mediaType")
     List<Media> findByMediaType(MediaType mediaType);
 
-    //boolean existsByClubIdAndMediaType(Long clubId, MediaType mediaType);
+    @Modifying
+    @Query("DELETE FROM Media m WHERE m.club.clubId = :clubId AND m.mediaType = :mediaType")
+    void deleteByClubIdAndMediaType(Long clubId,MediaType mediaType);
 }
