@@ -26,8 +26,9 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class S3Service {
+public class S3ServiceTmp {
 
+    /*
     private final S3Client s3Client;
     private final MediaRepository mediaRepository;
     private final ClubRepository clubRepository;
@@ -163,4 +164,5 @@ public class S3Service {
         );
         return memberShip.getRole();
     }
+    */
 }
