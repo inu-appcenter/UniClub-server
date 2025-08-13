@@ -143,7 +143,13 @@ public class ClubService {
             throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
         }
 
-        //validateRequestDuplicates();
+        //요청에 CLUB_PROFILE과 CLUB_BACKGROUND이 두개 이상있으면 false반환
+        if (!validateMediaType(clubMediaUploadRequestDtoList)) {
+            throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
+        }
+
+        //기존에 존재하는 CLUB_PROFILE과 CLUB_BACKGROUND 삭제
+        deleteExistingUniqueMediaType(clubId, clubMediaUploadRequestDtoList);
 
         //미디어 저장
         for (ClubMediaUploadRequestDto clubMediaUploadRequestDto : clubMediaUploadRequestDtoList) {
@@ -152,6 +158,43 @@ public class ClubService {
         }
     }
 
+    private boolean validateMediaType(List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
+        //각 Type들 개수 세기
+        Map<MediaType, Long> mediaTypeCount = clubMediaUploadRequestDtoList.stream()
+                .collect(Collectors.groupingBy(
+                        ClubMediaUploadRequestDto::getMediaType,
+                        Collectors.counting()
+                ));
+
+        // 단일 허용 MediaType들 검증
+        //CLUB_PROFILE
+        if (mediaTypeCount.getOrDefault(MediaType.CLUB_PROFILE, 0L) > 1) {
+            return false;
+        }
+        //CLUB_BACKGROUND
+        if (mediaTypeCount.getOrDefault(MediaType.CLUB_BACKGROUND, 0L) > 1) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void deleteExistingUniqueMediaType(Long clubId, List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
+        //새로 업로드 되는 것 확인
+        Set<MediaType> newMediaTypes = clubMediaUploadRequestDtoList.stream()
+                .map(ClubMediaUploadRequestDto::getMediaType)
+                .collect(Collectors.toSet());
+
+        //CLUB_PROFILE이 새로 업로드될 예정이면 기존 파일 삭제
+        if (newMediaTypes.contains(MediaType.CLUB_PROFILE)) {
+            mediaRepository.deleteByClubIdAndMediaType(clubId, MediaType.CLUB_PROFILE);
+        }
+
+        //CLUB_BACKGROUND가 새로 업로드될 예정이면 기존 파일 삭제
+        if (newMediaTypes.contains(MediaType.CLUB_BACKGROUND)) {
+            mediaRepository.deleteByClubIdAndMediaType(clubId, MediaType.CLUB_BACKGROUND);
+        }
+    }
 
     //동아리 소개글 불러오기
     @Transactional(readOnly = true)
@@ -160,6 +203,7 @@ public class ClubService {
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
+
 
         List<Media> mediaList = mediaRepository.findByClubId(clubId);
         List<DescriptionMediaDto> mediaResList = new ArrayList<>();
@@ -190,21 +234,6 @@ public class ClubService {
         return memberShip.getRole();
     }
 
-    //동아리 프로필, 배경 이미지 유효성 검사
-    private void validateRequestDuplicates(List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
-        Map<MediaType, Long> typeCount = clubMediaUploadRequestDtoList.stream()
-                .collect(Collectors.groupingBy(
-                        ClubMediaUploadRequestDto::getMediaType,
-                        Collectors.counting()
-                ));
 
-        for (Map.Entry<MediaType, Long> entry : typeCount.entrySet()) {
-            MediaType type = entry.getKey();
-            Long count = entry.getValue();
 
-            if ((type == MediaType.CLUB_PROMOTION || type == MediaType.CLUB_PROFILE) && count > 1) {
-                throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
-            }
-        }
-    }
 }
