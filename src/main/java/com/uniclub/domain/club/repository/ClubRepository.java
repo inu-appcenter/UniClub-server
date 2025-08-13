@@ -2,6 +2,7 @@ package com.uniclub.domain.club.repository;
 
 import com.uniclub.domain.category.entity.CategoryType;
 import com.uniclub.domain.club.entity.Club;
+import com.uniclub.domain.main.dto.MainPageClubResponseDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -53,4 +54,17 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
                                                Pageable pageable);
 
 
+
+    @Query("""
+    select new com.uniclub.domain.main.dto.MainPageClubResponseDto(
+        c.name,
+        m.mediaLink,
+        case when f.favoriteId is not null then true else false end
+    )
+    from Club c
+    join Media m on m.club = c and m.isMain = true
+    left join Favorite f on f.club = c and f.user.userId = :userId
+    order by function('rand')
+    """)
+    List<MainPageClubResponseDto> getMainPageClubs(Pageable pageable);
 }

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Tag(name = "동아리 API", description = "동아리 조회·등록·관리 기능")
 public interface ClubApiSpecification {
 
-    @Operation(summary = "동아리 조회", description = "전체, 카테고리별, 정렬순 조회")
+    @Operation(summary = "동아리 조회", description = "전체, 카테고리별, 정렬순 동아리 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "조회 성공",
                     content = @Content(
@@ -50,7 +50,7 @@ public interface ClubApiSpecification {
                             )
                     )
             ),
-            @ApiResponse(responseCode = "400", description = "유효하지 않은 정렬 기준입니다.",
+            @ApiResponse(responseCode = "400", description = "유효하지 않은 정렬 기준",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject("""
@@ -63,7 +63,7 @@ public interface ClubApiSpecification {
                             )
                     )
             ),
-            @ApiResponse(responseCode = "404", description = "해당 카테고리를 찾을 수 없습니다.",
+            @ApiResponse(responseCode = "404", description = "카테고리 찾기 실패",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject("""
@@ -85,7 +85,7 @@ public interface ClubApiSpecification {
             @RequestParam(defaultValue = "10") int size
     );
 
-    @Operation(summary = "관심동아리 등록/취소", description = "관심 동아리 추가 혹은 취소")
+    @Operation(summary = "관심동아리 등록/취소", description = "관심 동아리 토글 처리")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "토글 처리 성공",
                     content = @Content(
@@ -96,7 +96,7 @@ public interface ClubApiSpecification {
                             )
                     )
             ),
-            @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없습니다.",
+            @ApiResponse(responseCode = "404", description = "동아리 찾기 실패",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject("""
@@ -110,15 +110,15 @@ public interface ClubApiSpecification {
                     )
             )
     })
-    ResponseEntity<String> toggleFavorite(
+    ResponseEntity<ToggleFavoriteResponseDto> toggleFavorite(
             @PathVariable Long clubId,
             @AuthenticationPrincipal UserDetailsImpl userDetails
     );
 
-    @Operation(summary = "동아리 등록", description = "새로운 동아리를 생성합니다.")
+    @Operation(summary = "동아리 등록", description = "신규 동아리 생성")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "등록 성공"),
-            @ApiResponse(responseCode = "404", description = "해당 카테고리가 존재하지 않습니다.",
+            @ApiResponse(responseCode = "404", description = "카테고리 찾기 실패",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject("""
@@ -127,10 +127,10 @@ public interface ClubApiSpecification {
                       "name": "CATEGORY_NOT_FOUND",
                       "message": "해당 카테고리를 찾을 수 없습니다."
                     }
-                    """)
+                    """
                     )
             ),
-            @ApiResponse(responseCode = "409", description = "이미 존재하는 동아리입니다.",
+            @ApiResponse(responseCode = "409", description = "동아리명 중복",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject("""
@@ -148,10 +148,10 @@ public interface ClubApiSpecification {
             @Valid @RequestBody ClubCreateRequestDto clubCreateRequestDto
     );
 
-    @Operation(summary = "동아리 홍보페이지 작성 및 수정", description = "홍보글을 생성하거나 업데이트합니다.")
+    @Operation(summary = "동아리 홍보페이지 작성 및 수정", description = "동아리 홍보페이지 작성/수정")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "처리 성공"),
-            @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없습니다.",
+            @ApiResponse(responseCode = "404", description = "동아리 찾기 실패",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject("""
@@ -164,7 +164,7 @@ public interface ClubApiSpecification {
                             )
                     )
             ),
-            @ApiResponse(responseCode = "403", description = "사용 권한이 없습니다.",
+            @ApiResponse(responseCode = "403", description = "권한 없음",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject("""
@@ -184,7 +184,7 @@ public interface ClubApiSpecification {
             @RequestBody ClubPromotionRegisterRequestDto clubPromotionRegisterRequestDto
     );
 
-    @Operation(summary = "동아리 홍보페이지 조회", description = "특정 동아리의 홍보글을 반환합니다.")
+    @Operation(summary = "동아리 홍보페이지 조회", description = "동아리 홍보페이지 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "조회 성공",
                     content = @Content(
@@ -213,7 +213,7 @@ public interface ClubApiSpecification {
                             )
                     )
             ),
-            @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없습니다.",
+            @ApiResponse(responseCode = "404", description = "동아리 찾기 실패",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject("""
@@ -231,10 +231,10 @@ public interface ClubApiSpecification {
             @PathVariable Long clubId
     );
 
-    @Operation(summary = "동아리 삭제", description = "특정 동아리를 삭제합니다.")
+    @Operation(summary = "동아리 삭제", description = "동아리 삭제")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없습니다.",
+            @ApiResponse(responseCode = "404", description = "동아리 찾기 실패",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject("""

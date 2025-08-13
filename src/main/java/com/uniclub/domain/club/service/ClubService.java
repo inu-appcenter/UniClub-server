@@ -3,10 +3,7 @@ package com.uniclub.domain.club.service;
 import com.uniclub.domain.category.entity.Category;
 import com.uniclub.domain.category.entity.CategoryType;
 import com.uniclub.domain.category.repository.CategoryRepository;
-import com.uniclub.domain.club.dto.ClubCreateRequestDto;
-import com.uniclub.domain.club.dto.ClubPromotionRegisterRequestDto;
-import com.uniclub.domain.club.dto.ClubPromotionResponseDto;
-import com.uniclub.domain.club.dto.ClubResponseDto;
+import com.uniclub.domain.club.dto.*;
 import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.entity.Media;
 import com.uniclub.domain.club.entity.MemberShip;
@@ -85,7 +82,7 @@ public class ClubService {
 
 
     //좋아요 토글링
-    public boolean toggleFavorite(Long clubId, UserDetailsImpl userDetails) {
+    public ToggleFavoriteResponseDto toggleFavorite(Long clubId, UserDetailsImpl userDetails) {
         // 존재하는 동아리인지 확인
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
@@ -94,13 +91,12 @@ public class ClubService {
         // 관심 동아리인지 확인
         boolean isFavorite = favoriteRepository.existsByUserIdAndClubId(user.getUserId(), clubId);
 
-        // true면 관심동아리 등록, false면 취소
         if (isFavorite) {
             favoriteRepository.deleteByUserAndClub(user, club);
-            return false;
+            return new ToggleFavoriteResponseDto("관심 동아리 등록 취소 완료");
         } else {
             favoriteRepository.save(new Favorite(user, club));
-            return true;
+            return new ToggleFavoriteResponseDto("관심 동아리 등록 완료");
         }
     }
 

@@ -21,7 +21,7 @@ import java.util.List;
 @Tag(name = "알림 API", description = "사용자 알림 조회 기능")
 public interface NotificationApiSpecification {
 
-    @Operation(summary = "알림 리스트 조회", description = "인증된 사용자의 알림 목록을 반환합니다.")
+    @Operation(summary = "알림 리스트 조회", description = "사용자 알림 목록 조회")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200", description = "조회 성공",
@@ -47,7 +47,7 @@ public interface NotificationApiSpecification {
                     )
             ),
             @ApiResponse(
-                    responseCode = "403", description = "사용 권한이 없습니다.",
+                    responseCode = "403", description = "권한 없음",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject("""
@@ -66,7 +66,7 @@ public interface NotificationApiSpecification {
     );
 
 
-    @Operation(summary = "알림 생성(테스트용)", description = "알림 리스트 조회 api 테스트를 위해 알림을 생성합니다.")
+    @Operation(summary = "알림 생성(테스트용)", description = "알림 생성 (테스트용)")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "201",
@@ -74,7 +74,7 @@ public interface NotificationApiSpecification {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "알림 타입을 찾을 수 없음",
+                    description = "알림 타입 찾기 실패",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject("""
@@ -84,7 +84,7 @@ public interface NotificationApiSpecification {
                       "message": "해당 알림 타입을 찾을 수 없습니다."
                     }
                     """)
-                )
+                    )
             )
     })
     ResponseEntity<Void> registerNotification(@Valid @RequestBody NotificationRequestDto notificationRequestDto);

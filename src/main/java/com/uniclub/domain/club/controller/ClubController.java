@@ -38,12 +38,11 @@ public class ClubController implements ClubApiSpecification {
 
 
     @PostMapping("/{clubId}/favorite")
-    public ResponseEntity<String> toggleFavorite(
+    public ResponseEntity<ToggleFavoriteResponseDto> toggleFavorite(
             @PathVariable Long clubId,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        boolean isNowFavorite = clubService.toggleFavorite(clubId, userDetails);
-        String message = isNowFavorite ? "관심 동아리 등록 완료" : "관심 동아리 등록 취소 완료";
-        return ResponseEntity.status(HttpStatus.OK).body(message);
+        ToggleFavoriteResponseDto toggleFavoriteResponseDto = clubService.toggleFavorite(clubId, userDetails);
+        return ResponseEntity.status(HttpStatus.OK).body(toggleFavoriteResponseDto);
     }
 
 
