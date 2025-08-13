@@ -4,10 +4,7 @@ import com.uniclub.domain.category.entity.Category;
 import com.uniclub.domain.category.entity.CategoryType;
 import com.uniclub.domain.category.repository.CategoryRepository;
 import com.uniclub.domain.club.dto.*;
-import com.uniclub.domain.club.entity.Club;
-import com.uniclub.domain.club.entity.Media;
-import com.uniclub.domain.club.entity.MemberShip;
-import com.uniclub.domain.club.entity.Role;
+import com.uniclub.domain.club.entity.*;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.club.repository.MediaRepository;
 import com.uniclub.domain.club.repository.MembershipRepository;
@@ -24,10 +21,9 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -147,6 +143,8 @@ public class ClubService {
             throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
         }
 
+        //validateRequestDuplicates();
+
         //미디어 저장
         for (ClubMediaUploadRequestDto clubMediaUploadRequestDto : clubMediaUploadRequestDtoList) {
             Media media = clubMediaUploadRequestDto.toMediaEntity(club);
@@ -157,19 +155,18 @@ public class ClubService {
 
     //동아리 소개글 불러오기
     @Transactional(readOnly = true)
-    public ClubPromotionResponseDto getClubPromotion(Long clubId) {
+    public ClubPromotionResponseDto getClubPromotion(UserDetailsImpl userDetails, Long clubId) {
         Club club = clubRepository.findById(clubId) //실제 존재하는 동아리인지 확인
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
-
 
         List<Media> mediaList = mediaRepository.findByClubId(clubId);
         List<DescriptionMediaDto> mediaResList = new ArrayList<>();
         for (Media media : mediaList) {
             mediaResList.add(DescriptionMediaDto.from(media));
         }
-        return ClubPromotionResponseDto.from(club, mediaResList);
+        return ClubPromotionResponseDto.from(checkRole(userDetails.getUserId(), clubId), club, mediaResList);
     }
 
 
@@ -193,6 +190,21 @@ public class ClubService {
         return memberShip.getRole();
     }
 
+    //동아리 프로필, 배경 이미지 유효성 검사
+    private void validateRequestDuplicates(List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
+        Map<MediaType, Long> typeCount = clubMediaUploadRequestDtoList.stream()
+                .collect(Collectors.groupingBy(
+                        ClubMediaUploadRequestDto::getMediaType,
+                        Collectors.counting()
+                ));
 
+        for (Map.Entry<MediaType, Long> entry : typeCount.entrySet()) {
+            MediaType type = entry.getKey();
+            Long count = entry.getValue();
 
+            if ((type == MediaType.CLUB_PROMOTION || type == MediaType.CLUB_PROFILE) && count > 1) {
+                throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
+            }
+        }
+    }
 }

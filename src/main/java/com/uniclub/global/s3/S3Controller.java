@@ -25,13 +25,6 @@ public class S3Controller {
         return ResponseEntity.status(HttpStatus.CREATED).body(s3PresignedResponseDtoList);
     }
 
-//    //동아리 홍보글 미디어 서버에 업로드
-//    @PostMapping("/club/{clubId}/upload")
-//    @Operation(summary = "동아리 파일 업로드", description = "특정 동아리 파일을 업로드")
-//    public ResponseEntity<List<MediaUploadResponseDto>> uploadClubMedia(@PathVariable Long clubId, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody List<MediaUploadRequestDto> mediaUploadRequestDtoList) {
-//
-//    }
-
     //메인 페이지 미디어 S3 presigned url 요청
     @PostMapping("/main/s3-presigned")
     @Operation(summary = "메인 페이지 S3 presigned url", description = "메인 페이지 미디어 S3 presigned url 요청")
@@ -39,12 +32,4 @@ public class S3Controller {
         List<S3PresignedResponseDto> s3PresignedResponseDtoList = s3Service.getMainPresignedUrl(s3PresignedRequestDtoList);
         return ResponseEntity.status(HttpStatus.CREATED).body(s3PresignedResponseDtoList);
     }
-
-
-//    //동아리 홍보글 미디어 서버에 업로드
-//    @PostMapping("/main/upload")
-//    @Operation(summary = "메인 페이지 파일 업로드", description = "메인 페이지 파일을 업로드")
-//    public ResponseEntity<List<MediaUploadResponseDto>> uploadMainMedia(@RequestBody List<MediaUploadRequestDto> mediaUploadRequestDtoList) {
-//
-//    }
 }
