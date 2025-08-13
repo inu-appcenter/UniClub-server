@@ -69,8 +69,8 @@ public class ClubController implements ClubApiSpecification {
 
 
     @GetMapping("/{clubId}")
-    public ResponseEntity<ClubPromotionResponseDto> getClubPromotion(@PathVariable Long clubId) {
-        ClubPromotionResponseDto clubPromotionResponseDto = clubService.getClubPromotion(clubId);
+    public ResponseEntity<ClubPromotionResponseDto> getClubPromotion(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId) {
+        ClubPromotionResponseDto clubPromotionResponseDto = clubService.getClubPromotion(userDetails,clubId);
         return ResponseEntity.status(HttpStatus.OK).body(clubPromotionResponseDto);
     }
 

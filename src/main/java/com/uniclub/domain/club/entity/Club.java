@@ -52,11 +52,6 @@ public class Club extends BaseTime {
     @Column(columnDefinition = "TEXT")
     private String instagramLink;
 
-    @Column(columnDefinition = "TEXT")
-    private String profileImage;
- 
-    @Column(columnDefinition = "TEXT")
-    private String backgroundImage; //동아리 배경 이미지 url
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -65,8 +60,7 @@ public class Club extends BaseTime {
     @Builder
     public Club(String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime,
                 String description, String notice, String location, String presidentName, String presidentPhone,
-                String youtubeLink, String instagramLink, String profileImage, String backgroundImage,
-                Category category) {
+                String youtubeLink, String instagramLink, Category category) {
   
         this.name = name;
         this.status = status;
@@ -79,8 +73,7 @@ public class Club extends BaseTime {
         this.presidentPhone = presidentPhone;
         this.youtubeLink = youtubeLink;
         this.instagramLink = instagramLink;
-        this.profileImage = profileImage;
-        this.backgroundImage = backgroundImage;
+
         this.category = category;
     }
 
@@ -95,8 +88,6 @@ public class Club extends BaseTime {
         this.presidentPhone = club.getPresidentPhone();
         this.youtubeLink = club.getYoutubeLink();
         this.instagramLink = club.getInstagramLink();
-        this.profileImage = club.getProfileImage();
-        this.backgroundImage = club.getBackgroundImage();
         return this;
     }
 
