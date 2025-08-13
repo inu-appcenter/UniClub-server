@@ -10,6 +10,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Schema(description = "동아리 홍보게시글 생성 및 수정 응답 DTO")
 @Getter
@@ -55,10 +56,10 @@ public class ClubPromotionResponseDto {
     private final String backgroundImage;
 
     @Schema(description = "첨부 이미지, 영상 url")
-    private final List<String> mediaLinks; //이건 Media에 저장
+    private final List<DescriptionMediaDto> mediaList;
 
     @Builder
-    public ClubPromotionResponseDto(String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime, String description, String notice, String location, String presidentName, String presidentPhone, String youtubeLink, String instagramLink, String profileImage, String backgroundImage, List<String> mediaLinks) {
+    public ClubPromotionResponseDto(String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime, String description, String notice, String location, String presidentName, String presidentPhone, String youtubeLink, String instagramLink, String profileImage, String backgroundImage, List<DescriptionMediaDto> mediaList) {
         this.name = name;
         this.status = status;
         this.startTime = startTime;
@@ -72,11 +73,11 @@ public class ClubPromotionResponseDto {
         this.instagramLink = instagramLink;
         this.profileImage = profileImage;
         this.backgroundImage = backgroundImage;
-        this.mediaLinks = mediaLinks;
+        this.mediaList = mediaList;
     }
 
 
-    public static ClubPromotionResponseDto from(Club club, List<String> mediaLinks) {
+    public static ClubPromotionResponseDto from(Club club, List<DescriptionMediaDto> mediaList) {
         return ClubPromotionResponseDto.builder()
                 .name(club.getName())
                 .status(club.getStatus())
@@ -91,7 +92,7 @@ public class ClubPromotionResponseDto {
                 .instagramLink(club.getInstagramLink())
                 .profileImage(club.getProfileImage())
                 .backgroundImage(club.getBackgroundImage())
-                .mediaLinks(mediaLinks)
+                .mediaList(mediaList)
                 .build();
     }
 }
