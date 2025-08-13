@@ -15,7 +15,7 @@ import java.util.List;
 public class MediaUploadRequestDto {
 
     private List<MultipartFile> multipartFileList;
-    private List<MediaType> mediaTypes;
+    private List<String> mediaTypes;
     private List<Boolean> isMainList;
 
     public Media toMediaEntity(String mediaLink, MediaType mediaType, Boolean isMain) {

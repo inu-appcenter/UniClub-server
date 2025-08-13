@@ -57,7 +57,7 @@ public class S3Service {
 
         for (int i = 0; i < mediaUploadRequestDto.getMultipartFileList().size(); i++) {
             MultipartFile multipartFile = mediaUploadRequestDto.getMultipartFileList().get(i);
-            MediaType mediaType = mediaUploadRequestDto.getMediaTypes().get(i);
+            MediaType mediaType = stringToMediaType(mediaUploadRequestDto.getMediaTypes().get(i));
             Boolean isMain = mediaUploadRequestDto.getIsMainList().get(i);
 
             //S3 업로드
@@ -162,5 +162,14 @@ public class S3Service {
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         return memberShip.getRole();
+    }
+
+    private MediaType stringToMediaType(String input){
+        for(MediaType mediaType : MediaType.values()){
+            if(mediaType.name().equals(input)){
+                return mediaType;
+            }
+        }
+        throw new CustomException(ErrorCode.MEDIA_TYPE_NOT_FOUND);
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ClubRepository extends JpaRepository<Club, Long> {
@@ -18,6 +19,8 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     List<Club> findByCategoryName(CategoryType categoryName);
 
     Boolean existsByName(String name);
+
+    Optional<Club> findByName(String name);
 
     @Query("SELECT c FROM Club c WHERE " +
             "(LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +

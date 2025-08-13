@@ -20,7 +20,7 @@ public class ClubController implements ClubApiSpecification {
 
     private final ClubService clubService;
 
-    @GetMapping("/clubs")
+    @GetMapping()
     public ResponseEntity<PageClubResponseDto<ClubResponseDto>> getClubs(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam(required = false) String category,

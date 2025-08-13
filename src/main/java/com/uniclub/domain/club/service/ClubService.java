@@ -4,10 +4,7 @@ import com.uniclub.domain.category.entity.Category;
 import com.uniclub.domain.category.entity.CategoryType;
 import com.uniclub.domain.category.repository.CategoryRepository;
 import com.uniclub.domain.club.dto.*;
-import com.uniclub.domain.club.entity.Club;
-import com.uniclub.domain.club.entity.Media;
-import com.uniclub.domain.club.entity.MemberShip;
-import com.uniclub.domain.club.entity.Role;
+import com.uniclub.domain.club.entity.*;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.club.repository.MediaRepository;
 import com.uniclub.domain.club.repository.MembershipRepository;
@@ -46,7 +43,7 @@ public class ClubService {
             Long userId, String category, String sortBy, String cursorName, int size) {
 
         // String -> Enum 타입 변경, 카테고리 null인 경우 전체 동아리 조회
-        CategoryType categoryName = (category == null) ? null : CategoryType.from(category);
+        CategoryType categoryName = (category == null) ? null : stringToCategoryType(category);
         Pageable pageable = PageRequest.of(0, size + 1);
         // 정렬 기준 별 동아리 목록 조회
         Slice<Club> clubs = switch (sortBy) {
@@ -107,12 +104,9 @@ public class ClubService {
         };
 
         // String -> categoryType 변환
-        CategoryType categoryType = CategoryType.from(clubCreateRequestDto.getCategory());
+        CategoryType categoryType = stringToCategoryType(clubCreateRequestDto.getCategory());
 
-        // 카테고리 조회, 없으면 예외처리
-        Category category = categoryRepository.
-                findByName(categoryType).
-                orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+        Category category = new Category(categoryType);
 
         Club club = clubCreateRequestDto.toClubEntity(category);
         clubRepository.save(club);
@@ -131,8 +125,10 @@ public class ClubService {
             throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
         }
 
+        ClubStatus clubStatus = stringToClubStatus(promotionRegisterRequestDto.getStatus());
+
         //동아리 소개글 수정사항 반영
-        existingClub.update(promotionRegisterRequestDto.toClubEntity(promotionRegisterRequestDto));
+        existingClub.update(promotionRegisterRequestDto.toClubEntity(promotionRegisterRequestDto, clubStatus));
 
     }
 
@@ -182,5 +178,23 @@ public class ClubService {
         return memberShip.getRole();
     }
 
+
+    private CategoryType stringToCategoryType(String input) {
+        for (CategoryType category : CategoryType.values()) {
+            if (category.name().equals(input)) {
+                return category;
+            }
+        }
+        throw new CustomException(ErrorCode.CATEGORY_NOT_FOUND);
+    }
+
+    private ClubStatus stringToClubStatus(String input) {
+        for (ClubStatus clubStatus : ClubStatus.values()) {
+            if (clubStatus.name().equals(input)) {
+                return clubStatus;
+            }
+        }
+        throw new CustomException(ErrorCode.STATUS_NOT_FOUND);
+    }
 
 }

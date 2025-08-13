@@ -22,6 +22,9 @@ public enum ErrorCode {
     DUPLICATE_CATEGORY_NAME(HttpStatus.CONFLICT, 409, "이미 존재하는 카테고리입니다."),
     NOTIFICATION_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 알림 타입을 찾을 수 없습니다."),
     SCHOOL_SERVER_ERROR(HttpStatus.BAD_GATEWAY, 502, "학교 서버 응답에 문제가 발생했습니다."),
+    MEDIA_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 미디어 유형을 찾을 수 없습니다"),
+    ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 권한을 찾을 수 없습니다."),
+    STATUS_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 상태를 찾을 수 없습니다."),
 
     //파일 업로드 관련
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 500, "파일을 업로드할 수 없습니다."),

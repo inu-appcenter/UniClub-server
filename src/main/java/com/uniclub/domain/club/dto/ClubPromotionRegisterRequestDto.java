@@ -20,7 +20,7 @@ public class ClubPromotionRegisterRequestDto {
     private String name;
 
     @Schema(description = "동아리 모집 현황", example = "CLOSED")
-    private ClubStatus status;
+    private String status;
 
     @Schema(description = "모집 시작 시간", example = "2025-08-03T14:30:00")
     private LocalDateTime startTime;
@@ -50,10 +50,10 @@ public class ClubPromotionRegisterRequestDto {
     private String instagramLink;
 
     //저장을 위해 Club Entity로 변환
-    public Club toClubEntity(ClubPromotionRegisterRequestDto clubPromotionRegisterRequestDto) {
+    public Club toClubEntity(ClubPromotionRegisterRequestDto clubPromotionRegisterRequestDto, ClubStatus clubStatus) {
         return Club.builder()
                 .name(clubPromotionRegisterRequestDto.getName())
-                .status(clubPromotionRegisterRequestDto.getStatus())
+                .status(clubStatus)
                 .startTime(clubPromotionRegisterRequestDto.getStartTime())
                 .endTime(clubPromotionRegisterRequestDto.getEndTime())
                 .description(clubPromotionRegisterRequestDto.getDescription())

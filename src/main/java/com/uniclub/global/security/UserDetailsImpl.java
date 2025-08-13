@@ -1,7 +1,5 @@
 package com.uniclub.global.security;
 
-import com.uniclub.domain.club.entity.MemberShip;
-import com.uniclub.domain.club.entity.Role;
 import com.uniclub.domain.user.entity.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

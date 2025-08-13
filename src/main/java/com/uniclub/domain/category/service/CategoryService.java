@@ -21,7 +21,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     public void createCategory(CategoryRequestDto categoryRequestDto) {
-        CategoryType categoryName = CategoryType.from(categoryRequestDto.getName());
+        CategoryType categoryName = from(categoryRequestDto.getName());
 
         if (categoryRepository.existsByName(categoryName)) { // 카테고리 중복 확인
             throw new CustomException(ErrorCode.DUPLICATE_CATEGORY_NAME);
@@ -35,5 +35,14 @@ public class CategoryService {
             throw new CustomException(ErrorCode.CATEGORY_NOT_FOUND);
         }
         categoryRepository.deleteById(categoryId);
+    }
+
+    private CategoryType from(String input) {
+        for (CategoryType category : CategoryType.values()) {
+            if (category.name().equals(input)) {
+                return category;
+            }
+        }
+        throw new CustomException(ErrorCode.CATEGORY_NOT_FOUND);
     }
 }
