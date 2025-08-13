@@ -128,6 +128,7 @@ public interface ClubApiSpecification {
                       "message": "해당 카테고리를 찾을 수 없습니다."
                     }
                     """
+                            )
                     )
             ),
             @ApiResponse(responseCode = "409", description = "동아리명 중복",

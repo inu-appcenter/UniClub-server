@@ -3,6 +3,7 @@ package com.uniclub.domain.main.controller;
 import com.uniclub.domain.main.dto.MainPageClubResponseDto;
 import com.uniclub.domain.main.service.MainService;
 import com.uniclub.global.security.UserDetailsImpl;
+import com.uniclub.global.swagger.MainApiSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/main")
-public class MainController {
+public class MainController implements MainApiSpecification {
     private final MainService mainService;
 
     @GetMapping("/clubs")
