@@ -26,7 +26,7 @@ public class ClubCreateRequestDto {
     //저장을 위해 Club Entity로 변환
     public Club toClubEntity(Category category) {
         return Club.builder()
-                .name(this.name)
+                .name(name)
                 .category(category)
                 .build();
     }

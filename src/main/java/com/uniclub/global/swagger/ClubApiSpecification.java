@@ -229,7 +229,7 @@ public interface ClubApiSpecification {
             )
     })
     ResponseEntity<ClubPromotionResponseDto> getClubPromotion(
-            @PathVariable Long clubId
+            @AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId
     );
 
     @Operation(summary = "동아리 삭제", description = "동아리 삭제")
@@ -252,4 +252,5 @@ public interface ClubApiSpecification {
     ResponseEntity<Void> deleteClub(
             @PathVariable Long clubId
     );
+
 }

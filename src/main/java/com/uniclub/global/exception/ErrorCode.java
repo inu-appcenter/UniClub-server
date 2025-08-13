@@ -33,7 +33,8 @@ public enum ErrorCode {
     EMPTY_FILE(HttpStatus.BAD_REQUEST, 400, "빈 파일은 업로드할 수 없습니다."),
     INVALID_FILE_NAME(HttpStatus.BAD_REQUEST, 400, "유효하지 않은 파일명입니다."),
     FILE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, 400, "업로드 가능한 파일 개수를 초과했습니다."),
-    S3_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "파일 저장소 연결에 실패했습니다.");
+    S3_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "파일 저장소 연결에 실패했습니다."),
+    DUPLICATE_MEDIA_TYPE(HttpStatus.BAD_REQUEST, 400, "해당 타입의 이미지는 동아리만 하나만 등록 가능합니다.");
 
 
 

@@ -17,19 +17,19 @@ public class S3Controller {
 
     private final S3Service s3Service;
 
-    //동아리 홍보글 관련 Media file
-    @PostMapping("/club/{clubId}/upload")
-    @Operation(summary = "동아리 파일 업로드", description = "특정 동아리 파일을 업로드")
-    public ResponseEntity<List<MediaUploadResponseDto>> uploadClubMedia(@PathVariable Long clubId, @AuthenticationPrincipal UserDetailsImpl userDetails, @ModelAttribute MediaUploadRequestDto mediaUploadRequestDto) {
-        List<MediaUploadResponseDto> mediaUploadResponseDtoList = s3Service.uploadClubMedia(userDetails, clubId, mediaUploadRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(mediaUploadResponseDtoList);
+    //동아리 홍보글 미디어 S3 presigned url 요청
+    @PostMapping("/club/{clubId}/s3-presigned")
+    @Operation(summary = "동아리 S3 presigned url", description = "동아리 미디어 S3 presigned url 요청")
+    public ResponseEntity<List<S3PresignedResponseDto>> getClubS3Presigned(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId, @RequestBody List<S3PresignedRequestDto> s3PresignedRequestDtoList) {
+        List<S3PresignedResponseDto> s3PresignedResponseDtoList = s3Service.getClubPresignedUrl(userDetails, clubId, s3PresignedRequestDtoList);
+        return ResponseEntity.status(HttpStatus.CREATED).body(s3PresignedResponseDtoList);
     }
 
-    //메인 페이지 Media file
-    @PostMapping("/main/upload")
-    @Operation(summary = "메인 페이지 파일 업로드", description = "메인 페이지 파일을 업로드")
-    public ResponseEntity<Void> uploadMainMedia(@ModelAttribute MediaUploadRequestDto mediaUploadRequestDto) {
-        s3Service.uploadMainMedia(mediaUploadRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    //메인 페이지 미디어 S3 presigned url 요청
+    @PostMapping("/main/s3-presigned")
+    @Operation(summary = "메인 페이지 S3 presigned url", description = "메인 페이지 미디어 S3 presigned url 요청")
+    public ResponseEntity<List<S3PresignedResponseDto>> getMainS3Presigned(@RequestBody List<S3PresignedRequestDto> s3PresignedRequestDtoList) {
+        List<S3PresignedResponseDto> s3PresignedResponseDtoList = s3Service.getMainPresignedUrl(s3PresignedRequestDtoList);
+        return ResponseEntity.status(HttpStatus.CREATED).body(s3PresignedResponseDtoList);
     }
 }

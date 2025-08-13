@@ -11,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 
 @RestController
@@ -58,10 +61,16 @@ public class ClubController implements ClubApiSpecification {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PostMapping("{clubId}/upload")
+    public ResponseEntity<Void> uploadClubMedia(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId, @RequestBody List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
+        clubService.uploadClubMedia(userDetails, clubId, clubMediaUploadRequestDtoList);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
 
     @GetMapping("/{clubId}")
-    public ResponseEntity<ClubPromotionResponseDto> getClubPromotion(@PathVariable Long clubId) {
-        ClubPromotionResponseDto clubPromotionResponseDto = clubService.getClubPromotion(clubId);
+    public ResponseEntity<ClubPromotionResponseDto> getClubPromotion(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId) {
+        ClubPromotionResponseDto clubPromotionResponseDto = clubService.getClubPromotion(userDetails,clubId);
         return ResponseEntity.status(HttpStatus.OK).body(clubPromotionResponseDto);
     }
 

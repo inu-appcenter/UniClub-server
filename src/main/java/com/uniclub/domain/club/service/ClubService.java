@@ -21,10 +21,9 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -128,26 +127,46 @@ public class ClubService {
         ClubStatus clubStatus = stringToClubStatus(promotionRegisterRequestDto.getStatus());
 
         //동아리 소개글 수정사항 반영
-        existingClub.update(promotionRegisterRequestDto.toClubEntity(promotionRegisterRequestDto, clubStatus));
+        existingClub.update(promotionRegisterRequestDto.toClubEntity(clubStatus));
 
+    }
+
+    public void uploadClubMedia(UserDetailsImpl userDetails, Long clubId, List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
+        // 존재하는 동아리인지 확인
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+
+        //해당 동아리의 운영진인지 확인
+        Role userRole = checkRole(userDetails.getUserId(), clubId);
+        if (userRole != Role.PRESIDENT && userRole != Role.ADMIN) {
+            throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
+        }
+
+        //validateRequestDuplicates();
+
+        //미디어 저장
+        for (ClubMediaUploadRequestDto clubMediaUploadRequestDto : clubMediaUploadRequestDtoList) {
+            MediaType mediaType = stringToMediaType(clubMediaUploadRequestDto.getMediaType());
+            Media media = clubMediaUploadRequestDto.toMediaEntity(club, mediaType);
+            mediaRepository.save(media);
+        }
     }
 
 
     //동아리 소개글 불러오기
     @Transactional(readOnly = true)
-    public ClubPromotionResponseDto getClubPromotion(Long clubId) {
+    public ClubPromotionResponseDto getClubPromotion(UserDetailsImpl userDetails, Long clubId) {
         Club club = clubRepository.findById(clubId) //실제 존재하는 동아리인지 확인
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
 
-
-        List<Media> medias = mediaRepository.findByClubId(clubId);
-        List<String> mediaLinks = new ArrayList<>();
-        for (Media media : medias) {
-            mediaLinks.add(media.getMediaLink());
+        List<Media> mediaList = mediaRepository.findByClubId(clubId);
+        List<DescriptionMediaDto> mediaResList = new ArrayList<>();
+        for (Media media : mediaList) {
+            mediaResList.add(DescriptionMediaDto.from(media));
         }
-        return ClubPromotionResponseDto.from(club, mediaLinks);
+        return ClubPromotionResponseDto.from(checkRole(userDetails.getUserId(), clubId), club, mediaResList);
     }
 
 
@@ -161,13 +180,6 @@ public class ClubService {
         clubRepository.deleteById(clubId);
     }
 
-    //동아리 미디어 저장
-    private Media saveMedia(String media, Club mediaEntity) {
-        return Media.builder()
-                .mediaLink(media)
-                .club(mediaEntity)
-                .build();
-    }
 
     //특정 동아리 유저 권한 확인
     @Transactional(readOnly = true)
@@ -178,6 +190,23 @@ public class ClubService {
         return memberShip.getRole();
     }
 
+    //동아리 프로필, 배경 이미지 유효성 검사
+    private void validateRequestDuplicates(List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
+        Map<MediaType, Long> typeCount = clubMediaUploadRequestDtoList.stream()
+                .collect(Collectors.groupingBy(
+                        dto -> stringToMediaType(dto.getMediaType()), // String → MediaType 변환
+                        Collectors.counting()
+                ));
+
+        for (Map.Entry<MediaType, Long> entry : typeCount.entrySet()) {
+            MediaType type = entry.getKey();
+            Long count = entry.getValue();
+
+            if ((type == MediaType.CLUB_PROMOTION || type == MediaType.CLUB_PROFILE) && count > 1) {
+                throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
+            }
+        }
+    }
 
     private CategoryType stringToCategoryType(String input) {
         for (CategoryType category : CategoryType.values()) {
@@ -195,6 +224,15 @@ public class ClubService {
             }
         }
         throw new CustomException(ErrorCode.STATUS_NOT_FOUND);
+    }
+
+    private MediaType stringToMediaType(String input) {
+        for (MediaType mediaType : MediaType.values()) {
+            if (mediaType.name().equals(input)) {
+                return mediaType;
+            }
+        }
+        throw new CustomException(ErrorCode.MEDIA_TYPE_NOT_FOUND);
     }
 
 }
