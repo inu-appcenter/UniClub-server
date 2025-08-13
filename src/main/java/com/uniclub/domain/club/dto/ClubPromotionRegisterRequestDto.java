@@ -50,19 +50,19 @@ public class ClubPromotionRegisterRequestDto {
     private String instagramLink;
 
     //저장을 위해 Club Entity로 변환
-    public Club toClubEntity(ClubPromotionRegisterRequestDto clubPromotionRegisterRequestDto) {
+    public Club toClubEntity() {
         return Club.builder()
-                .name(clubPromotionRegisterRequestDto.getName())
-                .status(clubPromotionRegisterRequestDto.getStatus())
-                .startTime(clubPromotionRegisterRequestDto.getStartTime())
-                .endTime(clubPromotionRegisterRequestDto.getEndTime())
-                .description(clubPromotionRegisterRequestDto.getDescription())
-                .notice(clubPromotionRegisterRequestDto.getNotice())
-                .location(clubPromotionRegisterRequestDto.getLocation())
-                .presidentName(clubPromotionRegisterRequestDto.getPresidentName())
-                .presidentPhone(clubPromotionRegisterRequestDto.getPresidentPhone())
-                .youtubeLink(clubPromotionRegisterRequestDto.getYoutubeLink())
-                .instagramLink(clubPromotionRegisterRequestDto.getInstagramLink())
+                .name(name)
+                .status(status)
+                .startTime(startTime)
+                .endTime(endTime)
+                .description(description)
+                .notice(notice)
+                .location(location)
+                .presidentName(presidentName)
+                .presidentPhone(presidentPhone)
+                .youtubeLink(youtubeLink)
+                .instagramLink(instagramLink)
                 .build();
     }
 

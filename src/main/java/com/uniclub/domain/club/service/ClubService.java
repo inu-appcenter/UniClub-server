@@ -3,10 +3,7 @@ package com.uniclub.domain.club.service;
 import com.uniclub.domain.category.entity.Category;
 import com.uniclub.domain.category.entity.CategoryType;
 import com.uniclub.domain.category.repository.CategoryRepository;
-import com.uniclub.domain.club.dto.ClubCreateRequestDto;
-import com.uniclub.domain.club.dto.ClubPromotionRegisterRequestDto;
-import com.uniclub.domain.club.dto.ClubPromotionResponseDto;
-import com.uniclub.domain.club.dto.ClubResponseDto;
+import com.uniclub.domain.club.dto.*;
 import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.entity.Media;
 import com.uniclub.domain.club.entity.MemberShip;
@@ -136,8 +133,26 @@ public class ClubService {
         }
 
         //동아리 소개글 수정사항 반영
-        existingClub.update(promotionRegisterRequestDto.toClubEntity(promotionRegisterRequestDto));
+        existingClub.update(promotionRegisterRequestDto.toClubEntity());
 
+    }
+
+    public void uploadClubMedia(UserDetailsImpl userDetails, Long clubId, List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
+        // 존재하는 동아리인지 확인
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+
+        //해당 동아리의 운영진인지 확인
+        Role userRole = checkRole(userDetails.getUserId(), clubId);
+        if (userRole != Role.PRESIDENT && userRole != Role.ADMIN) {
+            throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
+        }
+
+        //미디어 저장
+        for (ClubMediaUploadRequestDto clubMediaUploadRequestDto : clubMediaUploadRequestDtoList) {
+            Media media = clubMediaUploadRequestDto.toMediaEntity(club);
+            mediaRepository.save(media);
+        }
     }
 
 
@@ -150,12 +165,12 @@ public class ClubService {
                 );
 
 
-        List<Media> medias = mediaRepository.findByClubId(clubId);
-        List<String> mediaLinks = new ArrayList<>();
-        for (Media media : medias) {
-            mediaLinks.add(media.getMediaLink());
+        List<Media> mediaList = mediaRepository.findByClubId(clubId);
+        List<DescriptionMediaDto> mediaResList = new ArrayList<>();
+        for (Media media : mediaList) {
+            mediaResList.add(DescriptionMediaDto.from(media));
         }
-        return ClubPromotionResponseDto.from(club, mediaLinks);
+        return ClubPromotionResponseDto.from(club, mediaResList);
     }
 
 
@@ -169,13 +184,6 @@ public class ClubService {
         clubRepository.deleteById(clubId);
     }
 
-    //동아리 미디어 저장
-    private Media saveMedia(String media, Club mediaEntity) {
-        return Media.builder()
-                .mediaLink(media)
-                .club(mediaEntity)
-                .build();
-    }
 
     //특정 동아리 유저 권한 확인
     @Transactional(readOnly = true)
@@ -185,6 +193,7 @@ public class ClubService {
         );
         return memberShip.getRole();
     }
+
 
 
 }

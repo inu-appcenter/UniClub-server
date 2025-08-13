@@ -25,14 +25,14 @@ public class Media extends BaseTime {
     private MediaType mediaType;    //미디어 타입
 
     @ColumnDefault("false")
-    private Boolean isMain; //대표 이미지 설정
+    private boolean isMain; //대표 이미지 설정
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clubId")    //FK
     private Club club;
 
     @Builder
-    public Media(String mediaLink, MediaType mediaType, Boolean isMain, Club club) {
+    public Media(String mediaLink, MediaType mediaType, boolean isMain, Club club) {
         this.mediaLink = mediaLink;
         this.mediaType = mediaType;
         this.isMain = isMain;

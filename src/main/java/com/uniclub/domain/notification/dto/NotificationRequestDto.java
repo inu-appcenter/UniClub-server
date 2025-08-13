@@ -30,7 +30,7 @@ public class NotificationRequestDto {
     public Notification toNotificationEntity(User user, NotificationType type) {
         return Notification.builder()
                 .user(user)
-                .message(this.message)
+                .message(message)
                 .type(type)
                 .build();
     }
