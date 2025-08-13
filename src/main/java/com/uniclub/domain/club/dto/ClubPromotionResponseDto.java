@@ -4,6 +4,8 @@ package com.uniclub.domain.club.dto;
 import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.entity.ClubStatus;
 import com.uniclub.domain.club.entity.Media;
+import com.uniclub.domain.club.entity.Role;
+import com.uniclub.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +17,9 @@ import java.util.Map;
 @Schema(description = "동아리 홍보게시글 생성 및 수정 응답 DTO")
 @Getter
 public class ClubPromotionResponseDto {
+
+    @Schema(description = "유저 권한", example = "ADMIN")
+    private final Role role;
 
     @Schema(description = "동아리 이름", example = "앱센터")
     private final String name;
@@ -49,17 +54,12 @@ public class ClubPromotionResponseDto {
     @Schema(description = "인스타그램 url")
     private final String instagramLink;
 
-    @Schema(description = "프로필 이미지 url")
-    private final String profileImage;
-
-    @Schema(description = "배경 이미지 url")
-    private final String backgroundImage;
-
     @Schema(description = "첨부 이미지, 영상 url")
     private final List<DescriptionMediaDto> mediaList;
 
     @Builder
-    public ClubPromotionResponseDto(String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime, String description, String notice, String location, String presidentName, String presidentPhone, String youtubeLink, String instagramLink, String profileImage, String backgroundImage, List<DescriptionMediaDto> mediaList) {
+    public ClubPromotionResponseDto(Role role, String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime, String description, String notice, String location, String presidentName, String presidentPhone, String youtubeLink, String instagramLink, List<DescriptionMediaDto> mediaList) {
+        this.role = role;
         this.name = name;
         this.status = status;
         this.startTime = startTime;
@@ -71,14 +71,13 @@ public class ClubPromotionResponseDto {
         this.presidentPhone = presidentPhone;
         this.youtubeLink = youtubeLink;
         this.instagramLink = instagramLink;
-        this.profileImage = profileImage;
-        this.backgroundImage = backgroundImage;
         this.mediaList = mediaList;
     }
 
 
-    public static ClubPromotionResponseDto from(Club club, List<DescriptionMediaDto> mediaList) {
+    public static ClubPromotionResponseDto from(Role role, Club club, List<DescriptionMediaDto> mediaList) {
         return ClubPromotionResponseDto.builder()
+                .role(role)
                 .name(club.getName())
                 .status(club.getStatus())
                 .startTime(club.getStartTime())
@@ -90,8 +89,6 @@ public class ClubPromotionResponseDto {
                 .presidentPhone(club.getPresidentPhone())
                 .youtubeLink(club.getYoutubeLink())
                 .instagramLink(club.getInstagramLink())
-                .profileImage(club.getProfileImage())
-                .backgroundImage(club.getBackgroundImage())
                 .mediaList(mediaList)
                 .build();
     }

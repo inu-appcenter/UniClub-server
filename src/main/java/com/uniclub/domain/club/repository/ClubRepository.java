@@ -66,5 +66,5 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     left join Favorite f on f.club = c and f.user.userId = :userId
     order by function('rand')
     """)
-    List<MainPageClubResponseDto> getMainPageClubs(Pageable pageable);
+    List<MainPageClubResponseDto> getMainPageClubs(Long userId, Pageable pageable);
 }
