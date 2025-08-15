@@ -2,11 +2,11 @@ package com.uniclub.global.security;
 
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.domain.user.repository.UserRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.uniclub.global.exception.ErrorCode;
+import com.uniclub.global.security.exception.JwtAuthException;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -87,7 +87,7 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, token, authorities);
     }
 
-    //토큰 검증
+    // 토큰 검증
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -95,11 +95,23 @@ public class JwtTokenProvider {
                     .build()
                     .parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            // 서명 불일치인 경우
+        } catch (SignatureException e) {
+            throw new JwtAuthException(ErrorCode.JWT_SIGNATURE);
+            // jwt 구조가 잘못된 경우
+        } catch (MalformedJwtException e) {
+            throw new JwtAuthException(ErrorCode.JWT_MALFORMED);
+            // 토큰 만료
+        } catch (ExpiredJwtException e) {
+            throw new JwtAuthException(ErrorCode.JWT_ACCESS_TOKEN_EXPIRED);
+            // 서버에서 지정한 형식의 토큰인 경우 (Ex - 암호화 알고리즘이 다른 경우
+        } catch (UnsupportedJwtException e) {
+            throw new JwtAuthException(ErrorCode.JWT_UNSUPPORTED);
+            // 토큰이 유효하지 않은 경우 (null, 빈 문자열 등)
+        } catch (IllegalArgumentException e) {
+            throw new JwtAuthException(ErrorCode.JWT_NOT_VALID);
         }
     }
-
 
     public Long getTokenValidityInMilliseconds() {
         return this.tokenValidityInMilliseconds;
