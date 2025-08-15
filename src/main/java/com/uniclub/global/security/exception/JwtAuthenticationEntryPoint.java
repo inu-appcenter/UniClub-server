@@ -21,6 +21,12 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
+
+        ErrorCode errorCode = ErrorCode.JWT_ENTRY_POINT;
+
+        if (authException instanceof JwtAuthException jwtEx) {
+            errorCode = jwtEx.getErrorCode();
+        }
         response.setStatus(ErrorCode.JWT_ENTRY_POINT.getHttpStatus().value());
         // 응답의 콘텐츠 타입을 JSON 형식으로 지정
         response.setContentType("application/json;charset=UTF-8");
@@ -30,9 +36,9 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         // 아래 객체를 직렬화
         String json = objectMapper.writeValueAsString(
                 ErrorResponse.builder()
-                        .code(ErrorCode.JWT_ENTRY_POINT.getCode())
-                        .name(ErrorCode.JWT_ENTRY_POINT.name())
-                        .message(ErrorCode.JWT_ENTRY_POINT.getMessage())
+                        .code(errorCode.getCode())
+                        .name(errorCode.name())
+                        .message(errorCode.getMessage())
                         .build()
         );
         // JSON을 HTTP 응답 본문에 작성
