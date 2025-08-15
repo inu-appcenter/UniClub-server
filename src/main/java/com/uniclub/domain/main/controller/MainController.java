@@ -22,7 +22,7 @@ public class MainController implements MainApiSpecification {
     private final MainService mainService;
 
     @GetMapping
-    public ResponseEntity<List<MainPageMediaResponseDto>> getMainPageClub() {
+    public ResponseEntity<List<MainPageMediaResponseDto>> getMainPageMedia() {
         List<MainPageMediaResponseDto> mainPageMediaResponseDtoList = mainService.getMainPageMedia();
         return ResponseEntity.status(HttpStatus.OK).body(mainPageMediaResponseDtoList);
     }

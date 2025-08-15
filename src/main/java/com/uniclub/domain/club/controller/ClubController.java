@@ -58,7 +58,7 @@ public class ClubController implements ClubApiSpecification {
     @PutMapping("/{clubId}")
     public ResponseEntity<Void> promotionRegister(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId, @RequestBody ClubPromotionRegisterRequestDto clubPromotionRegisterRequestDto) {
         clubService.saveClubPromotion(userDetails, clubId, clubPromotionRegisterRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping("{clubId}/upload")

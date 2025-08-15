@@ -1,9 +1,7 @@
 package com.uniclub.global.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
@@ -11,7 +9,6 @@ import java.util.Map;
 
 @Builder
 @Getter
-
 public class ErrorResponse {
     private Integer code;
     private String name;

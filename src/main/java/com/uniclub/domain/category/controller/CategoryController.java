@@ -18,7 +18,7 @@ public class CategoryController implements CategoryApiSpecification {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<Long> createCategory(@Valid @RequestBody CategoryRequestDto categoryRequestDto) {
+    public ResponseEntity<Void> createCategory(@Valid @RequestBody CategoryRequestDto categoryRequestDto) {
         categoryService.createCategory(categoryRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

@@ -36,7 +36,7 @@ public interface CategoryApiSpecification {
                     )
             )
     })
-    ResponseEntity<Long> createCategory(
+    ResponseEntity<Void> createCategory(
             @Valid @RequestBody CategoryRequestDto categoryRequestDto
     );
 

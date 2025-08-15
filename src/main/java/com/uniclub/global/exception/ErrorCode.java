@@ -34,9 +34,18 @@ public enum ErrorCode {
     INVALID_FILE_NAME(HttpStatus.BAD_REQUEST, 400, "유효하지 않은 파일명입니다."),
     FILE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, 400, "업로드 가능한 파일 개수를 초과했습니다."),
     S3_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "파일 저장소 연결에 실패했습니다."),
-    DUPLICATE_MEDIA_TYPE(HttpStatus.BAD_REQUEST, 400, "해당 타입의 이미지는 동아리만 하나만 등록 가능합니다.");
+    DUPLICATE_MEDIA_TYPE(HttpStatus.BAD_REQUEST, 400, "해당 타입의 이미지는 동아리만 하나만 등록 가능합니다."),
 
 
+
+    // JWT
+    JWT_ENTRY_POINT(HttpStatus.UNAUTHORIZED, 401, "인증되지 않은 사용자입니다."),
+    JWT_ACCESS_DENIED(HttpStatus.FORBIDDEN, 403, "리소스에 접근할 권한이 없습니다."),
+    JWT_SIGNATURE(HttpStatus.UNAUTHORIZED, 401, "잘못된 JWT 서명입니다."),
+    JWT_MALFORMED(HttpStatus.UNAUTHORIZED, 401, "유효하지 않은 JWT 토큰입니다."),
+    JWT_ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, 401, "액세스 토큰이 만료되었습니다."),
+    JWT_UNSUPPORTED(HttpStatus.UNAUTHORIZED, 401, "지원하지 않는 JWT 토큰입니다."),
+    JWT_NOT_VALID(HttpStatus.UNAUTHORIZED, 401, "유효하지 않은 JWT 토큰입니다.");
 
 
 

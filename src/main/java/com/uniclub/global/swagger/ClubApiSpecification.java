@@ -4,6 +4,8 @@ package com.uniclub.global.swagger;
 import com.uniclub.domain.club.dto.*;
 import com.uniclub.global.exception.ErrorResponse;
 import com.uniclub.global.security.UserDetailsImpl;
+
+import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -23,7 +25,7 @@ public interface ClubApiSpecification {
 
     @Operation(summary = "동아리 조회", description = "전체, 카테고리별, 정렬순 동아리 조회")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "조회 성공",
+            @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(
                             schema = @Schema(implementation = PageClubResponseDto.class),
                             examples = @ExampleObject("""
@@ -89,9 +91,11 @@ public interface ClubApiSpecification {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "토글 처리 성공",
                     content = @Content(
-                            schema = @Schema(type = "string"),
+                            schema = @Schema(implementation = ToggleFavoriteResponseDto.class),
                             examples = @ExampleObject("""
-                    "관심 동아리 등록 완료"
+                    {
+                      "message": "관심 동아리 등록 완료"
+                    }
                     """
                             )
                     )
@@ -117,7 +121,7 @@ public interface ClubApiSpecification {
 
     @Operation(summary = "동아리 등록", description = "신규 동아리 생성")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "등록 성공"),
+            @ApiResponse(responseCode = "201", description = "등록 성공"),
             @ApiResponse(responseCode = "404", description = "카테고리 찾기 실패",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
@@ -151,7 +155,7 @@ public interface ClubApiSpecification {
 
     @Operation(summary = "동아리 홍보페이지 작성 및 수정", description = "동아리 홍보페이지 작성/수정")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "처리 성공"),
+            @ApiResponse(responseCode = "204", description = "처리 성공"),
             @ApiResponse(responseCode = "404", description = "동아리 찾기 실패",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
@@ -177,6 +181,32 @@ public interface ClubApiSpecification {
                     """
                             )
                     )
+            ),
+            @ApiResponse(responseCode = "404", description = "멤버십 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "MEMBERSHIP_NOT_FOUND",
+                      "message": "해당 동아리 권한을 찾을 수 없습니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "상태 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "STATUS_NOT_FOUND",
+                      "message": "해당 상태를 찾을 수 없습니다."
+                    }
+                    """
+                            )
+                    )
             )
     })
     ResponseEntity<Void> promotionRegister(
@@ -187,7 +217,7 @@ public interface ClubApiSpecification {
 
     @Operation(summary = "동아리 홍보페이지 조회", description = "동아리 홍보페이지 조회")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "조회 성공",
+            @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(
                             schema = @Schema(implementation = ClubPromotionResponseDto.class),
                             examples = @ExampleObject("""
@@ -230,6 +260,81 @@ public interface ClubApiSpecification {
     })
     ResponseEntity<ClubPromotionResponseDto> getClubPromotion(
             @AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId
+    );
+
+    @Operation(summary = "동아리 미디어 업로드", description = "동아리 홍보용 미디어 업로드")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "업로드 성공"),
+            @ApiResponse(responseCode = "404", description = "동아리 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "CLUB_NOT_FOUND",
+                      "message": "해당 동아리를 찾을 수 없습니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "403", description = "권한 없음",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 403,
+                      "name": "INSUFFICIENT_PERMISSION",
+                      "message": "사용 권한이 없습니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "멤버십 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "MEMBERSHIP_NOT_FOUND",
+                      "message": "해당 동아리 권한을 찾을 수 없습니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "미디어 타입 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "MEDIA_TYPE_NOT_FOUND",
+                      "message": "해당 미디어 유형을 찾을 수 없습니다"
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "중복 미디어 타입",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 400,
+                      "name": "DUPLICATE_MEDIA_TYPE",
+                      "message": "해당 타입의 이미지는 동아리만 하나만 등록 가능합니다."
+                    }
+                    """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<Void> uploadClubMedia(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long clubId,
+            @RequestBody List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList
     );
 
     @Operation(summary = "동아리 삭제", description = "동아리 삭제")
