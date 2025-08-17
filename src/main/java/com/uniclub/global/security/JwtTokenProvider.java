@@ -104,7 +104,7 @@ public class JwtTokenProvider {
             // 토큰 만료
         } catch (ExpiredJwtException e) {
             throw new JwtAuthException(ErrorCode.JWT_ACCESS_TOKEN_EXPIRED);
-            // 서버에서 지정한 형식의 토큰인 경우 (Ex - 암호화 알고리즘이 다른 경우
+            // 서버에서 지정한 형식의 토큰이 아닌 경우 (Ex - 암호화 알고리즘이 다른 경우
         } catch (UnsupportedJwtException e) {
             throw new JwtAuthException(ErrorCode.JWT_UNSUPPORTED);
             // 토큰이 유효하지 않은 경우 (null, 빈 문자열 등)

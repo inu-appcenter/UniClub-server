@@ -1,6 +1,7 @@
 package com.uniclub.global.s3;
 
 import com.uniclub.global.security.UserDetailsImpl;
+import com.uniclub.global.swagger.S3ApiSpecification;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
-public class S3Controller {
+public class S3Controller implements S3ApiSpecification {
 
     private final S3Service s3Service;
 
