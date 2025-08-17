@@ -28,7 +28,7 @@ public class Media extends BaseTime {
     private boolean isMain; //대표 이미지 설정
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "clubId")    //FK
+    @JoinColumn(name = "clubId", nullable = true)    //FK
     private Club club;
 
     @Builder

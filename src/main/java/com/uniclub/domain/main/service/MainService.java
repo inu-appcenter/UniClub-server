@@ -8,6 +8,8 @@ import com.uniclub.domain.club.repository.MediaRepository;
 import com.uniclub.domain.main.dto.MainMediaUploadRequestDto;
 import com.uniclub.domain.main.dto.MainPageClubResponseDto;
 import com.uniclub.domain.main.dto.MainPageMediaResponseDto;
+import com.uniclub.global.exception.CustomException;
+import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -47,8 +49,18 @@ public class MainService {
     public void uploadMainMedia(List<MainMediaUploadRequestDto> mainMediaUploadRequestDtoList) {
         //미디어 저장
         for (MainMediaUploadRequestDto mainMediaUploadRequestDto : mainMediaUploadRequestDtoList) {
-            Media media = mainMediaUploadRequestDto.toMediaEntity();
+            MediaType mediaType = stringToMediaType(mainMediaUploadRequestDto.getMediaType());
+            Media media = mainMediaUploadRequestDto.toMediaEntity(mediaType);
             mediaRepository.save(media);
         }
+    }
+
+    private MediaType stringToMediaType(String input) {
+        for (MediaType mediaType : MediaType.values()) {
+            if (mediaType.name().equals(input)) {
+                return mediaType;
+            }
+        }
+        throw new CustomException(ErrorCode.MEDIA_TYPE_NOT_FOUND);
     }
 }

@@ -142,10 +142,8 @@ public class ClubService {
             throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
         }
 
-        //요청에 CLUB_PROFILE과 CLUB_BACKGROUND이 두개 이상있으면 false반환
-        if (!validateMediaType(clubMediaUploadRequestDtoList)) {
-            throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
-        }
+        //요청에 CLUB_PROFILE과 CLUB_BACKGROUND이 두개 이상 담겨있는지 확인
+        validateMediaType(clubMediaUploadRequestDtoList);
 
         //기존에 존재하는 CLUB_PROFILE과 CLUB_BACKGROUND 삭제
         deleteExistingUniqueMediaType(clubId, clubMediaUploadRequestDtoList);
@@ -158,7 +156,7 @@ public class ClubService {
         }
     }
 
-    private boolean validateMediaType(List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
+    private void validateMediaType(List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
         //각 Type들 개수 세기
         Map<String, Long> mediaTypeCount = clubMediaUploadRequestDtoList.stream()
                 .collect(Collectors.groupingBy(
@@ -169,14 +167,12 @@ public class ClubService {
         // 단일 허용 MediaType들 검증
         //CLUB_PROFILE
         if (mediaTypeCount.getOrDefault(MediaType.CLUB_PROFILE, 0L) > 1) {
-            return false;
+            throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
         }
         //CLUB_BACKGROUND
         if (mediaTypeCount.getOrDefault(MediaType.CLUB_BACKGROUND, 0L) > 1) {
-            return false;
+            throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
         }
-
-        return true;
     }
 
     private void deleteExistingUniqueMediaType(Long clubId, List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
@@ -225,13 +221,12 @@ public class ClubService {
     }
 
 
-    //특정 동아리 유저 권한 확인
+    //특정 동아리 유저 권한 확인 (정보 없으면 GUEST로 반환)
     @Transactional(readOnly = true)
     public Role checkRole(Long userId, Long clubId) {
-        MemberShip memberShip = membershipRepository.findByUserIdAndClubId(userId, clubId).orElseThrow(
-                () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
-        );
-        return memberShip.getRole();
+        return membershipRepository.findByUserIdAndClubId(userId, clubId)
+                .map(MemberShip::getRole)
+                .orElse(Role.GUEST);
     }
 
 

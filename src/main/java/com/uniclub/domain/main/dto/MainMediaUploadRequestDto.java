@@ -15,12 +15,12 @@ public class MainMediaUploadRequestDto {
     private String mediaLink;
     
     @Schema(description = "미디어 타입", example = "MAIN_PAGE")
-    private MediaType mediaType;
+    private String mediaType;
 
-    public Media toMediaEntity() {
+    public Media toMediaEntity(MediaType mediatype) {
         return Media.builder()
                 .mediaLink(mediaLink)
-                .mediaType(mediaType)
+                .mediaType(mediatype)
                 .build();
     }
 }
