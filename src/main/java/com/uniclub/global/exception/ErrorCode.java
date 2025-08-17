@@ -51,6 +51,7 @@ public enum ErrorCode {
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 405, "지원하지 않는 HTTP 메서드입니다."),
     MISSING_PARAMETER(HttpStatus.BAD_REQUEST, 400, "요청에 필요한 입력이 누락되었습니다."),
     TYPE_MISMATCH(HttpStatus.BAD_REQUEST, 400, "입력 형식이 올바르지 않습니다."),
+    API_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "존재하지 않는 API 엔드포인트입니다."),
     
     // 인증 관련
     BAD_CREDENTIALS(HttpStatus.UNAUTHORIZED, 401, "아이디 또는 비밀번호가 올바르지 않습니다."),

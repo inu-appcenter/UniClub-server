@@ -7,6 +7,7 @@ import com.uniclub.domain.main.dto.MainPageMediaResponseDto;
 import com.uniclub.domain.main.service.MainService;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.swagger.MainApiSpecification;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class MainController implements MainApiSpecification {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<Void> uploadClubMedia(@RequestBody List<MainMediaUploadRequestDto> mainMediaUploadRequestDtoList) {
+    public ResponseEntity<Void> uploadClubMedia(@Valid @RequestBody List<MainMediaUploadRequestDto> mainMediaUploadRequestDtoList) {
         mainService.uploadMainMedia(mainMediaUploadRequestDtoList);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

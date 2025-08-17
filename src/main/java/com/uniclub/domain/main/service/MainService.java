@@ -11,6 +11,7 @@ import com.uniclub.domain.main.dto.MainPageMediaResponseDto;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.UserDetailsImpl;
+import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -49,18 +50,9 @@ public class MainService {
     public void uploadMainMedia(List<MainMediaUploadRequestDto> mainMediaUploadRequestDtoList) {
         //미디어 저장
         for (MainMediaUploadRequestDto mainMediaUploadRequestDto : mainMediaUploadRequestDtoList) {
-            MediaType mediaType = stringToMediaType(mainMediaUploadRequestDto.getMediaType());
+            MediaType mediaType = EnumConverter.stringToEnum(mainMediaUploadRequestDto.getMediaType(), MediaType.class, ErrorCode.MEDIA_TYPE_NOT_FOUND);
             Media media = mainMediaUploadRequestDto.toMediaEntity(mediaType);
             mediaRepository.save(media);
         }
-    }
-
-    private MediaType stringToMediaType(String input) {
-        for (MediaType mediaType : MediaType.values()) {
-            if (mediaType.name().equals(input)) {
-                return mediaType;
-            }
-        }
-        throw new CustomException(ErrorCode.MEDIA_TYPE_NOT_FOUND);
     }
 }

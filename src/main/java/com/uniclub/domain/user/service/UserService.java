@@ -12,6 +12,7 @@ import com.uniclub.domain.user.repository.UserRepository;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.UserDetailsImpl;
+import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,17 +51,8 @@ public class UserService {
         Club club = clubRepository.findByName(userRoleRequestDto.getClubName()).
                 orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
 
-        Role role = stringToRole(userRoleRequestDto.getRole());
+        Role role = EnumConverter.stringToEnum(userRoleRequestDto.getRole(), Role.class, ErrorCode.ROLE_NOT_FOUND);
 
         membershipRepository.save(MemberShip.builder().user(user).club(club).role(role).build());
-    }
-
-    private Role stringToRole(String input){
-        for(Role role : Role.values()){
-            if(role.name().equals(input)){
-                return role;
-            }
-        }
-        throw new CustomException(ErrorCode.ROLE_NOT_FOUND);
     }
 }

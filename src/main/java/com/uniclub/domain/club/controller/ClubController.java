@@ -62,7 +62,7 @@ public class ClubController implements ClubApiSpecification {
     }
 
     @PostMapping("{clubId}/upload")
-    public ResponseEntity<Void> uploadClubMedia(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId, @RequestBody List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
+    public ResponseEntity<Void> uploadClubMedia(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId, @Valid @RequestBody List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
         clubService.uploadClubMedia(userDetails, clubId, clubMediaUploadRequestDtoList);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
