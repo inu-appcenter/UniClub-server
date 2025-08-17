@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.core.exception.SdkClientException;
-
 import java.sql.SQLException;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,13 +82,13 @@ public class GlobalExceptionHandler {
         return ErrorResponse.toResponseEntity(ErrorCode.DATABASE_CONNECTION_ERROR);
     }
 
-    // S3 서비스 오류 예외처리
+    // S3 서비스 자체에서 발생하는 오류 처리 (예: 권한 없음, 요청 거절, 버킷 없음 등)
     @ExceptionHandler(S3Exception.class)
     public ResponseEntity<ErrorResponse> handleS3Exception(S3Exception e) {
         return ErrorResponse.toResponseEntity(ErrorCode.S3_CONNECTION_ERROR);
     }
 
-    // AWS SDK 클라이언트 오류 예외처리
+    // AWS SDK 클라이언트 단에서 발생하는 오류 처리 (예: 네트워크 끊김 등 클라이언트 문제)
     @ExceptionHandler(SdkClientException.class)
     public ResponseEntity<ErrorResponse> handleSdkClientException(SdkClientException e) {
         return ErrorResponse.toResponseEntity(ErrorCode.S3_CONNECTION_ERROR);
