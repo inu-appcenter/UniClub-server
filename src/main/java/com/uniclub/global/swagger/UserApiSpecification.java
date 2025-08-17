@@ -1,6 +1,7 @@
 package com.uniclub.global.swagger;
 
 import com.uniclub.domain.user.dto.InformationModificationRequestDto;
+import com.uniclub.domain.user.dto.UserRoleRequestDto;
 import com.uniclub.global.exception.ErrorResponse;
 import com.uniclub.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,5 +69,61 @@ public interface UserApiSpecification {
     })
     ResponseEntity<Void> deleteUser(
             @AuthenticationPrincipal UserDetailsImpl userDetails
+    );
+
+    @Operation(summary = "유저 권한 부여", description = "테스트용 - 유저에게 동아리 권한 부여")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "권한 부여 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "유저 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "USER_NOT_FOUND",
+                      "message": "해당 유저를 찾을 수 없습니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "동아리 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "CLUB_NOT_FOUND",
+                      "message": "해당 동아리를 찾을 수 없습니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "권한 타입 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "ROLE_NOT_FOUND",
+                      "message": "해당 권한을 찾을 수 없습니다."
+                    }
+                    """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<Void> addRole(
+            @RequestBody UserRoleRequestDto userRoleRequestDto
     );
 }

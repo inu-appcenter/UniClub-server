@@ -96,5 +96,4 @@ public class S3Service {
         );
         return memberShip.getRole();
     }
-
 }

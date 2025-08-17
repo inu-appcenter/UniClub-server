@@ -9,15 +9,14 @@ import com.uniclub.domain.notification.entity.NotificationType;
 import com.uniclub.domain.notification.repository.NotificationRepository;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.domain.user.repository.UserRepository;
+import com.uniclub.global.exception.CustomException;
+import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Transactional
@@ -39,12 +38,15 @@ public class NotificationService {
     }
 
     public void registerNotification(NotificationRequestDto notificationRequestDto) {
-        System.out.println(notificationRequestDto.getNotificationType());
         //알림 종류 String -> enum 변환
-        NotificationType notificationType = NotificationType.from(notificationRequestDto.getNotificationType());
+        NotificationType notificationType = stringToNotificationType(notificationRequestDto.getNotificationType());
 
-        // 알림을 받아야 할 유저 리스트 조회
+
         List<User> users = userRepository.findByUsernames(notificationRequestDto.getUserNames());
+        // 요청된 유저명과 실제 조회된 유저 수 검증
+        if (users.size() != notificationRequestDto.getUserNames().size()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
 
         // 알림 객체 생성 및 리스트로 변환
         List<Notification> notifications = users.stream()
@@ -54,5 +56,14 @@ public class NotificationService {
         // 알림 객체 DB에 저장
         notificationRepository.saveAll(notifications);
 
+    }
+
+    private NotificationType stringToNotificationType(String input) {
+        for (NotificationType notificationType : NotificationType.values()) {
+            if (notificationType.name().equals(input)) {
+                return notificationType;
+            }
+        }
+        throw new CustomException(ErrorCode.NOTIFICATION_TYPE_NOT_FOUND);
     }
 }

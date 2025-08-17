@@ -1,6 +1,12 @@
 package com.uniclub.domain.user.service;
 
+import com.uniclub.domain.club.entity.Club;
+import com.uniclub.domain.club.entity.MemberShip;
+import com.uniclub.domain.club.entity.Role;
+import com.uniclub.domain.club.repository.ClubRepository;
+import com.uniclub.domain.club.repository.MembershipRepository;
 import com.uniclub.domain.user.dto.InformationModificationRequestDto;
+import com.uniclub.domain.user.dto.UserRoleRequestDto;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.domain.user.repository.UserRepository;
 import com.uniclub.global.exception.CustomException;
@@ -15,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserService {
     private final UserRepository userRepository;
+    private final ClubRepository clubRepository;
+    private final MembershipRepository membershipRepository;
 
     // 개인정보 수정 디자인 나오면 검증로직 추가 필요
     public void updateUser(UserDetailsImpl userDetails, InformationModificationRequestDto informationModificationRequestDto) {
@@ -32,5 +40,27 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         userRepository.delete(user);
+    }
+
+    // 유저 권한부여 테스트용 API
+    public void addRole(UserRoleRequestDto userRoleRequestDto) {
+        User user = userRepository.findByName(userRoleRequestDto.getUserName()).
+                orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Club club = clubRepository.findByName(userRoleRequestDto.getClubName()).
+                orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+
+        Role role = stringToRole(userRoleRequestDto.getRole());
+
+        membershipRepository.save(MemberShip.builder().user(user).club(club).role(role).build());
+    }
+
+    private Role stringToRole(String input){
+        for(Role role : Role.values()){
+            if(role.name().equals(input)){
+                return role;
+            }
+        }
+        throw new CustomException(ErrorCode.ROLE_NOT_FOUND);
     }
 }

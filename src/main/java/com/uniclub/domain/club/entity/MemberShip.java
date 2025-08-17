@@ -5,6 +5,7 @@ import com.uniclub.domain.user.entity.User;
 import com.uniclub.global.util.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,4 +29,11 @@ public class MemberShip extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clubId")    //FK
     private Club club;
+
+    @Builder
+    public MemberShip(Role role, User user, Club club) {
+        this.role = role;
+        this.user = user;
+        this.club = club;
+    }
 }

@@ -54,7 +54,7 @@ public interface AuthApiSpecification {
     @Operation(summary = "로그인", description = "로그인 및 토큰 발급")
     @ApiResponses({
             @ApiResponse(
-                    responseCode = "204", description = "로그인 성공",
+                    responseCode = "200", description = "로그인 성공",
                     content = @Content(
                             schema = @Schema(implementation = LoginResponseDto.class),
                             examples = @ExampleObject("""

@@ -9,8 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import static com.uniclub.domain.category.entity.CategoryType.from;
-
 @Schema(description = "동아리 생성 요청 DTO")
 @Getter
 @NoArgsConstructor

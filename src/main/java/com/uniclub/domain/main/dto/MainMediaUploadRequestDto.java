@@ -11,7 +11,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class MainMediaUploadRequestDto {
+    @Schema(description = "미디어 링크 URL", example = "https://example.com/main-media.jpg")
     private String mediaLink;
+    
+    @Schema(description = "미디어 타입", example = "MAIN_PAGE")
     private MediaType mediaType;
 
     public Media toMediaEntity() {
