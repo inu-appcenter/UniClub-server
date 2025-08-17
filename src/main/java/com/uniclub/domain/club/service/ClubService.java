@@ -160,7 +160,7 @@ public class ClubService {
 
     private boolean validateMediaType(List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
         //각 Type들 개수 세기
-        Map<MediaType, Long> mediaTypeCount = clubMediaUploadRequestDtoList.stream()
+        Map<String, Long> mediaTypeCount = clubMediaUploadRequestDtoList.stream()
                 .collect(Collectors.groupingBy(
                         ClubMediaUploadRequestDto::getMediaType,
                         Collectors.counting()
@@ -181,7 +181,7 @@ public class ClubService {
 
     private void deleteExistingUniqueMediaType(Long clubId, List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
         //새로 업로드 되는 것 확인
-        Set<MediaType> newMediaTypes = clubMediaUploadRequestDtoList.stream()
+        Set<String> newMediaTypes = clubMediaUploadRequestDtoList.stream()
                 .map(ClubMediaUploadRequestDto::getMediaType)
                 .collect(Collectors.toSet());
 
@@ -235,19 +235,6 @@ public class ClubService {
     }
 
 
-    //동아리 프로필, 배경 이미지 유효성 검사
-    private void validateRequestDuplicates(List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
-        Map<MediaType, Long> typeCount = clubMediaUploadRequestDtoList.stream()
-                .collect(Collectors.groupingBy(
-                        dto -> stringToMediaType(dto.getMediaType()), // String → MediaType 변환
-                        Collectors.counting()
-                ));
- 
-            if ((type == MediaType.CLUB_PROMOTION || type == MediaType.CLUB_PROFILE) && count > 1) {
-                throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
-            }
-        }
-    }
 
     private CategoryType stringToCategoryType(String input) {
         for (CategoryType category : CategoryType.values()) {
