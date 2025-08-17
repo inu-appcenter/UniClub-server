@@ -22,9 +22,9 @@ public class DescriptionMediaDto {
         this.updatedAt = updatedAt;
     }
 
-    public static DescriptionMediaDto from(Media media) {
+    public static DescriptionMediaDto from(Media media, String presingedUrl) {
         return DescriptionMediaDto.builder()
-                .mediaLink(media.getMediaLink())
+                .mediaLink(presingedUrl)
                 .mediaType(media.getMediaType())
                 .isMain(media.isMain())
                 .updatedAt(media.getUpdateAt())

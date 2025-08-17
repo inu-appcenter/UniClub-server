@@ -22,9 +22,9 @@ public class MainPageMediaResponseDto {
         this.mediaType = mediaType;
     }
 
-    public static MainPageMediaResponseDto from(Media media) {
+    public static MainPageMediaResponseDto from(Media media, String presignedUrl) {
         return MainPageMediaResponseDto.builder()
-                .mediaLink(media.getMediaLink())
+                .mediaLink(presignedUrl)
                 .mediaType(media.getMediaType())
                 .build();
     }

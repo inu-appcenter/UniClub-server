@@ -21,7 +21,7 @@ import java.util.List;
 public class MainController implements MainApiSpecification {
     private final MainService mainService;
 
-    @GetMapping
+    @GetMapping("/banner")
     public ResponseEntity<List<MainPageMediaResponseDto>> getMainPageMedia() {
         List<MainPageMediaResponseDto> mainPageMediaResponseDtoList = mainService.getMainPageMedia();
         return ResponseEntity.status(HttpStatus.OK).body(mainPageMediaResponseDtoList);

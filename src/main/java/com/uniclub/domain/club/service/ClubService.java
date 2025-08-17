@@ -13,6 +13,7 @@ import com.uniclub.domain.favorite.repository.FavoriteRepository;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
+import com.uniclub.global.s3.S3ServiceImpl;
 import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +36,7 @@ public class ClubService {
     private final MembershipRepository membershipRepository;
     private final FavoriteRepository favoriteRepository;
     private final MediaRepository mediaRepository;
+    private final S3ServiceImpl s3ServiceImpl;
 
     //동아리 목록 조회
     @Transactional(readOnly = true)
@@ -204,7 +206,8 @@ public class ClubService {
         List<Media> mediaList = mediaRepository.findByClubId(clubId);
         List<DescriptionMediaDto> mediaResList = new ArrayList<>();
         for (Media media : mediaList) {
-            mediaResList.add(DescriptionMediaDto.from(media));
+            String presignedUrl = s3ServiceImpl.getDownloadPresignedUrl(media.getMediaLink());
+            mediaResList.add(DescriptionMediaDto.from(media, presignedUrl));
         }
         return ClubPromotionResponseDto.from(checkRole(userDetails.getUserId(), clubId), club, mediaResList);
     }
