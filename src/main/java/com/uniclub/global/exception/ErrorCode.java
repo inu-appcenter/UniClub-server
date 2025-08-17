@@ -45,9 +45,19 @@ public enum ErrorCode {
     JWT_MALFORMED(HttpStatus.UNAUTHORIZED, 401, "유효하지 않은 JWT 토큰입니다."),
     JWT_ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, 401, "액세스 토큰이 만료되었습니다."),
     JWT_UNSUPPORTED(HttpStatus.UNAUTHORIZED, 401, "지원하지 않는 JWT 토큰입니다."),
-    JWT_NOT_VALID(HttpStatus.UNAUTHORIZED, 401, "유효하지 않은 JWT 토큰입니다.");
+    JWT_NOT_VALID(HttpStatus.UNAUTHORIZED, 401, "유효하지 않은 JWT 토큰입니다."),
 
-
+    // HTTP 요청 관련
+    METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 405, "지원하지 않는 HTTP 메서드입니다."),
+    MISSING_PARAMETER(HttpStatus.BAD_REQUEST, 400, "요청에 필요한 입력이 누락되었습니다."),
+    TYPE_MISMATCH(HttpStatus.BAD_REQUEST, 400, "입력 형식이 올바르지 않습니다."),
+    
+    // 인증 관련
+    BAD_CREDENTIALS(HttpStatus.UNAUTHORIZED, 401, "아이디 또는 비밀번호가 올바르지 않습니다."),
+    
+    // 데이터베이스 관련
+    DATABASE_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "데이터베이스 연결에 실패했습니다."),
+    DATA_INTEGRITY_VIOLATION(HttpStatus.CONFLICT, 409, "데이터 무결성 제약 조건에 위반됩니다.");
 
     private final HttpStatus httpStatus;
     private final Integer code;
