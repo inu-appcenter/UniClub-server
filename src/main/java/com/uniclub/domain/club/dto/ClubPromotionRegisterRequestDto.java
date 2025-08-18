@@ -19,7 +19,7 @@ public class ClubPromotionRegisterRequestDto {
     @Schema(description = "동아리 이름", example = "앱센터")
     private String name;
 
-    @Schema(description = "동아리 모집 현황", example = "CLOSED")
+    @Schema(description = "동아리 모집 현황", example = "SCHEDULED, ACTIVE, CLOSED")
     private String status;
 
     @Schema(description = "모집 시작 시간", example = "2025-08-03T14:30:00")

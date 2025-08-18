@@ -10,9 +10,11 @@ import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -27,6 +29,7 @@ public class CategoryService {
             throw new CustomException(ErrorCode.DUPLICATE_CATEGORY_NAME);
         }
         categoryRepository.save(new Category(categoryName));
+        log.info("카테고리 생성: {}", categoryRequestDto.getName());
     }
 
 
@@ -35,6 +38,7 @@ public class CategoryService {
             throw new CustomException(ErrorCode.CATEGORY_NOT_FOUND);
         }
         categoryRepository.deleteById(categoryId);
+        log.info("카테고리 삭제: {}", categoryId);
     }
 
     private CategoryType from(String input) {

@@ -14,9 +14,11 @@ import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -33,6 +35,7 @@ public class UserService {
 
         // 영속성 컨택스트 이용(더티체킹)
         user.updateInfo(informationModificationRequestDto.getName(), informationModificationRequestDto.getMajor());
+        log.info("사용자 정보 업데이트 성공: 학번={}", user.getStudentId());
     }
 
     public void deleteUser(UserDetailsImpl userDetails) {
@@ -41,6 +44,7 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         userRepository.delete(user);
+        log.info("사용자 삭제 완료: 학번={}", user.getStudentId());
     }
 
     // 유저 권한부여 테스트용 API
@@ -54,5 +58,6 @@ public class UserService {
         Role role = EnumConverter.stringToEnum(userRoleRequestDto.getRole(), Role.class, ErrorCode.ROLE_NOT_FOUND);
 
         membershipRepository.save(MemberShip.builder().user(user).club(club).role(role).build());
+        log.info("사용자 권한 부여 완료: 학번={}, 권한={}", user.getStudentId(), role);
     }
 }

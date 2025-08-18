@@ -7,6 +7,7 @@ import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -31,8 +33,11 @@ public class S3ServiceImpl implements S3Service {
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
+
     //동아리 S3 presigned url 요청
     public List<S3PresignedResponseDto> getClubPresignedUrl(UserDetailsImpl userDetails, Long clubId, List<S3PresignedRequestDto> s3PresignedRequestDtoList) {
+        log.info("동아리 presigned Url 요청: 학번={}, clubId={}", userDetails.getStudentId(), clubId);
+
         //해당 동아리의 운영진인지 확인
         Role userRole = checkRole(userDetails.getUserId(), clubId);
         if (userRole != Role.PRESIDENT && userRole != Role.ADMIN) {
@@ -45,12 +50,15 @@ public class S3ServiceImpl implements S3Service {
             String presignedUrl = getUploadPresignedUrl(filename);
             s3PresignedResponseDtoList.add(S3PresignedResponseDto.from(filename, presignedUrl));
         }
+        log.info("동아리 presigned Url 발급: {}", s3PresignedResponseDtoList);
 
         return s3PresignedResponseDtoList;
     }
 
+
     //메인페이지 S3 presigned url 요청
     public List<S3PresignedResponseDto> getMainPresignedUrl(List<S3PresignedRequestDto> s3PresignedRequestDtoList) {
+        log.info("메인 페이지 presigned Url 요청");
         List<S3PresignedResponseDto> s3PresignedResponseDtoList = new ArrayList<>();
         for (S3PresignedRequestDto s3PresignedRequestDto : s3PresignedRequestDtoList) {
             String filename = s3PresignedRequestDto.getFilename();
@@ -58,8 +66,10 @@ public class S3ServiceImpl implements S3Service {
             s3PresignedResponseDtoList.add(S3PresignedResponseDto.from(filename, presignedUrl));
         }
 
+        log.info("메인 페이지 presigned Url 발급: {}", s3PresignedResponseDtoList);
         return s3PresignedResponseDtoList;
     }
+
 
     //단일 업로드
     private String getUploadPresignedUrl(String key) {

@@ -14,11 +14,13 @@ import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -38,7 +40,11 @@ public class NotificationService {
         return notificationResponseDtoList;
     }
 
+
+    //알림 생성
     public void registerNotification(NotificationRequestDto notificationRequestDto) {
+        log.info("알림 생성 시작: 알림 타입={}", notificationRequestDto.getNotificationType());
+
         //알림 종류 String -> enum 변환
         NotificationType notificationType = EnumConverter.stringToEnum(notificationRequestDto.getNotificationType(), NotificationType.class, ErrorCode.NOTIFICATION_TYPE_NOT_FOUND);
 
@@ -57,5 +63,6 @@ public class NotificationService {
         // 알림 객체 DB에 저장
         notificationRepository.saveAll(notifications);
 
+        log.info("알림 생성 성공: 알림 타입={}, 메시지={}, 수신자={}", notificationRequestDto.getNotificationType(), notificationRequestDto.getMessage(), notificationRequestDto.getUserNames());
     }
 }

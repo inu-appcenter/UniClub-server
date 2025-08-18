@@ -9,6 +9,7 @@ import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.JwtTokenProvider;
 import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -28,29 +30,36 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final INUAuthRepository inuAuthRepository;
 
-    public void createUser(RegisterRequestDto request) {
+    public void createUser(RegisterRequestDto registerRequestDto) {
+        log.info("회원가입 시작: 학번={}", registerRequestDto.getStudentId());
 
-        if (!request.isAgreed()){ // 개인정보 약관 동의 안한 경우 예외처리
+        if (!registerRequestDto.isStudentVerification()) {   //재학생 인증 확인
+            throw new CustomException(ErrorCode.STUDENT_VERIFICATION_REQUIRED);
+        }
+
+        if (!registerRequestDto.isAgreed()){ // 개인정보 약관 동의 안한 경우 예외처리
             throw new CustomException(ErrorCode.NOT_AGREED);
         }
 
-        if (userRepository.existsByStudentId(request.getStudentId())) { // 이미 가입된 유저가 있는 경우 예외처리
+        if (userRepository.existsByStudentId(registerRequestDto.getStudentId())) { // 이미 가입된 유저가 있는 경우 예외처리
             throw new CustomException(ErrorCode.DUPLICATE_STUDENT_ID);
         }
 
         User user = new User(
-                request.getName(),
-                request.getStudentId(),
-                passwordEncoder.encode(request.getPassword()),
-                request.getMajor()
+                registerRequestDto.getName(),
+                registerRequestDto.getStudentId(),
+                passwordEncoder.encode(registerRequestDto.getPassword()),
+                registerRequestDto.getMajor()
         );
 
         userRepository.save(user);
+        log.info("회원가입 성공: 학번={}, 이름={}", registerRequestDto.getStudentId(), registerRequestDto.getName());
     }
 
-    public LoginResponseDto login(LoginRequestDto request) {
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+        log.info("로그인 시작: 학번={}", loginRequestDto.getStudentId());
         //인증 객체 생성
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getStudentId(), request.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginRequestDto.getStudentId(), loginRequestDto.getPassword());
 
         //인증 메니저로 인증
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
@@ -68,12 +77,14 @@ public class AuthService {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         Long userId = userDetails.getUserId();
 
+        log.info("로그인 성공: 학번={}", userDetails.getUsername());
         return new LoginResponseDto(userId, token, expiresIn);
     }
 
     // 재학생 인증
     public StudentVerificationResponseDto studentVerification(StudentVerificationRequestDto studentVerificationRequestDto) {
         boolean verification = inuAuthRepository.verifySchoolLogin(studentVerificationRequestDto.getStudentId(), studentVerificationRequestDto.getPassword());
+        log.info("재학생 인증: 학번={}, 성공여부={}", studentVerificationRequestDto.getStudentId(), verification);
         return new StudentVerificationResponseDto(verification);
     }
 

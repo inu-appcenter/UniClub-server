@@ -15,6 +15,7 @@ import com.uniclub.global.s3.S3ServiceImpl;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -34,6 +36,7 @@ public class MainService {
     private final S3ServiceImpl s3ServiceImpl;
 
 
+    //메인 페이지 베너 호출
     @Transactional(readOnly = true)
     public List<MainPageMediaResponseDto> getMainPageMedia() {
         List<Media> mainPageMediaList = mediaRepository.findByMediaType(MediaType.MAIN_PAGE);
@@ -45,6 +48,8 @@ public class MainService {
         return mainPageMediaDtoList;
     }
 
+
+    //메인 페이지 동아리 목록 호출
     @Transactional(readOnly = true)
     public List<MainPageClubResponseDto> getMainPageClubs(UserDetailsImpl userDetails){
         return clubRepository.getMainPageClubs(userDetails.getUserId(),PageRequest.of(0,6));
@@ -53,11 +58,27 @@ public class MainService {
 
     //메인 페이지에 올라가는 미디어 저장
     public void uploadMainMedia(List<MainMediaUploadRequestDto> mainMediaUploadRequestDtoList) {
+        log.info("메인페이지 미디어 업로드");
+
+        //업로드된 미디어 정보를 담을 리스트
+        List<String> uploadedMediaInfo = new ArrayList<>();
+
         //미디어 저장
         for (MainMediaUploadRequestDto mainMediaUploadRequestDto : mainMediaUploadRequestDtoList) {
             MediaType mediaType = EnumConverter.stringToEnum(mainMediaUploadRequestDto.getMediaType(), MediaType.class, ErrorCode.MEDIA_TYPE_NOT_FOUND);
             Media media = mainMediaUploadRequestDto.toMediaEntity(mediaType);
             mediaRepository.save(media);
+
+            // 업로드된 미디어 정보 추가 (URL에서 파일명만 추출)
+            String fileName = extractFileName(mainMediaUploadRequestDto.getMediaLink());
+            uploadedMediaInfo.add(mediaType + ":" + fileName);
         }
+        log.info("메인페이지 미디어 업로드 완료: upload_media={}", uploadedMediaInfo);
+    }
+
+
+    // URL에서 파일명만 추출하는 헬퍼 메서드
+    private String extractFileName(String mediaLink) {
+        return mediaLink.substring(mediaLink.lastIndexOf('/') + 1);
     }
 }

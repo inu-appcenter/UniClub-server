@@ -17,6 +17,7 @@ import com.uniclub.global.s3.S3ServiceImpl;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -99,8 +101,10 @@ public class ClubService {
         }
     }
 
+
     //(개발자 전용) 동아리 생성 (이름만 있는 상태)
     public void createClub(ClubCreateRequestDto clubCreateRequestDto) {
+        log.info("동아리 생성 시작: 동아리명={}", clubCreateRequestDto.getName());
         if (clubRepository.existsByName(clubCreateRequestDto.getName())){   //동아리 이름 중복 검증
             throw new CustomException(ErrorCode.DUPLICATE_CLUB_NAME);
         };
@@ -112,10 +116,13 @@ public class ClubService {
 
         Club club = clubCreateRequestDto.toClubEntity(category);
         clubRepository.save(club);
+        log.info("동아리 생성 성공: 동아리명={}", clubCreateRequestDto.getName());
     }
+
 
     //동아리 소개글 작성
     public void saveClubPromotion(UserDetailsImpl userDetails, Long clubId, ClubPromotionRegisterRequestDto promotionRegisterRequestDto) {
+        log.info("동아리 소개글 작성 시작: clubId={}, userId={}", clubId, userDetails.getUserId());
         Club existingClub = clubRepository.findById(clubId) //실제 존재하는 동아리인지 확인
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
@@ -131,10 +138,13 @@ public class ClubService {
 
         //동아리 소개글 수정사항 반영
         existingClub.update(promotionRegisterRequestDto.toClubEntity(clubStatus));
-
+        log.info("동아리 소개글 작성 완료: clubId={}, userId={}, status={}", clubId, userDetails.getUserId(), clubStatus);
     }
 
+
+    //동아리 미디어 파일 업로드
     public void uploadClubMedia(UserDetailsImpl userDetails, Long clubId, List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
+        log.info("동아리 미디어 업로드 시작: clubId={}, userId={}", clubId, userDetails.getUserId());
         // 존재하는 동아리인지 확인
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
@@ -151,13 +161,22 @@ public class ClubService {
         //기존에 존재하는 CLUB_PROFILE과 CLUB_BACKGROUND 삭제
         deleteExistingUniqueMediaType(clubId, clubMediaUploadRequestDtoList);
 
+        //업로드된 미디어 정보를 담을 리스트
+        List<String> uploadedMediaInfo = new ArrayList<>();
+
         //미디어 저장
         for (ClubMediaUploadRequestDto clubMediaUploadRequestDto : clubMediaUploadRequestDtoList) {
             MediaType mediaType = EnumConverter.stringToEnum(clubMediaUploadRequestDto.getMediaType(), MediaType.class, ErrorCode.MEDIA_TYPE_NOT_FOUND);
             Media media = clubMediaUploadRequestDto.toMediaEntity(club, mediaType);
             mediaRepository.save(media);
+
+            // 업로드된 미디어 정보 추가 (URL에서 파일명만 추출)
+            String fileName = extractFileName(clubMediaUploadRequestDto.getMediaLink());
+            uploadedMediaInfo.add(mediaType + ":" + fileName);
         }
+        log.info("동아리 미디어 업로드 완료: clubId={}, userId={}, upload_media={}", clubId, userDetails.getUserId(), uploadedMediaInfo);
     }
+
 
     private void validateMediaType(List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
         //각 Type들 개수 세기
@@ -172,11 +191,14 @@ public class ClubService {
         if (mediaTypeCount.getOrDefault(MediaType.CLUB_PROFILE, 0L) > 1) {
             throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
         }
+
         //CLUB_BACKGROUND
         if (mediaTypeCount.getOrDefault(MediaType.CLUB_BACKGROUND, 0L) > 1) {
             throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
         }
+        log.info("중복 미디어 타입 검증 성공");
     }
+
 
     private void deleteExistingUniqueMediaType(Long clubId, List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
         //새로 업로드 되는 것 확인
@@ -187,13 +209,22 @@ public class ClubService {
         //CLUB_PROFILE이 새로 업로드될 예정이면 기존 파일 삭제
         if (newMediaTypes.contains(MediaType.CLUB_PROFILE)) {
             mediaRepository.deleteByClubIdAndMediaType(clubId, MediaType.CLUB_PROFILE);
+            log.info("기존 동아리 프로필 이미지 삭제: clubId={}", clubId);
         }
 
         //CLUB_BACKGROUND가 새로 업로드될 예정이면 기존 파일 삭제
         if (newMediaTypes.contains(MediaType.CLUB_BACKGROUND)) {
             mediaRepository.deleteByClubIdAndMediaType(clubId, MediaType.CLUB_BACKGROUND);
+            log.info("기존 동아리 배경 이미지 삭제: clubId={}", clubId);
         }
     }
+
+
+    // URL에서 파일명만 추출하는 헬퍼 메서드
+    private String extractFileName(String mediaLink) {
+        return mediaLink.substring(mediaLink.lastIndexOf('/') + 1);
+    }
+
 
     //동아리 소개글 불러오기
     @Transactional(readOnly = true)
@@ -216,12 +247,13 @@ public class ClubService {
 
     //(개발자 전용) 동아리 삭제
     public void deleteClub(Long clubId) {
-
+        log.info("동아리 삭제 시작: clubId={}", clubId);
         clubRepository.findById(clubId).orElseThrow(
                 () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
         );
 
         clubRepository.deleteById(clubId);
+        log.info("동아리 삭제 성공: clubId={}", clubId);
     }
 
 
