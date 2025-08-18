@@ -35,7 +35,7 @@ public class MainController implements MainApiSpecification {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<Void> uploadClubMedia(@Valid @RequestBody List<MainMediaUploadRequestDto> mainMediaUploadRequestDtoList) {
+    public ResponseEntity<Void> uploadClubMedia(@RequestBody List<MainMediaUploadRequestDto> mainMediaUploadRequestDtoList) {
         mainService.uploadMainMedia(mainMediaUploadRequestDtoList);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

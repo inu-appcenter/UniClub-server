@@ -26,12 +26,4 @@ public class MainPageClubResponseDto {
         this.favorite = favorite;
     }
 
-    /*
-    public static MainPageClubResponseDto from(Club club, boolean isFavorite) {
-        return MainPageClubResponseDto.builder()
-                .name(club.getName())
-                .imageUrl()
-                .favorite(isFavorite).build();
-    }
-    */
 }
