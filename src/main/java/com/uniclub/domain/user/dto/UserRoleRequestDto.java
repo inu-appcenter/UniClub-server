@@ -16,7 +16,7 @@ public class UserRoleRequestDto {
     @NotBlank(message = "동아리 이름을 입력해주세요.")
     private String clubName;
     
-    @Schema(description = "부여할 권한", example = "ADMIN")
+    @Schema(description = "부여할 권한", example = "MEMBER, ADMIN, PRESIDENT")
     @NotBlank(message = "사용자 권한을 지정해주세요.")
     private String role;
 }
