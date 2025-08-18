@@ -3,6 +3,7 @@ package com.uniclub.global.security.exception;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.exception.ErrorResponse;
+import com.uniclub.global.util.CustomLogger;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,7 +28,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         if (authException instanceof JwtAuthException jwtEx) {
             errorCode = jwtEx.getErrorCode();
         }
-        response.setStatus(ErrorCode.JWT_ENTRY_POINT.getHttpStatus().value());
+        response.setStatus(errorCode.getHttpStatus().value());
+
+        // 로깅처리
+        CustomLogger.warnLog(errorCode.getMessage(), errorCode);
+
         // 응답의 콘텐츠 타입을 JSON 형식으로 지정
         response.setContentType("application/json;charset=UTF-8");
 
