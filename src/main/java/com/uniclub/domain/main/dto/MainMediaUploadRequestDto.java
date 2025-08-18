@@ -4,6 +4,7 @@ import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.entity.Media;
 import com.uniclub.domain.club.entity.MediaType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,10 +12,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class MainMediaUploadRequestDto {
-    @Schema(description = "미디어 링크 URL", example = "https://example.com/main-media.jpg")
+    @Schema(description = "미디어 URL", example = "https://example.com/main-media.jpg")
+    @NotBlank(message = "미디어 URL을 입력해주세요.")
     private String mediaLink;
     
     @Schema(description = "미디어 타입", example = "MAIN_PAGE")
+    @NotBlank(message = "미디어 타입을 지정해주세요.")
     private String mediaType;
 
     public Media toMediaEntity(MediaType mediatype) {

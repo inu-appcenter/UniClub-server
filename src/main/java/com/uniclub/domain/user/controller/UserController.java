@@ -6,6 +6,7 @@ import com.uniclub.domain.user.service.UserService;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.swagger.SearchApiSpecification;
 import com.uniclub.global.swagger.UserApiSpecification;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class UserController implements UserApiSpecification {
     }
 
     @PostMapping("/role")
-    public ResponseEntity<Void> addRole(@RequestBody UserRoleRequestDto userRoleRequestDto){
+    public ResponseEntity<Void> addRole(@Valid @RequestBody UserRoleRequestDto userRoleRequestDto){
         userService.addRole(userRoleRequestDto);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

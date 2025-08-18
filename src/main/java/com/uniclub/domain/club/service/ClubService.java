@@ -15,6 +15,7 @@ import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.s3.S3ServiceImpl;
 import com.uniclub.global.security.UserDetailsImpl;
+import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +45,7 @@ public class ClubService {
             Long userId, String category, String sortBy, String cursorName, int size) {
 
         // String -> Enum 타입 변경, 카테고리 null인 경우 전체 동아리 조회
-        CategoryType categoryName = (category == null) ? null : stringToCategoryType(category);
+        CategoryType categoryName = (category == null) ? null : EnumConverter.stringToEnum(category, CategoryType.class, ErrorCode.CATEGORY_NOT_FOUND);
         Pageable pageable = PageRequest.of(0, size + 1);
         // 정렬 기준 별 동아리 목록 조회
         Slice<Club> clubs = switch (sortBy) {
@@ -105,7 +106,7 @@ public class ClubService {
         };
 
         // String -> categoryType 변환
-        CategoryType categoryType = stringToCategoryType(clubCreateRequestDto.getCategory());
+        CategoryType categoryType = EnumConverter.stringToEnum(clubCreateRequestDto.getCategory(), CategoryType.class, ErrorCode.CATEGORY_NOT_FOUND);
 
         Category category = new Category(categoryType);
 
@@ -126,7 +127,7 @@ public class ClubService {
             throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
         }
 
-        ClubStatus clubStatus = stringToClubStatus(promotionRegisterRequestDto.getStatus());
+        ClubStatus clubStatus = EnumConverter.stringToEnum(promotionRegisterRequestDto.getStatus(), ClubStatus.class, ErrorCode.STATUS_NOT_FOUND);
 
         //동아리 소개글 수정사항 반영
         existingClub.update(promotionRegisterRequestDto.toClubEntity(clubStatus));
@@ -152,7 +153,7 @@ public class ClubService {
 
         //미디어 저장
         for (ClubMediaUploadRequestDto clubMediaUploadRequestDto : clubMediaUploadRequestDtoList) {
-            MediaType mediaType = stringToMediaType(clubMediaUploadRequestDto.getMediaType());
+            MediaType mediaType = EnumConverter.stringToEnum(clubMediaUploadRequestDto.getMediaType(), MediaType.class, ErrorCode.MEDIA_TYPE_NOT_FOUND);
             Media media = clubMediaUploadRequestDto.toMediaEntity(club, mediaType);
             mediaRepository.save(media);
         }
@@ -234,31 +235,5 @@ public class ClubService {
 
 
 
-    private CategoryType stringToCategoryType(String input) {
-        for (CategoryType category : CategoryType.values()) {
-            if (category.name().equals(input)) {
-                return category;
-            }
-        }
-        throw new CustomException(ErrorCode.CATEGORY_NOT_FOUND);
-    }
-
-    private ClubStatus stringToClubStatus(String input) {
-        for (ClubStatus clubStatus : ClubStatus.values()) {
-            if (clubStatus.name().equals(input)) {
-                return clubStatus;
-            }
-        }
-        throw new CustomException(ErrorCode.STATUS_NOT_FOUND);
-    }
-
-    private MediaType stringToMediaType(String input) {
-        for (MediaType mediaType : MediaType.values()) {
-            if (mediaType.name().equals(input)) {
-                return mediaType;
-            }
-        }
-        throw new CustomException(ErrorCode.MEDIA_TYPE_NOT_FOUND);
-    }
 
 }

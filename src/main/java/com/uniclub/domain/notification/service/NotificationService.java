@@ -12,6 +12,7 @@ import com.uniclub.domain.user.repository.UserRepository;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.UserDetailsImpl;
+import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +40,7 @@ public class NotificationService {
 
     public void registerNotification(NotificationRequestDto notificationRequestDto) {
         //알림 종류 String -> enum 변환
-        NotificationType notificationType = stringToNotificationType(notificationRequestDto.getNotificationType());
+        NotificationType notificationType = EnumConverter.stringToEnum(notificationRequestDto.getNotificationType(), NotificationType.class, ErrorCode.NOTIFICATION_TYPE_NOT_FOUND);
 
 
         List<User> users = userRepository.findByUsernames(notificationRequestDto.getUserNames());
@@ -56,14 +57,5 @@ public class NotificationService {
         // 알림 객체 DB에 저장
         notificationRepository.saveAll(notifications);
 
-    }
-
-    private NotificationType stringToNotificationType(String input) {
-        for (NotificationType notificationType : NotificationType.values()) {
-            if (notificationType.name().equals(input)) {
-                return notificationType;
-            }
-        }
-        throw new CustomException(ErrorCode.NOTIFICATION_TYPE_NOT_FOUND);
     }
 }
