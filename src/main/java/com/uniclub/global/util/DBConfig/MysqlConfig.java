@@ -27,7 +27,7 @@ import javax.sql.DataSource;
         entityManagerFactoryRef = "mysqlEntityManagerFactory",
         transactionManagerRef = "mysqlTransactionManager"
 )
-@EntityScan(basePackages = "com.example.ingle")
+@EntityScan(basePackages = "com.uniclub")
 public class MysqlConfig {
 
     // JpaProperties는 yml파일에서 spring.jpa로 시작하는 모든 설정을 자동으로 매핑해주는 클래스
