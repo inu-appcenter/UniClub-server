@@ -1,7 +1,9 @@
-package com.uniclub.domain.user.entity;
+package com.uniclub.domain.qna.entity;
 
 
 import com.uniclub.domain.club.entity.Club;
+import com.uniclub.domain.user.entity.User;
+import com.uniclub.global.util.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,7 +14,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "question")
-public class Question {
+public class Question extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,13 +27,13 @@ public class Question {
     private String content;
 
     @Column(nullable = false)
-    private boolean is_anonymous;
+    private boolean isAnonymous;
 
     @ColumnDefault("false")
-    private boolean is_answered;
+    private boolean isAnswered;
 
     @Column(nullable = false)
-    private boolean is_public;
+    private boolean isPublic;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")

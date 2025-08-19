@@ -12,4 +12,7 @@ public class InformationModificationRequestDto {
 
     @Schema(description = "전공", example = "컴퓨터공학부")
     private String major;
+
+    @Schema(description = "닉네임", example = "빌려온 고양이")
+    private String nickname;
 }

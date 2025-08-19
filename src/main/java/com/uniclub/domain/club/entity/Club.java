@@ -52,6 +52,9 @@ public class Club extends BaseTime {
     @Column(columnDefinition = "TEXT")
     private String instagramLink;
 
+    @Column(columnDefinition = "TEXT")
+    private String applicationFormLink;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -60,7 +63,7 @@ public class Club extends BaseTime {
     @Builder
     public Club(String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime,
                 String description, String notice, String location, String presidentName, String presidentPhone,
-                String youtubeLink, String instagramLink, Category category) {
+                String youtubeLink, String instagramLink, String applicationFormLink, Category category) {
   
         this.name = name;
         this.status = status;
@@ -73,7 +76,7 @@ public class Club extends BaseTime {
         this.presidentPhone = presidentPhone;
         this.youtubeLink = youtubeLink;
         this.instagramLink = instagramLink;
-
+        this.applicationFormLink = applicationFormLink;
         this.category = category;
     }
 
@@ -88,6 +91,7 @@ public class Club extends BaseTime {
         this.presidentPhone = club.getPresidentPhone();
         this.youtubeLink = club.getYoutubeLink();
         this.instagramLink = club.getInstagramLink();
+        this.applicationFormLink = club.getApplicationFormLink();
         return this;
     }
 

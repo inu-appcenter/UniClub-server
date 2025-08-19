@@ -1,5 +1,6 @@
-package com.uniclub.domain.user.entity;
+package com.uniclub.domain.qna.entity;
 
+import com.uniclub.domain.user.entity.User;
 import com.uniclub.global.util.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -27,4 +28,8 @@ public class Answer extends BaseTime {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parentAnswerId")
+    private Answer parentAnswer;
 }

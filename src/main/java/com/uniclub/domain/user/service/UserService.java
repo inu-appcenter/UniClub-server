@@ -34,7 +34,7 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 영속성 컨택스트 이용(더티체킹)
-        user.updateInfo(informationModificationRequestDto.getName(), informationModificationRequestDto.getMajor());
+        user.updateInfo(informationModificationRequestDto.getName(), informationModificationRequestDto.getMajor(), informationModificationRequestDto.getNickname());
         log.info("사용자 정보 업데이트 성공: 학번={}", user.getStudentId());
     }
 
