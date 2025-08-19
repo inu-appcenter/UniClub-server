@@ -50,7 +50,7 @@ public class S3ServiceImpl implements S3Service {
             String presignedUrl = getUploadPresignedUrl(filename);
             s3PresignedResponseDtoList.add(S3PresignedResponseDto.from(filename, presignedUrl));
         }
-        log.info("동아리 presigned Url 발급: {}", s3PresignedResponseDtoList);
+        log.info("동아리 presigned Url 발급");
 
         return s3PresignedResponseDtoList;
     }
@@ -66,13 +66,18 @@ public class S3ServiceImpl implements S3Service {
             s3PresignedResponseDtoList.add(S3PresignedResponseDto.from(filename, presignedUrl));
         }
 
-        log.info("메인 페이지 presigned Url 발급: {}", s3PresignedResponseDtoList);
+        log.info("메인 페이지 presigned Url 발급");
         return s3PresignedResponseDtoList;
     }
 
 
     //단일 업로드
     private String getUploadPresignedUrl(String key) {
+        // 파일명에서 확장자 추출
+        String fileExtension = extractFileExtension(key);
+
+        // 파일 확장자 검증
+        validateFileExtension(fileExtension);
 
         String uniqueKey = generateUniqueKey(key);
 
@@ -87,6 +92,7 @@ public class S3ServiceImpl implements S3Service {
         );
         return presignedPutObjectRequest.url().toString();
     }
+
 
     //조회용 presigned URL 생성
     @Override
@@ -103,6 +109,7 @@ public class S3ServiceImpl implements S3Service {
         return presignedGetObjectRequest.url().toString();
     }
 
+
     //고유 url설정
     private String generateUniqueKey(String key) {
         String uuid = UUID.randomUUID().toString();
@@ -114,6 +121,51 @@ public class S3ServiceImpl implements S3Service {
 
         return String.format("uploads/%s/%s%s", LocalDate.now(), uuid, extension);
     }
+
+
+    //파일명에서 확장자 추출
+    private String extractFileExtension(String filename) {
+        if (filename == null || filename.trim().isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_FILE_NAME);
+        }
+
+        int lastDotIndex = filename.lastIndexOf(".");
+
+        //확장자가 없거나, 파일명이 점으로 시작하는 경우
+        if (lastDotIndex == -1 || lastDotIndex == 0) {
+            throw new CustomException(ErrorCode.INVALID_FILE_NAME);
+        }
+
+        //파일명이 점으로 끝나는 경우
+        if (lastDotIndex == filename.length() - 1) {
+            throw new CustomException(ErrorCode.INVALID_FILE_NAME);
+        }
+
+        //확장자만 반환
+        return filename.substring(lastDotIndex + 1);
+    }
+
+
+    //파일 확장자 검증
+    private boolean validateFileExtension(String fileExtension) {
+        // 허용 가능한 파일 확장자 목록
+        Set<String> allowedExtensions = Set.of(
+                // 이미지
+                "jpg", "jpeg", "png", "gif", "webp", "svg",
+                // 비디오
+                "mp4", "avi", "mov", "wmv", "flv", "webm"
+        );
+
+        // 허용된 확장자인지 확인
+        boolean isAllowed = allowedExtensions.contains(fileExtension.toLowerCase());
+
+        if (!isAllowed) {
+            throw new CustomException(ErrorCode.INVALID_FILE_TYPE);
+        }
+
+        return true;
+    }
+
 
     //특정 동아리 유저 권한 확인 (정보 없으면 GUEST로 반환)
     @Transactional(readOnly = true)
