@@ -73,7 +73,6 @@ public class Club extends BaseTime {
         this.presidentPhone = presidentPhone;
         this.youtubeLink = youtubeLink;
         this.instagramLink = instagramLink;
-
         this.category = category;
     }
 

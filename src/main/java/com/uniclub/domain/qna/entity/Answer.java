@@ -1,5 +1,6 @@
-package com.uniclub.domain.user.entity;
+package com.uniclub.domain.qna.entity;
 
+import com.uniclub.domain.user.entity.User;
 import com.uniclub.global.util.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
