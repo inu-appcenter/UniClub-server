@@ -12,11 +12,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ClubMediaUploadRequestDto {
-    @Schema(description = "미디어 URL", example = "https://example.com/media.jpg")
+    @Schema(description = "미디어 URL", example = "uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png")
     @NotBlank(message = "미디어 URL을 입력해주세요.")
     private String mediaLink;
     
-    @Schema(description = "미디어 타입", example = "CLUB_PROMOTION")
+    @Schema(description = "미디어 타입", example = "MAIN_PAGE, CLUB_PROMOTION, CLUB_PROFILE, CLUB_BACKGROUND")
     @NotBlank(message = "미디어 타입을 지정해주세요.")
     private String mediaType;
     
