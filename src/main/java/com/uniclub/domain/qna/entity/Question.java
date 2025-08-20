@@ -6,6 +6,7 @@ import com.uniclub.domain.user.entity.User;
 import com.uniclub.global.util.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -16,7 +17,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "question")
-public class Question extends BaseTime {
+public class Question extends BaseTime{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,4 +47,24 @@ public class Question extends BaseTime {
     @JoinColumn(name = "clubId")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Club club;
+
+    @Builder
+    public Question(String title, String content, boolean isAnonymous, boolean isPublic, User user, Club club) {
+        this.title = title;
+        this.content = content;
+        this.isAnonymous = isAnonymous;
+        this.isPublic = isPublic;
+        this.user = user;
+        this.club = club;
+    }
+
+    public Question update(Question question) {
+        this.title = question.getTitle();
+        this.content = question.getContent();
+        this.isAnonymous = question.isAnonymous();
+        this.isPublic = question.isPublic();
+        this.user = question.getUser();
+        this.club = question.getClub();
+        return this;
+    }
 }
