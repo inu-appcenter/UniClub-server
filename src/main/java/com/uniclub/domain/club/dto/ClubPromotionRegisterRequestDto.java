@@ -1,15 +1,12 @@
 package com.uniclub.domain.club.dto;
 
-import com.uniclub.domain.category.entity.Category;
 import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.entity.ClubStatus;
-import com.uniclub.domain.club.entity.Media;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Schema(description = "동아리 홍보게시글 생성 및 수정 요청 DTO")
 @Getter
@@ -49,6 +46,9 @@ public class ClubPromotionRegisterRequestDto {
     @Schema(description = "인스타그램 url")
     private String instagramLink;
 
+    @Schema(description = "지원 폼 url")
+    private String applicationFormLink;
+
     //저장을 위해 Club Entity로 변환
     public Club toClubEntity(ClubStatus clubStatus) {
         return Club.builder()
@@ -63,6 +63,7 @@ public class ClubPromotionRegisterRequestDto {
                 .presidentPhone(presidentPhone)
                 .youtubeLink(youtubeLink)
                 .instagramLink(instagramLink)
+                .applicationFormLink(applicationFormLink)
                 .build();
     }
 

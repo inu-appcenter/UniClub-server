@@ -10,6 +10,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -38,10 +40,12 @@ public class Question extends BaseTime{
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clubId")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Club club;
 
     @Builder

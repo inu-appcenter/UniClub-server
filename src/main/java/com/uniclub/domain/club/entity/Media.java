@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 @Entity
@@ -29,6 +31,7 @@ public class Media extends BaseTime {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clubId", nullable = true)    //FK
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Club club;
 
     @Builder

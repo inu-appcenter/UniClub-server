@@ -87,6 +87,12 @@ public class ClubService {
         // 존재하는 동아리인지 확인
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+
+        // 삭제된 동아리인지 확인
+        if (club.isDeleted()){
+            throw new CustomException(ErrorCode.CLUB_DELETED);
+        }
+
         User user = userDetails.getUser();
 
         // 관심 동아리인지 확인
@@ -128,6 +134,11 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
 
+        // 삭제된 동아리인지 확인
+        if (existingClub.isDeleted()){
+            throw new CustomException(ErrorCode.CLUB_DELETED);
+        }
+
         //해당 동아리의 회장인지 확인
         Role userRole = checkRole(userDetails.getUserId(), clubId);
         if (userRole != Role.PRESIDENT) {
@@ -148,6 +159,11 @@ public class ClubService {
         // 존재하는 동아리인지 확인
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+
+        // 삭제된 동아리인지 확인
+        if (club.isDeleted()){
+            throw new CustomException(ErrorCode.CLUB_DELETED);
+        }
 
         //해당 동아리의 운영진인지 확인
         Role userRole = checkRole(userDetails.getUserId(), clubId);
@@ -234,6 +250,11 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
 
+        // 삭제된 동아리인지 확인
+        if (club.isDeleted()){
+            throw new CustomException(ErrorCode.CLUB_DELETED);
+        }
+
 
         List<Media> mediaList = mediaRepository.findByClubId(clubId);
         List<DescriptionMediaDto> mediaResList = new ArrayList<>();
@@ -248,11 +269,16 @@ public class ClubService {
     //(개발자 전용) 동아리 삭제
     public void deleteClub(Long clubId) {
         log.info("동아리 삭제 시작: clubId={}", clubId);
-        clubRepository.findById(clubId).orElseThrow(
+        Club club = clubRepository.findById(clubId).orElseThrow(
                 () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
         );
 
-        clubRepository.deleteById(clubId);
+        // 삭제된 동아리인지 확인
+        if (club.isDeleted()){
+            throw new CustomException(ErrorCode.CLUB_DELETED);
+        }
+
+        club.softDelete();
         log.info("동아리 삭제 성공: clubId={}", clubId);
     }
 

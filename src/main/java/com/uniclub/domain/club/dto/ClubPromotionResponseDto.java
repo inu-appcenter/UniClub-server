@@ -54,11 +54,14 @@ public class ClubPromotionResponseDto {
     @Schema(description = "인스타그램 url")
     private final String instagramLink;
 
+    @Schema(description = "지원 폼 url")
+    private final String applicationFormLink;
+
     @Schema(description = "첨부 이미지, 영상 url")
     private final List<DescriptionMediaDto> mediaList;
 
     @Builder
-    public ClubPromotionResponseDto(Role role, String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime, String description, String notice, String location, String presidentName, String presidentPhone, String youtubeLink, String instagramLink, List<DescriptionMediaDto> mediaList) {
+    public ClubPromotionResponseDto(Role role, String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime, String description, String notice, String location, String presidentName, String presidentPhone, String youtubeLink, String instagramLink, String applicationFormLink, List<DescriptionMediaDto> mediaList) {
         this.role = role;
         this.name = name;
         this.status = status;
@@ -71,6 +74,7 @@ public class ClubPromotionResponseDto {
         this.presidentPhone = presidentPhone;
         this.youtubeLink = youtubeLink;
         this.instagramLink = instagramLink;
+        this.applicationFormLink = applicationFormLink;
         this.mediaList = mediaList;
     }
 
@@ -89,6 +93,7 @@ public class ClubPromotionResponseDto {
                 .presidentPhone(club.getPresidentPhone())
                 .youtubeLink(club.getYoutubeLink())
                 .instagramLink(club.getInstagramLink())
+                .applicationFormLink(club.getApplicationFormLink())
                 .mediaList(mediaList)
                 .build();
     }
