@@ -39,10 +39,16 @@ public class UserService {
         }
 
         // 영속성 컨택스트 이용(더티체킹)
-        user.updateInfo(informationModificationRequestDto.getName(), informationModificationRequestDto.getMajor(), informationModificationRequestDto.getNickname());
+        user.updateInfo(
+                informationModificationRequestDto.getName(),
+                informationModificationRequestDto.getMajor(),
+                informationModificationRequestDto.getNickname()
+        );
+
         log.info("사용자 정보 업데이트 성공: 학번={}", user.getStudentId());
     }
 
+    //유저 삭제
     public void deleteUser(UserDetailsImpl userDetails) {
         // 유저 조회, 존재하지 않는 경우 예외처리
         User user = userRepository.findByStudentId(userDetails.getStudentId())
@@ -56,6 +62,7 @@ public class UserService {
         user.softDelete();
         log.info("사용자 삭제 완료: 학번={}", user.getStudentId());
     }
+
 
     // 유저 권한부여 테스트용 API
     public void addRole(UserRoleRequestDto userRoleRequestDto) {

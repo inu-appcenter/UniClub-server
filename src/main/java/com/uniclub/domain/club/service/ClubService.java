@@ -148,7 +148,20 @@ public class ClubService {
         ClubStatus clubStatus = EnumConverter.stringToEnum(promotionRegisterRequestDto.getStatus(), ClubStatus.class, ErrorCode.STATUS_NOT_FOUND);
 
         //동아리 소개글 수정사항 반영
-        existingClub.update(promotionRegisterRequestDto.toClubEntity(clubStatus));
+        existingClub.updatePromotion(
+                clubStatus,
+                promotionRegisterRequestDto.getStartTime(),
+                promotionRegisterRequestDto.getEndTime(),
+                promotionRegisterRequestDto.getDescription(),
+                promotionRegisterRequestDto.getNotice(),
+                promotionRegisterRequestDto.getLocation(),
+                promotionRegisterRequestDto.getPresidentName(),
+                promotionRegisterRequestDto.getPresidentPhone(),
+                promotionRegisterRequestDto.getYoutubeLink(),
+                promotionRegisterRequestDto.getInstagramLink(),
+                promotionRegisterRequestDto.getApplicationFormLink()
+        );
+
         log.info("동아리 소개글 작성 완료: clubId={}, userId={}, status={}", clubId, userDetails.getUserId(), clubStatus);
     }
 

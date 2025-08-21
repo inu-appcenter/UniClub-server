@@ -42,7 +42,7 @@ public enum ErrorCode {
 
 
 
-    // JWT
+    //JWT
     JWT_ENTRY_POINT(HttpStatus.UNAUTHORIZED, 401, "인증되지 않은 사용자입니다."),
     JWT_ACCESS_DENIED(HttpStatus.FORBIDDEN, 403, "리소스에 접근할 권한이 없습니다."),
     JWT_SIGNATURE(HttpStatus.UNAUTHORIZED, 401, "잘못된 JWT 서명입니다."),
@@ -51,18 +51,22 @@ public enum ErrorCode {
     JWT_UNSUPPORTED(HttpStatus.UNAUTHORIZED, 401, "지원하지 않는 JWT 토큰입니다."),
     JWT_NOT_VALID(HttpStatus.UNAUTHORIZED, 401, "유효하지 않은 JWT 토큰입니다."),
 
-    // HTTP 요청 관련
+    //HTTP 요청 관련
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 405, "지원하지 않는 HTTP 메서드입니다."),
     MISSING_PARAMETER(HttpStatus.BAD_REQUEST, 400, "요청에 필요한 입력이 누락되었습니다."),
     TYPE_MISMATCH(HttpStatus.BAD_REQUEST, 400, "입력 형식이 올바르지 않습니다."),
     API_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "존재하지 않는 API 엔드포인트입니다."),
     
-    // 인증 관련
+    //인증 관련
     BAD_CREDENTIALS(HttpStatus.UNAUTHORIZED, 401, "아이디 또는 비밀번호가 올바르지 않습니다."),
     
-    // 데이터베이스 관련
+    //데이터베이스 관련
     DATABASE_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "데이터베이스 연결에 실패했습니다."),
-    DATA_INTEGRITY_VIOLATION(HttpStatus.CONFLICT, 409, "데이터 무결성 제약 조건에 위반됩니다.");
+    DATA_INTEGRITY_VIOLATION(HttpStatus.CONFLICT, 409, "데이터 무결성 제약 조건에 위반됩니다."),
+
+    //질문 관련
+    QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "질문을 찾을 수 없습니다."),
+    CANNOT_UPDATE_ANSWERED_QUESTION(HttpStatus.BAD_REQUEST, 400, "답변이 채택된 질문은 수정할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final Integer code;

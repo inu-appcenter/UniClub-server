@@ -7,8 +7,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -81,19 +80,19 @@ public class Club extends BaseTime {
         this.category = category;
     }
 
-    public Club update(Club club) {
-        this.status = club.getStatus();
-        this.startTime = club.getStartTime();
-        this.endTime = club.getEndTime();
-        this.description = club.getDescription();
-        this.notice = club.getNotice();
-        this.location = club.getLocation();
-        this.presidentName = club.getPresidentName();
-        this.presidentPhone = club.getPresidentPhone();
-        this.youtubeLink = club.getYoutubeLink();
-        this.instagramLink = club.getInstagramLink();
-        this.applicationFormLink = club.getApplicationFormLink();
-        return this;
+    public void updatePromotion(ClubStatus clubStatus, LocalDateTime startTime, LocalDateTime endTime, String description, String notice, String location, String presidentName, String presidentPhone, String youtubeLink, String instagramLink, String applicationFormLink) {
+        this.status = clubStatus;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.description = description;
+        this.notice = notice;
+        this.location = location;
+        this.presidentName = presidentName;
+        this.presidentPhone = presidentPhone;
+        this.youtubeLink = youtubeLink;
+        this.instagramLink = instagramLink;
+        this.applicationFormLink = applicationFormLink;
     }
+
 
 }
