@@ -26,6 +26,8 @@ public enum ErrorCode {
     MEDIA_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 미디어 유형을 찾을 수 없습니다"),
     ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 권한을 찾을 수 없습니다."),
     STATUS_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 상태를 찾을 수 없습니다."),
+    CLUB_DELETED(HttpStatus.GONE, 410, "삭제된 동아리입니다."),
+    USER_DELETED(HttpStatus.GONE, 410, "삭제된 사용자입니다."),
 
 
     //파일 업로드 관련
