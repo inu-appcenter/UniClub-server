@@ -49,9 +49,9 @@ public class NotificationService {
         NotificationType notificationType = EnumConverter.stringToEnum(notificationRequestDto.getNotificationType(), NotificationType.class, ErrorCode.NOTIFICATION_TYPE_NOT_FOUND);
 
 
-        List<User> users = userRepository.findByUsernames(notificationRequestDto.getUserNames());
-        // 요청된 유저명과 실제 조회된 유저 수 검증
-        if (users.size() != notificationRequestDto.getUserNames().size()) {
+        List<User> users = userRepository.findByStudentIds(notificationRequestDto.getStudentIds());
+        // 요청된 학번과 실제 조회된 유저 수 검증
+        if (users.size() != notificationRequestDto.getStudentIds().size()) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
 
@@ -63,6 +63,6 @@ public class NotificationService {
         // 알림 객체 DB에 저장
         notificationRepository.saveAll(notifications);
 
-        log.info("알림 생성 성공: 알림 타입={}, 메시지={}, 수신자={}", notificationRequestDto.getNotificationType(), notificationRequestDto.getMessage(), notificationRequestDto.getUserNames());
+        log.info("알림 생성 성공: 알림 타입={}, 메시지={}, 수신자={}", notificationRequestDto.getNotificationType(), notificationRequestDto.getMessage(), notificationRequestDto.getStudentIds());
     }
 }

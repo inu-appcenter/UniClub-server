@@ -22,9 +22,9 @@ public class NotificationRequestDto {
     @NotBlank(message = "알림 타입을 지정해주세요.")
     private String notificationType;
 
-    @Schema(description = "알림을 받을 유저", example = "[\"홍길동\"]")
+    @Schema(description = "알림을 받을 유저", example = "[\"202012345\"]")
     @NotEmpty(message = "알림을 받을 유저를 명시해주세요.")
-    private List<@NotBlank(message = "유저 이름은 빈 값일 수 없습니다.") String> userNames;
+    private List<@NotBlank(message = "학번은 빈 값일 수 없습니다.") String> studentIds;
 
     // 저장을 위해 알림 객체 생성
     public Notification toNotificationEntity(User user, NotificationType type) {
