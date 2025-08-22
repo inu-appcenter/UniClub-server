@@ -12,7 +12,6 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     //Question Entity와 메핑된 User 조회
     @Query("SELECT q FROM Question q " +
             "JOIN FETCH q.user " +
-            "WHERE q.questionId = :questionId " +
-            "AND q.isDeleted = false")
-    Optional<Question> findByIdWithUserAndNotDeleted(Long questionId);
+            "WHERE q.questionId = :questionId ")
+    Optional<Question> findByIdWithUser(Long questionId);
 }

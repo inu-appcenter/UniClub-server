@@ -1,9 +1,6 @@
 package com.uniclub.domain.qna.controller;
 
-import com.uniclub.domain.qna.dto.QuestionCreateRequestDto;
-import com.uniclub.domain.qna.dto.QuestionCreateResponseDto;
-import com.uniclub.domain.qna.dto.QuestionResponseDto;
-import com.uniclub.domain.qna.dto.QuestionUpdateRequestDto;
+import com.uniclub.domain.qna.dto.*;
 import com.uniclub.domain.qna.service.QnaService;
 import com.uniclub.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -27,7 +24,7 @@ public class QnaController {
     }
      */
 
-    //특정 질문 조회
+    //특정 질문 조회 (답변 리스트 추가전)
     @GetMapping("/{questionId}")
     public ResponseEntity<QuestionResponseDto> getQuestion(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long questionId){
         QuestionResponseDto questionResponseDto = qnaService.getQuestion(userDetails, questionId);
@@ -44,7 +41,7 @@ public class QnaController {
 
 
     //질문 수정
-    @PutMapping("/{questionId}")
+    @PatchMapping("/{questionId}")
     public ResponseEntity<Void> updateQuestion(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long questionId, @Valid QuestionUpdateRequestDto questionUpdateRequestDto){
         qnaService.updateQuestion(userDetails, questionId, questionUpdateRequestDto);
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -57,25 +54,29 @@ public class QnaController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    /*
-    //답변 등록
+
+    //답변 등록 및 대댓글
     @PostMapping("/{questionId}/answers")
-    public ResponseEntity<> createAnswer(@PathVariable Long questionId){
-
+    public ResponseEntity<AnswerCreateResponseDto> createAnswer(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long questionId, @RequestParam Long parentsAnswerId, @Valid AnswerCreateRequestDto answerCreateRequestDto){
+        AnswerCreateResponseDto answerCreateResponseDto = qnaService.createAnswer(userDetails, questionId, parentsAnswerId, answerCreateRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(answerCreateResponseDto);
     }
 
-    //답변 수정
-    @PutMapping("/{questionId}/answers/{answerId}")
-    public ResponseEntity<> updateAnswer(@PathVariable Long questionId, @PathVariable Long answerId, @RequestParam Long clubId){
-
-    }
 
     //답변 삭제
-    @DeleteMapping("/{questionId}/answers/{answerId}")
-    public ResponseEntity<> deleteAnswer(@PathVariable Long questionId, @PathVariable Long answerId, @RequestParam Long clubId){
+    @DeleteMapping("/{answerId}")
+    public ResponseEntity<Void> deleteAnswer(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long answerId){
+        qnaService.deleteAnswer(userDetails, answerId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+
+    /*
+    //신고
+    @PostMapping("/reports")
+    public ResponseEntity<> reportsQna(){
 
     }
+
      */
-
-
 }

@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 public class QuestionUpdateRequestDto {
     private String content;
 
-    private boolean isAnnonymous;
+    private Boolean isAnnonymous;
 
-    private boolean isAnswered;
+    private Boolean isAnswered;
 
     public Question toEntity() {
         return Question.builder()

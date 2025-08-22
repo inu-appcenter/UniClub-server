@@ -55,9 +55,15 @@ public class Question extends BaseTime{
         this.club = club;
     }
 
-    public void update(String content, boolean isAnonymous, boolean isAnswered) {
-        this.content = content;
-        this.isAnonymous = isAnonymous;
-        this.isAnswered = isAnswered;
+    public void update(String content, Boolean isAnonymous, Boolean isAnswered) {
+        if (content != null) {
+            this.content = content;
+        }
+        if (isAnonymous != null) {
+            this.isAnonymous = isAnonymous;
+        }
+        if (isAnswered != null) {
+            this.isAnswered = isAnswered;
+        }
     }
 }

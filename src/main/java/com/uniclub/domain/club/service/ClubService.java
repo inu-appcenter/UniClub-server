@@ -147,7 +147,7 @@ public class ClubService {
 
         ClubStatus clubStatus = EnumConverter.stringToEnum(promotionRegisterRequestDto.getStatus(), ClubStatus.class, ErrorCode.STATUS_NOT_FOUND);
 
-        //동아리 소개글 수정사항 반영
+        //동아리 소개글 수정 사항 반영
         existingClub.updatePromotion(
                 clubStatus,
                 promotionRegisterRequestDto.getStartTime(),
