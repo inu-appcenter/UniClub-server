@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -30,6 +31,10 @@ public class User extends BaseTime {
     @Column(nullable = false, length = 20)
     private String major;    //전공
 
+    @ColumnDefault("true")
+    @Column(nullable = false)
+    private boolean notificationEnabled;    //알림설정
+
 
     public User(String name, String studentId, String password, String major) {
         this.name = name;
@@ -49,6 +54,10 @@ public class User extends BaseTime {
         if(nickname != null && !nickname.isBlank()) {
             this.nickname = nickname;
         }
+    }
+
+    public void toggleNotification() {
+        this.notificationEnabled = !this.notificationEnabled;
     }
 
 
