@@ -7,8 +7,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -81,19 +80,23 @@ public class Club extends BaseTime {
         this.category = category;
     }
 
-    public Club update(Club club) {
-        this.status = club.getStatus();
-        this.startTime = club.getStartTime();
-        this.endTime = club.getEndTime();
-        this.description = club.getDescription();
-        this.notice = club.getNotice();
-        this.location = club.getLocation();
-        this.presidentName = club.getPresidentName();
-        this.presidentPhone = club.getPresidentPhone();
-        this.youtubeLink = club.getYoutubeLink();
-        this.instagramLink = club.getInstagramLink();
-        this.applicationFormLink = club.getApplicationFormLink();
-        return this;
+    public void updatePromotion(ClubStatus clubStatus, LocalDateTime startTime, LocalDateTime endTime,
+                                String description, String notice, String location,
+                                String presidentName, String presidentPhone,
+                                String youtubeLink, String instagramLink, String applicationFormLink) {
+
+        if (clubStatus != null) this.status = clubStatus;
+        if (startTime != null) this.startTime = startTime;
+        if (endTime != null) this.endTime = endTime;
+        if (description != null) this.description = description;
+        if (notice != null) this.notice = notice;
+        if (location != null) this.location = location;
+        if (presidentName != null) this.presidentName = presidentName;
+        if (presidentPhone != null) this.presidentPhone = presidentPhone;
+        if (youtubeLink != null) this.youtubeLink = youtubeLink;
+        if (instagramLink != null) this.instagramLink = instagramLink;
+        if (applicationFormLink != null) this.applicationFormLink = applicationFormLink;
     }
+
 
 }
