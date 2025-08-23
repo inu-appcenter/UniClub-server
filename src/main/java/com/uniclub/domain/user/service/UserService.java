@@ -6,6 +6,9 @@ import com.uniclub.domain.club.entity.Role;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.club.repository.MembershipRepository;
 import com.uniclub.domain.user.dto.InformationModificationRequestDto;
+import com.uniclub.domain.user.dto.MyPageResponseDto;
+import com.uniclub.domain.user.dto.NotificationSettingResponseDto;
+import com.uniclub.domain.user.dto.ToggleNotificationResponseDto;
 import com.uniclub.domain.user.dto.UserRoleRequestDto;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.domain.user.repository.UserRepository;
@@ -76,5 +79,53 @@ public class UserService {
 
         membershipRepository.save(MemberShip.builder().user(user).club(club).role(role).build());
         log.info("사용자 권한 부여 완료: 학번={}, 권한={}", user.getStudentId(), role);
+    }
+
+    @Transactional(readOnly = true)
+    public MyPageResponseDto getMyPage(UserDetailsImpl userDetails) {
+        User user = userDetails.getUser();
+        String formattedStudentId = formatStudentId(user.getStudentId());
+
+        log.info("마이페이지 조회 완료: 학번={}", user.getStudentId());
+        return new MyPageResponseDto(user.getName(), formattedStudentId, user.getMajor());
+    }
+
+    // 학번 추출 private 메소드
+    private String formatStudentId(String studentId) {
+        if (studentId != null && studentId.length() >= 2) {
+            return studentId.substring(0, 2) + "학번";
+        }
+        return studentId + "학번";
+    }
+
+    @Transactional(readOnly = true)
+    public NotificationSettingResponseDto getNotificationSetting(UserDetailsImpl userDetails) {
+        User user = userDetails.getUser();
+        log.info("알림설정 조회 완료: 학번={}, 상태={}", user.getStudentId(), user.isNotificationEnabled());
+        return new NotificationSettingResponseDto(user.isNotificationEnabled());
+    }
+
+    public ToggleNotificationResponseDto toggleNotificationSetting(UserDetailsImpl userDetails) {
+        String studentId = userDetails.getStudentId();
+        
+        // DB에서 다시 조회하여 현재 트랜잭션 컨텍스트에 포함시키기
+        User user = userRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 삭제된 유저인지 확인
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_DELETED);
+        }
+
+        // 토글 실행 (더티체킹으로 자동 UPDATE)
+        user.toggleNotification();
+        
+        if (user.isNotificationEnabled()) {
+            log.info("알림설정 변경 완료: 학번={}, 상태=활성화", studentId);
+            return new ToggleNotificationResponseDto("알림이 활성화되었습니다.");
+        } else {
+            log.info("알림설정 변경 완료: 학번={}, 상태=비활성화", studentId);
+            return new ToggleNotificationResponseDto("알림이 비활성화되었습니다.");
+         }
     }
 }
