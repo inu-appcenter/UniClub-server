@@ -1,6 +1,8 @@
 package com.uniclub.domain.qna.repository;
 
 import com.uniclub.domain.qna.entity.Question;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,4 +16,16 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             "JOIN FETCH q.user " +
             "WHERE q.questionId = :questionId ")
     Optional<Question> findByIdWithUser(Long questionId);
+
+    @Query("SELECT q, " +
+            "(SELECT COUNT(a) FROM Answer a WHERE a.question.questionId = q.questionId) " +
+            "FROM Question q " +
+            "LEFT JOIN FETCH q.user u " +
+            "LEFT JOIN FETCH q.club c " +
+            "WHERE (:keyword IS NULL OR UPPER(q.content) LIKE UPPER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:clubId IS NULL OR q.club.clubId = :clubId) " +
+            "AND q.isAnswered = :isAnswered " +
+            "AND (:userId IS NULL OR q.user.userId = :userId) " +
+            "ORDER BY q.updateAt DESC")
+    Slice<Object[]> searchQuestionsWithAnswerCount(String keyword, Long clubId, boolean isAnswered, Long userId, Pageable pageable);
 }

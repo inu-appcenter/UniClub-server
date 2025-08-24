@@ -5,6 +5,7 @@ import com.uniclub.domain.qna.service.QnaService;
 import com.uniclub.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,13 +17,22 @@ import org.springframework.web.bind.annotation.*;
 public class QnaController {
     private final QnaService qnaService;
 
-    /*
-    //질문 전체 조회
-    @GetMapping
-    public ResponseEntity<> getQuestions(@RequestParam Long clubId){
 
+    //QnA 페이지 search
+    @GetMapping("/search")
+    public ResponseEntity<PageQuestionResponseDto<SearchQuestionResponseDto>> getSearchQuestions(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long clubId,
+            @RequestParam(defaultValue = "false") boolean isAnswered,
+            @RequestParam(defaultValue = "false") boolean onlyMyQuestions,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Slice<SearchQuestionResponseDto> slice = qnaService.getSearchQuestions(userDetails, keyword, clubId, isAnswered, onlyMyQuestions, size);
+        PageQuestionResponseDto<SearchQuestionResponseDto> searchQuestionResponseDtoList = new PageQuestionResponseDto<>(slice.getContent(), slice.hasNext());
+        return ResponseEntity.status(HttpStatus.OK).body(searchQuestionResponseDtoList);
     }
-     */
+
 
     //특정 질문 조회 (답변 리스트 추가전)
     @GetMapping("/{questionId}")
