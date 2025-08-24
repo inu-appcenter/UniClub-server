@@ -4,10 +4,10 @@ import com.uniclub.domain.user.dto.InformationModificationRequestDto;
 import com.uniclub.domain.user.dto.MyPageResponseDto;
 import com.uniclub.domain.user.dto.NotificationSettingResponseDto;
 import com.uniclub.domain.user.dto.ToggleNotificationResponseDto;
+import com.uniclub.domain.user.dto.UserDeleteRequestDto;
 import com.uniclub.domain.user.dto.UserRoleRequestDto;
 import com.uniclub.domain.user.service.UserService;
 import com.uniclub.global.security.UserDetailsImpl;
-import com.uniclub.global.swagger.SearchApiSpecification;
 import com.uniclub.global.swagger.UserApiSpecification;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +39,10 @@ public class UserController implements UserApiSpecification {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        userService.deleteUser(userDetails);
+    public ResponseEntity<Void> deleteUser(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Valid @RequestBody UserDeleteRequestDto userDeleteRequestDto) {
+        userService.deleteUser(userDetails, userDeleteRequestDto);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

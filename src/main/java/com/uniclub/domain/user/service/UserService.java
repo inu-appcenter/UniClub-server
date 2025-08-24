@@ -9,6 +9,8 @@ import com.uniclub.domain.user.dto.InformationModificationRequestDto;
 import com.uniclub.domain.user.dto.MyPageResponseDto;
 import com.uniclub.domain.user.dto.NotificationSettingResponseDto;
 import com.uniclub.domain.user.dto.ToggleNotificationResponseDto;
+import com.uniclub.domain.user.dto.UserDeleteRequestDto;
+import com.uniclub.global.s3.S3ServiceImpl;
 import com.uniclub.domain.user.dto.UserRoleRequestDto;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.domain.user.repository.UserRepository;
@@ -18,6 +20,7 @@ import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final MembershipRepository membershipRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final S3ServiceImpl s3ServiceImpl;
 
     // 개인정보 수정 디자인 나오면 검증로직 추가 필요
     public void updateUser(UserDetailsImpl userDetails, InformationModificationRequestDto informationModificationRequestDto) {
@@ -42,17 +47,19 @@ public class UserService {
         }
 
         // 영속성 컨택스트 이용(더티체킹)
-        user.updateInfo(
-                informationModificationRequestDto.getName(),
+
+        user.updateInfo(informationModificationRequestDto.getName(),
                 informationModificationRequestDto.getMajor(),
-                informationModificationRequestDto.getNickname()
-        );
+                informationModificationRequestDto.getNickname(),
+                informationModificationRequestDto.getProfileImageLink());
+
 
         log.info("사용자 정보 업데이트 성공: 학번={}", user.getStudentId());
     }
 
-    //유저 삭제
-    public void deleteUser(UserDetailsImpl userDetails) {
+
+    public void deleteUser(UserDetailsImpl userDetails, UserDeleteRequestDto userDeleteRequestDto) {
+
         // 유저 조회, 존재하지 않는 경우 예외처리
         User user = userRepository.findByStudentId(userDetails.getStudentId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -60,6 +67,16 @@ public class UserService {
         // 삭제된 유저인지 확인
         if (user.isDeleted()){
             throw new CustomException(ErrorCode.USER_DELETED);
+        }
+
+        // 비밀번호 확인
+        boolean isValid = passwordEncoder.matches(
+                userDeleteRequestDto.getPassword(),
+                userDetails.getPassword()
+        );
+        
+        if (!isValid) {
+            throw new CustomException(ErrorCode.PASSWORD_NOT_MATCHED);
         }
 
         user.softDelete();
@@ -85,9 +102,15 @@ public class UserService {
     public MyPageResponseDto getMyPage(UserDetailsImpl userDetails) {
         User user = userDetails.getUser();
         String formattedStudentId = formatStudentId(user.getStudentId());
+        
+        // 프로필 이미지 S3 키가 있으면 presigned URL 생성
+        String profileImageUrl = "";
+        if (user.getProfileImageLink() != null && !user.getProfileImageLink().isEmpty()) {
+           profileImageUrl = s3ServiceImpl.getDownloadPresignedUrl(user.getProfileImageLink());
+        }
 
         log.info("마이페이지 조회 완료: 학번={}", user.getStudentId());
-        return new MyPageResponseDto(user.getName(), formattedStudentId, user.getMajor());
+        return new MyPageResponseDto(user.getMajor(), user.getName(), formattedStudentId, user.getMajor(), profileImageUrl);
     }
 
     // 학번 추출 private 메소드

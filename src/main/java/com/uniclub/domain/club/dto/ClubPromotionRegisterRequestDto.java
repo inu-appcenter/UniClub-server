@@ -25,6 +25,9 @@ public class ClubPromotionRegisterRequestDto {
     @Schema(description = "모집 마감 시간", example = "2025-08-03T14:30:00")
     private LocalDateTime endTime;
 
+    @Schema(description = "동아리 한 줄 소개")
+    private String simpleDescription;
+
     @Schema(description = "소개글")
     private String description;
 
@@ -56,6 +59,7 @@ public class ClubPromotionRegisterRequestDto {
                 .status(clubStatus)
                 .startTime(startTime)
                 .endTime(endTime)
+                .simpleDescription(simpleDescription)
                 .description(description)
                 .notice(notice)
                 .location(location)

@@ -1,10 +1,12 @@
 package com.uniclub.domain.main.service;
 
 import com.uniclub.domain.club.dto.ClubMediaUploadRequestDto;
+import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.entity.Media;
 import com.uniclub.domain.club.entity.MediaType;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.club.repository.MediaRepository;
+import com.uniclub.domain.favorite.repository.FavoriteRepository;
 import com.uniclub.domain.main.dto.MainMediaUploadRequestDto;
 import com.uniclub.domain.main.dto.MainPageClubResponseDto;
 import com.uniclub.domain.main.dto.MainPageMediaResponseDto;
@@ -23,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -33,6 +37,7 @@ public class MainService {
 
     private final ClubRepository clubRepository;
     private final MediaRepository mediaRepository;
+    private final FavoriteRepository favoriteRepository;
     private final S3ServiceImpl s3ServiceImpl;
 
 
@@ -52,7 +57,34 @@ public class MainService {
     //메인 페이지 동아리 목록 호출
     @Transactional(readOnly = true)
     public List<MainPageClubResponseDto> getMainPageClubs(UserDetailsImpl userDetails){
-        return clubRepository.getMainPageClubs(userDetails.getUserId(),PageRequest.of(0,6));
+        List<Club> clubList = clubRepository.getMainPageClubs(PageRequest.of(0,6));
+        
+        // 유저가 관심 등록한 동아리 목록
+        Set<Long> favoriteSet = new HashSet<>(
+                favoriteRepository.findClubIdsByUserId(userDetails.getUserId())
+        );
+        
+        // 동아리 목록에서 메인 이미지만 가져와서 DTO 생성
+        List<MainPageClubResponseDto> mainPageClubResponseDtoList = new ArrayList<>();
+        for (Club club : clubList) {
+            // 해당 동아리의 메인 이미지만 가져오기
+            Media mainImage = mediaRepository.findMainImageByClubId(club.getClubId());
+            String imageUrl = "";
+
+            if (mainImage != null) {
+                imageUrl = s3ServiceImpl.getDownloadPresignedUrl(mainImage.getMediaLink());
+            }
+            
+            boolean isFavorite = favoriteSet.contains(club.getClubId());
+            MainPageClubResponseDto dto = MainPageClubResponseDto.builder()
+                    .name(club.getName())
+                    .imageUrl(imageUrl)
+                    .favorite(isFavorite)
+                    .build();
+
+            mainPageClubResponseDtoList.add(dto);
+        }
+        return mainPageClubResponseDtoList;
     }
 
 

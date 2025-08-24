@@ -4,6 +4,7 @@ import com.uniclub.domain.user.dto.InformationModificationRequestDto;
 import com.uniclub.domain.user.dto.MyPageResponseDto;
 import com.uniclub.domain.user.dto.NotificationSettingResponseDto;
 import com.uniclub.domain.user.dto.ToggleNotificationResponseDto;
+import com.uniclub.domain.user.dto.UserDeleteRequestDto;
 import com.uniclub.domain.user.dto.UserRoleRequestDto;
 import com.uniclub.global.exception.ErrorResponse;
 import com.uniclub.global.security.UserDetailsImpl;
@@ -115,11 +116,26 @@ public interface UserApiSpecification {
             @RequestBody InformationModificationRequestDto informationModificationRequestDto
     );
 
-    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴")
+    @Operation(summary = "회원 탈퇴", description = "비밀번호 확인 후 회원 탈퇴")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "204",
                     description = "탈퇴 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "비밀번호가 일치하지 않음",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 401,
+                      "name": "PASSWORD_NOT_MATCHED",
+                      "message": "비밀번호가 일치하지 않습니다."
+                    }
+                    """
+                            )
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
@@ -153,7 +169,8 @@ public interface UserApiSpecification {
             )
     })
     ResponseEntity<Void> deleteUser(
-            @AuthenticationPrincipal UserDetailsImpl userDetails
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody UserDeleteRequestDto userDeleteRequestDto
     );
 
     @Operation(summary = "유저 권한 부여", description = "테스트용 - 유저에게 동아리 권한 부여")

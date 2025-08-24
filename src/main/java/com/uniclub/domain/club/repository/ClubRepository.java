@@ -60,16 +60,11 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
 
 
     @Query("""
-    select new com.uniclub.domain.main.dto.MainPageClubResponseDto(
-        c.name,
-        m.mediaLink,
-        case when f.favoriteId is not null then true else false end
-    )
+    select c
     from Club c
     join Media m on m.club = c and m.isMain = true
-    left join Favorite f on f.club = c and f.user.userId = :userId
     where c.isDeleted = false
     order by function('rand')
     """)
-    List<MainPageClubResponseDto> getMainPageClubs(Long userId, Pageable pageable);
+    List<Club> getMainPageClubs(Pageable pageable);
 }
