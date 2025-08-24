@@ -41,7 +41,7 @@ public class ClubResponseDto {
         return ClubResponseDto.builder()
                 .id(club.getClubId())
                 .name(club.getName())
-                .info(club.getDescription())
+                .info(club.getSimpleDescription())
                 .status(club.getStatus())
                 .favorite(favorite)
                 .build();

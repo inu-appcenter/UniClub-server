@@ -31,6 +31,9 @@ public class User extends BaseTime {
     @Column(nullable = false, length = 20)
     private String major;    //전공
 
+    @Column(columnDefinition = "TEXT")
+    private String profileImageLink;  // 프로필 이미지
+
     @ColumnDefault("true")
     @Column(nullable = false)
     private boolean notificationEnabled;    //알림설정
@@ -44,15 +47,18 @@ public class User extends BaseTime {
         this.nickname = name;
     }
 
-    public void updateInfo(String name, String major, String nickname) {
+    public void updateInfo(String name, String major, String nickname, String profileImageLink) {
         if (name != null && !name.isBlank()) {
             this.name = name;
         }
         if (major != null && !major.isBlank()) {
             this.major = major;
         }
-        if(nickname != null && !nickname.isBlank()) {
+        if (nickname != null && !nickname.isBlank()) {
             this.nickname = nickname;
+        }
+        if (profileImageLink != null && !profileImageLink.isBlank()) {
+            this.profileImageLink = profileImageLink;
         }
     }
 

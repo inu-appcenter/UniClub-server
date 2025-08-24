@@ -59,6 +59,7 @@ public enum ErrorCode {
     
     // 인증 관련
     BAD_CREDENTIALS(HttpStatus.UNAUTHORIZED, 401, "아이디 또는 비밀번호가 올바르지 않습니다."),
+    PASSWORD_NOT_MATCHED(HttpStatus.UNAUTHORIZED, 401, "비밀번호가 일치하지 않습니다."),
     
     // 데이터베이스 관련
     DATABASE_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "데이터베이스 연결에 실패했습니다."),

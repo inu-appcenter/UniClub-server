@@ -33,6 +33,9 @@ public class Club extends BaseTime {
     @Column
     private LocalDateTime endTime;    //모집 마감일시
 
+    @Column(length = 50)
+    private String simpleDescription;  // 동아리 한줄 소개
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -62,7 +65,7 @@ public class Club extends BaseTime {
     private Category category;
 
     @Builder
-    public Club(String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime,
+    public Club(String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime, String simpleDescription,
                 String description, String notice, String location, String presidentName, String presidentPhone,
                 String youtubeLink, String instagramLink, String applicationFormLink, Category category) {
   
@@ -70,6 +73,7 @@ public class Club extends BaseTime {
         this.status = status;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.simpleDescription = simpleDescription;
         this.description = description;
         this.notice = notice;
         this.location = location;
@@ -85,6 +89,7 @@ public class Club extends BaseTime {
         this.status = club.getStatus();
         this.startTime = club.getStartTime();
         this.endTime = club.getEndTime();
+        this.simpleDescription = club.getSimpleDescription();
         this.description = club.getDescription();
         this.notice = club.getNotice();
         this.location = club.getLocation();

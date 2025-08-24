@@ -15,4 +15,7 @@ public class InformationModificationRequestDto {
 
     @Schema(description = "닉네임", example = "빌려온 고양이")
     private String nickname;
+
+    @Schema(description = "프로필 이미지 url", example = "uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png")
+    private String profileImageLink;
 }

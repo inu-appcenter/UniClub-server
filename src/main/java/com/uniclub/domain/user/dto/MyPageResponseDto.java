@@ -9,6 +9,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MyPageResponseDto {
 
+    @Schema(description = "닉네임", example = "라면")
+    private final String nickname;
+
     @Schema(description = "이름", example = "홍길동")
     private final String name;
 
@@ -17,4 +20,7 @@ public class MyPageResponseDto {
 
     @Schema(description = "전공", example = "컴퓨터공학부")
     private final String major;
+
+    @Schema(description = "프로필 이미지 url", example = "uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png")
+    private final String profileImageLink;
 }
