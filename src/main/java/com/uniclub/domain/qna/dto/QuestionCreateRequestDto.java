@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Schema(description = "질문 생성 요청 DTO")
 @Getter
 @NoArgsConstructor
-public class QustionCreateRequestDto {
+public class QuestionCreateRequestDto {
 
     @Schema(description = "질문 내용", example = "동아리원 모집은 언제 진행하나요?")
     @NotBlank(message = "질문을 입력해주세요.")

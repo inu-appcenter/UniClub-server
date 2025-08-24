@@ -23,9 +23,6 @@ public class Question extends BaseTime{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long questionId;
 
-    @Column(nullable = false, length = 50)
-    private String title;
-
     @Column(nullable = false)
     private String content;
 
@@ -49,22 +46,24 @@ public class Question extends BaseTime{
     private Club club;
 
     @Builder
-    public Question(String title, String content, boolean isAnonymous, boolean isPublic, User user, Club club) {
-        this.title = title;
+    public Question(String content, boolean isAnonymous, boolean isAnswered, boolean isPublic, User user, Club club) {
         this.content = content;
         this.isAnonymous = isAnonymous;
+        this.isAnswered = isAnswered;
         this.isPublic = isPublic;
         this.user = user;
         this.club = club;
     }
 
-    public Question update(Question question) {
-        this.title = question.getTitle();
-        this.content = question.getContent();
-        this.isAnonymous = question.isAnonymous();
-        this.isPublic = question.isPublic();
-        this.user = question.getUser();
-        this.club = question.getClub();
-        return this;
+    public void update(String content, Boolean isAnonymous, Boolean isAnswered) {
+        if (content != null) {
+            this.content = content;
+        }
+        if (isAnonymous != null) {
+            this.isAnonymous = isAnonymous;
+        }
+        if (isAnswered != null) {
+            this.isAnswered = isAnswered;
+        }
     }
 }
