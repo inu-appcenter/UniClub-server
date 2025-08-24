@@ -12,8 +12,13 @@ import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,16 +31,51 @@ public class QnaService {
     private final AnswerRepository answerRepository;
 
 
+    //Qna 페이지 다중 질문 조회
+    public Slice<SearchQuestionResponseDto> getSearchQuestions(UserDetailsImpl userDetails, String keyword, Long clubId, boolean isAnswered, boolean onlyMyQuestions, int size) {
+        // 존재하는 동아리인지 확인
+        if (!clubRepository.existsById(clubId)){
+            throw new CustomException(ErrorCode.CLUB_NOT_FOUND);
+        }
+
+        //clubId 확인
+        Long userId = onlyMyQuestions ? userDetails.getUser().getUserId() : null;
+
+        //PageRequest 생성 및 정렬
+        Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
+
+        Slice<Object[]> resultSlice = questionRepository.searchQuestionsWithAnswerCount(keyword, clubId, isAnswered, userId, pageable);
+
+        // DTO 변환
+        List<SearchQuestionResponseDto> content = resultSlice.getContent().stream()
+                .map(row -> {
+                    Question question = (Question) row[0];
+                    Long answerCount = (Long) row[1];   //답변 갯수
+                    return SearchQuestionResponseDto.from(question, answerCount);
+                })
+                .collect(Collectors.toList());
+
+        return new SliceImpl<>(content, pageable, resultSlice.hasNext());
+    }
+
+
     //단일 질문 조회
     public QuestionResponseDto getQuestion(UserDetailsImpl userDetails, Long questionId) {
         //기존 Quesiton Entity 불러오기
         Question question = questionRepository.findByIdWithUser(questionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_NOT_FOUND));
 
-        //질문 작성자 여부
-        boolean isOwner = question.getUser().getUserId().equals(userDetails.getUser().getUserId());
+        //questionId에 해당하는 답변 쿼리
+        List<Answer> answerList = answerRepository.findByQuestionIdWithUser(questionId);
 
-        return QuestionResponseDto.from(isOwner, question);
+        //반환할 Answer
+        List<AnswerResponseDto> answerResponseDtoList = new ArrayList<>();
+
+        for (Answer answer : answerList) {
+            answerResponseDtoList.add(AnswerResponseDto.from(answer));
+        }
+        
+        return QuestionResponseDto.from(question, answerResponseDtoList);
     }
 
     //질문 등록
@@ -89,6 +129,7 @@ public class QnaService {
             throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
         }
 
+        //삭제
         questionRepository.delete(existingQuestion);
 
         log.info("질문 삭제 완료: {}", existingQuestion.getQuestionId());
@@ -107,6 +148,7 @@ public class QnaService {
 
         Answer answer = answerCreateRequestDto.toEntity(userDetails, question, parentsAnswer);
 
+        //저장
         answerRepository.save(answer);
 
         log.info("답변 등록 완료: {}", answer.getAnswerId());
@@ -132,4 +174,7 @@ public class QnaService {
             answerRepository.delete(existingAnswer);
         }
     }
+
+
+
 }

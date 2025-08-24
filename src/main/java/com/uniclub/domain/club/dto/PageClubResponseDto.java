@@ -3,11 +3,13 @@ package com.uniclub.domain.club.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @Schema(description = "페이징 응답 DTO")
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Getter
 public class PageClubResponseDto<T> {
     @Schema(description = "조회된 동아리 목록")
