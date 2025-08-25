@@ -15,18 +15,25 @@ import java.util.List;
 @Getter
 public class QuestionResponseDto extends BaseTime{
 
+    @Schema(description = "질문 작성자명", example = "홍길동")
     private final String name;
 
+    @Schema(description = "질문 작성자 ID", example = "123")
     private final Long userId;
 
+    @Schema(description = "질문 내용", example = "동아리원 모집은 언제 진행하나요?")
     private final String content;
 
+    @Schema(description = "익명 여부", example = "false")
     private final boolean isAnonymous;
 
+    @Schema(description = "답변 완료 여부", example = "true")
     private final boolean isAnswered;
 
+    @Schema(description = "질문 수정 시간", example = "2025-08-25T10:30:00")
     private final LocalDateTime updatedAt;
 
+    @Schema(description = "답변 목록")
     private final List<AnswerResponseDto> answers;
 
     @Builder

@@ -8,6 +8,7 @@ import lombok.Getter;
 @Schema(description = "질문 생성 응답 DTO")
 @Getter
 public class QuestionCreateResponseDto {
+    @Schema(description = "생성된 질문 ID", example = "123")
     private final Long questionId;
 
     @Builder

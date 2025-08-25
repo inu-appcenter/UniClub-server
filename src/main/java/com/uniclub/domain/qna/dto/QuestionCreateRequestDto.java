@@ -18,6 +18,7 @@ public class QuestionCreateRequestDto {
     private String content;
 
     @Schema(description = "익명 여부", example = "false")
+    @NotBlank(message = "익명 여부를 선택해주세요.")
     private boolean isAnnonymous;
 
     public Question toQuestionEntity(User user, Club club) {

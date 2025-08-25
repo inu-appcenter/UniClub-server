@@ -2,6 +2,7 @@ package com.uniclub.domain.qna.dto;
 
 import com.uniclub.domain.qna.entity.Question;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,16 +10,23 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class QuestionUpdateRequestDto {
+    
+    @Schema(description = "수정할 질문 내용", example = "동아리 활동비는 얼마인가요?")
+    @NotBlank(message = "질문 내용을 입력해주세요.")
     private String content;
 
-    private Boolean isAnnonymous;
+    @Schema(description = "익명 여부", example = "false")
+    @NotBlank(message = "익명 여부를 선택해주세요.")
+    private Boolean isAnonymous;
 
+    @Schema(description = "답변 완료 여부", example = "false")
+    @NotBlank(message = "답변 완료 여부를 확인해주세요.")
     private Boolean isAnswered;
 
     public Question toEntity() {
         return Question.builder()
                 .content(content)
-                .isAnonymous(isAnnonymous)
+                .isAnonymous(isAnonymous)
                 .isAnswered(isAnswered)
                 .build();
     }
