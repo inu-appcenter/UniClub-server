@@ -24,8 +24,8 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             "LEFT JOIN FETCH q.club c " +
             "WHERE (:keyword IS NULL OR UPPER(q.content) LIKE UPPER(CONCAT('%', :keyword, '%'))) " +
             "AND (:clubId IS NULL OR q.club.clubId = :clubId) " +
-            "AND q.isAnswered = :isAnswered " +
+            "AND q.answered = :answered " +
             "AND (:userId IS NULL OR q.user.userId = :userId) " +
             "ORDER BY q.updateAt DESC")
-    Slice<Object[]> searchQuestionsWithAnswerCount(String keyword, Long clubId, boolean isAnswered, Long userId, Pageable pageable);
+    Slice<Object[]> searchQuestionsWithAnswerCount(String keyword, Long clubId, boolean answered, Long userId, Pageable pageable);
 }
