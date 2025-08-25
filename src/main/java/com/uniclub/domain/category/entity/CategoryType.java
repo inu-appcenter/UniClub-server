@@ -7,5 +7,4 @@ public enum CategoryType {
     RELIGION,   //종교
     VOLUNTEER,  //봉사
     CULTURE;    //문화
-
 }
