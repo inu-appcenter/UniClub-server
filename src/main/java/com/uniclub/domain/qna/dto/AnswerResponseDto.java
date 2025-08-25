@@ -17,18 +17,18 @@ public class AnswerResponseDto {
 
     private final String content;
 
-    private final boolean isAnoneymous;
+    private final boolean anoneymous;
 
     private final LocalDateTime updateTime;
 
     private final Long parentAnswerId;
 
     @Builder
-    public AnswerResponseDto(Long answerId, String name, String content, boolean isAnoneymous, LocalDateTime updateTime, Long parentAnswerId) {
+    public AnswerResponseDto(Long answerId, String name, String content, boolean anoneymous, LocalDateTime updateTime, Long parentAnswerId) {
         this.answerId = answerId;
         this.name = name;
         this.content = content;
-        this.isAnoneymous = isAnoneymous;
+        this.anoneymous = anoneymous;
         this.updateTime = updateTime;
         this.parentAnswerId = parentAnswerId;
     }
@@ -40,7 +40,7 @@ public class AnswerResponseDto {
                 .answerId(answer.getAnswerId())
                 .name(displayName)
                 .content(answer.getContent())
-                .isAnoneymous(answer.isAnonymous())
+                .anoneymous(answer.isAnonymous())
                 .updateTime(answer.getUpdateAt())
                 .parentAnswerId(answer.getParentAnswer().getAnswerId())
                 .build();

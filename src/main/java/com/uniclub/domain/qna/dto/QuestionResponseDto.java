@@ -13,7 +13,7 @@ import java.util.List;
 
 @Schema(description = "질문 조회 DTO")
 @Getter
-public class QuestionResponseDto extends BaseTime{
+public class QuestionResponseDto {
 
     private final String name;
 
@@ -21,21 +21,21 @@ public class QuestionResponseDto extends BaseTime{
 
     private final String content;
 
-    private final boolean isAnonymous;
+    private final boolean anonymous;
 
-    private final boolean isAnswered;
+    private final boolean answered;
 
     private final LocalDateTime updatedAt;
 
     private final List<AnswerResponseDto> answers;
 
     @Builder
-    public QuestionResponseDto(String name, Long userId, String content, boolean isAnonymous, boolean isAnswered, LocalDateTime updatedAt, List<AnswerResponseDto> answers) {
+    public QuestionResponseDto(String name, Long userId, String content, boolean anonymous, boolean answered, LocalDateTime updatedAt, List<AnswerResponseDto> answers) {
         this.name = name;
         this.userId = userId;
         this.content = content;
-        this.isAnonymous = isAnonymous;
-        this.isAnswered = isAnswered;
+        this.anonymous = anonymous;
+        this.answered = answered;
         this.updatedAt = updatedAt;
         this.answers = answers;
     }
@@ -47,8 +47,8 @@ public class QuestionResponseDto extends BaseTime{
                 .name(displayName)
                 .userId(question.getUser().getUserId())
                 .content(question.getContent())
-                .isAnonymous(question.isAnonymous())
-                .isAnswered(question.isAnswered())
+                .anonymous(question.isAnonymous())
+                .answered(question.isAnswered())
                 .updatedAt(question.getUpdateAt())
                 .answers(answers)
                 .build();
