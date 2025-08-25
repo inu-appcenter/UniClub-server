@@ -44,7 +44,7 @@ public class QnaController {
 
     //질문 등록
     @PostMapping
-    public ResponseEntity<QuestionCreateResponseDto> createQuestion(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam Long clubId, @Valid QuestionCreateRequestDto questionCreateRequestDto) {
+    public ResponseEntity<QuestionCreateResponseDto> createQuestion(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam Long clubId, @Valid @RequestBody QuestionCreateRequestDto questionCreateRequestDto) {
         QuestionCreateResponseDto questionCreateResponseDto = qnaService.createQuestion(userDetails, clubId, questionCreateRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(questionCreateResponseDto);
     }
@@ -52,7 +52,7 @@ public class QnaController {
 
     //질문 수정
     @PatchMapping("/{questionId}")
-    public ResponseEntity<Void> updateQuestion(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long questionId, @Valid QuestionUpdateRequestDto questionUpdateRequestDto){
+    public ResponseEntity<Void> updateQuestion(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long questionId, @Valid @RequestBody QuestionUpdateRequestDto questionUpdateRequestDto){
         qnaService.updateQuestion(userDetails, questionId, questionUpdateRequestDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -67,7 +67,7 @@ public class QnaController {
 
     //답변 등록 및 대댓글
     @PostMapping("/{questionId}/answers")
-    public ResponseEntity<AnswerCreateResponseDto> createAnswer(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long questionId, @RequestParam Long parentsAnswerId, @Valid AnswerCreateRequestDto answerCreateRequestDto){
+    public ResponseEntity<AnswerCreateResponseDto> createAnswer(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long questionId, @RequestParam Long parentsAnswerId, @Valid @RequestBody AnswerCreateRequestDto answerCreateRequestDto){
         AnswerCreateResponseDto answerCreateResponseDto = qnaService.createAnswer(userDetails, questionId, parentsAnswerId, answerCreateRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(answerCreateResponseDto);
     }
