@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 public class QuestionUpdateRequestDto {
     private String content;
 
-    private Boolean isAnonymous;
+    private Boolean anonymous;
 
-    private Boolean isAnswered;
+    private Boolean answered;
 
     public Question toEntity() {
         return Question.builder()
                 .content(content)
-                .isAnonymous(isAnonymous)
-                .isAnswered(isAnswered)
+                .anonymous(anonymous)
+                .answered(answered)
                 .build();
     }
 }
