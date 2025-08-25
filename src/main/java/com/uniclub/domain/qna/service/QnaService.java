@@ -110,7 +110,7 @@ public class QnaService {
         //업데이트
         existingQuestion.update(
                 questionUpdateRequestDto.getContent(),
-                questionUpdateRequestDto.getIsAnnonymous(),
+                questionUpdateRequestDto.getIsAnonymous(),
                 questionUpdateRequestDto.getIsAnswered()
         );
 
