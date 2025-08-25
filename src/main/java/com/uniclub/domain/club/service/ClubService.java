@@ -118,7 +118,9 @@ public class ClubService {
         // String -> categoryType 변환
         CategoryType categoryType = EnumConverter.stringToEnum(clubCreateRequestDto.getCategory(), CategoryType.class, ErrorCode.CATEGORY_NOT_FOUND);
 
-        Category category = new Category(categoryType);
+        //DB에서 category조회
+        Category category = categoryRepository.findByName(categoryType)
+                .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
         Club club = clubCreateRequestDto.toClubEntity(category);
         clubRepository.save(club);
