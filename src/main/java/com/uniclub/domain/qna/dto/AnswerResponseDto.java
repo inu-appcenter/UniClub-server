@@ -47,7 +47,7 @@ public class AnswerResponseDto {
         String displayName;
         if (answer.isAnonymous()) {
             displayName = "익명";
-        } else if (answer.getUser().isDeleted()) {
+        } else if (answer.getUser() == null || answer.getUser().isDeleted()) {
             displayName = "탈퇴한 사용자";
         } else {
             displayName = answer.getUser().getName();

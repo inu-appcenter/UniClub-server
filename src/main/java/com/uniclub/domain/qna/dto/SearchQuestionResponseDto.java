@@ -36,7 +36,7 @@ public class SearchQuestionResponseDto {
         String displayName;
         if (question.isAnonymous()) {
             displayName = "익명";
-        } else if (question.getUser().isDeleted()) {
+        } else if (question.getUser() == null || question.getUser().isDeleted()) {
             displayName = "탈퇴한 사용자";
         } else {
             displayName = question.getUser().getName();
