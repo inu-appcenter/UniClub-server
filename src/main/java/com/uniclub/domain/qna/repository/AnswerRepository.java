@@ -14,17 +14,17 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     @Query("SELECT a FROM Answer a " +
             "JOIN FETCH a.user " +
             "WHERE a.answerId = :answerId " +
-            "AND a.isDeleted = false")
+            "AND a.deleted = false")
     Optional<Answer> findByIdWithUser(Long answerId);
 
     // 자식 답변(대댓글) 존재 여부 확인
-    @Query("SELECT COUNT(a) > 0 FROM Answer a WHERE a.parentAnswer.answerId = :answerId AND a.isDeleted = false")
+    @Query("SELECT COUNT(a) > 0 FROM Answer a WHERE a.parentAnswer.answerId = :answerId AND a.deleted = false")
     boolean existsChildAnswersByParentId(Long answerId);
 
     //questionId로 답변과 User를 fetch join하여 호출 (삭제된 답변 제외하되, 자식답변이 있는 삭제된 답변은 포함)
     @Query("SELECT a FROM Answer a JOIN FETCH a.user " +
            "WHERE a.question.questionId = :questionId " +
-           "AND (a.isDeleted = false OR " +
-           "(a.isDeleted = true AND EXISTS (SELECT 1 FROM Answer child WHERE child.parentAnswer.answerId = a.answerId AND child.isDeleted = false)))")
+           "AND (a.deleted = false OR " +
+           "(a.deleted = true AND EXISTS (SELECT 1 FROM Answer child WHERE child.parentAnswer.answerId = a.answerId AND child.deleted = false)))")
     List<Answer> findByQuestionIdWithUser(Long questionId);
 }

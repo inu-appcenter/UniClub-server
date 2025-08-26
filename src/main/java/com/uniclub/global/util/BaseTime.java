@@ -26,13 +26,13 @@ public abstract class BaseTime {
 
     @ColumnDefault("false")
     @Column(nullable = false)
-    private boolean isDeleted; //소프트 삭제 여부
+    private boolean deleted; //소프트 삭제 여부
 
     @Column
     private LocalDateTime deletedAt;    //삭제일시
 
     public void softDelete() {
-        this.isDeleted = true;
+        this.deleted = true;
         this.deletedAt = LocalDateTime.now();
     }
 

@@ -19,12 +19,12 @@ public class QuestionCreateRequestDto {
 
     @Schema(description = "익명 여부", example = "false")
     @NotBlank(message = "익명 여부를 선택해주세요.")
-    private boolean isAnnonymous;
+    private boolean anonymous;
 
     public Question toQuestionEntity(User user, Club club) {
         return Question.builder()
                 .content(content)
-                .isAnonymous(isAnnonymous)
+                .anonymous(anonymous)
                 .user(user)
                 .club(club)
                 .build();

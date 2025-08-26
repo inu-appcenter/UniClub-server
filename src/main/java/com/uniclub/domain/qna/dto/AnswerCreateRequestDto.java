@@ -19,12 +19,12 @@ public class AnswerCreateRequestDto {
 
     @Schema(description = "익명 여부", example = "false")
     @NotBlank(message = "익명 여부를 선택해주세요.")
-    private boolean isAnonymous;
+    private boolean anonymous;
 
     public Answer toEntity(UserDetailsImpl userDetails, Question question, Answer parentAnswer) {
         return Answer.builder()
                 .content(content)
-                .isAnonymous(isAnonymous)
+                .anonymous(anonymous)
                 .question(question)
                 .parentAnswer(parentAnswer)
                 .build();

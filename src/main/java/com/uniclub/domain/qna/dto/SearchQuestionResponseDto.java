@@ -8,6 +8,9 @@ import lombok.Getter;
 @Schema(description = "QnA 페이지 조회 응답 DTO")
 @Getter
 public class SearchQuestionResponseDto {
+    @Schema(description = "질문 ID", example = "1")
+    private final Long questionId;
+    
     @Schema(description = "질문 작성자명", example = "홍길동")
     private final String name;
     
@@ -21,7 +24,8 @@ public class SearchQuestionResponseDto {
     private final Long countAnswer;
 
     @Builder
-    public SearchQuestionResponseDto(String name, String clubName, String content, Long countAnswer) {
+    public SearchQuestionResponseDto(Long questionId, String name, String clubName, String content, Long countAnswer) {
+        this.questionId = questionId;
         this.name = name;
         this.clubName = clubName;
         this.content = content;
@@ -32,6 +36,7 @@ public class SearchQuestionResponseDto {
         String displayName = question.isAnonymous() ? "익명" : question.getUser().getName();
 
         return SearchQuestionResponseDto.builder()
+                .questionId(question.getQuestionId())
                 .name(displayName)
                 .clubName(question.getClub().getName())
                 .content(question.getContent())

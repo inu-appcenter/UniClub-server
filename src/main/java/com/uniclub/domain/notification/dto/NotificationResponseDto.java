@@ -12,6 +12,9 @@ import java.time.LocalDateTime;
 @Getter
 public class NotificationResponseDto {
 
+    @Schema(description = "알림 ID", example = "1")
+    private final Long notificationId;
+
     @Schema(description = "알림 메시지", example = "질문에 답변이 도착했어요.")
     private final String message;
 
@@ -25,7 +28,8 @@ public class NotificationResponseDto {
     private final LocalDateTime createdAt;
 
     @Builder
-    public NotificationResponseDto(String message, boolean isRead, NotificationType type, LocalDateTime createdAt) {
+    public NotificationResponseDto(Long notificationId, String message, boolean isRead, NotificationType type, LocalDateTime createdAt) {
+        this.notificationId = notificationId;
         this.message = message;
         this.isRead = isRead;
         this.type = type;
@@ -34,6 +38,7 @@ public class NotificationResponseDto {
 
     public static NotificationResponseDto from(Notification notification) {
         return NotificationResponseDto.builder()
+                .notificationId(notification.getNotificationId())
                 .message(notification.getMessage())
                 .isRead(notification.isRead())
                 .type(notification.getType())

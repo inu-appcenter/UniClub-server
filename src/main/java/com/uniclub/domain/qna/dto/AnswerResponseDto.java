@@ -21,10 +21,10 @@ public class AnswerResponseDto {
     private final String content;
 
     @Schema(description = "익명 여부", example = "false")
-    private final boolean isAnonymous;
+    private final boolean anonymous;
 
     @Schema(description = "답변 삭제 여부", example = "false")
-    private final boolean isDeleted;
+    private final boolean deleted;
 
     @Schema(description = "답변 수정 시간", example = "2025-08-25T11:00:00")
     private final LocalDateTime updateTime;
@@ -33,12 +33,12 @@ public class AnswerResponseDto {
     private final Long parentAnswerId;
 
     @Builder
-    public AnswerResponseDto(Long answerId, String name, String content, boolean isAnonymous, boolean isDeleted, LocalDateTime updateTime, Long parentAnswerId) {
+    public AnswerResponseDto(Long answerId, String name, String content, boolean anonymous, boolean deleted, LocalDateTime updateTime, Long parentAnswerId) {
         this.answerId = answerId;
         this.name = name;
         this.content = content;
-        this.isAnonymous = isAnonymous;
-        this.isDeleted = isDeleted;
+        this.anonymous = anonymous;
+        this.deleted = deleted;
         this.updateTime = updateTime;
         this.parentAnswerId = parentAnswerId;
     }
@@ -50,8 +50,8 @@ public class AnswerResponseDto {
                 .answerId(answer.getAnswerId())
                 .name(displayName)
                 .content(answer.getContent())
-                .isAnonymous(answer.isAnonymous())
-                .isDeleted(answer.isDeleted())
+                .anonymous(answer.isAnonymous())
+                .deleted(answer.isDeleted())
                 .updateTime(answer.getUpdateAt())
                 .parentAnswerId(answer.getParentAnswer() != null ? answer.getParentAnswer().getAnswerId() : null)
                 .build();

@@ -15,19 +15,19 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @Query("SELECT q FROM Question q " +
             "JOIN FETCH q.user " +
             "WHERE q.questionId = :questionId " +
-            "AND q.isDeleted = false")
+            "AND q.deleted = false")
     Optional<Question> findByIdWithUser(Long questionId);
 
     @Query("SELECT q, " +
-            "(SELECT COUNT(a) FROM Answer a WHERE a.question.questionId = q.questionId AND a.isDeleted = false) " +
+            "(SELECT COUNT(a) FROM Answer a WHERE a.question.questionId = q.questionId AND a.deleted = false) " +
             "FROM Question q " +
             "LEFT JOIN FETCH q.user u " +
             "LEFT JOIN FETCH q.club c " +
             "WHERE (:keyword IS NULL OR UPPER(q.content) LIKE UPPER(CONCAT('%', :keyword, '%'))) " +
             "AND (:clubId IS NULL OR q.club.clubId = :clubId) " +
-            "AND q.isAnswered = :isAnswered " +
+            "AND q.answered = :answered " +
             "AND (:userId IS NULL OR q.user.userId = :userId) " +
-            "AND q.isDeleted = false " +
+            "AND q.deleted = false " +
             "ORDER BY q.updateAt DESC")
-    Slice<Object[]> searchQuestionsWithAnswerCount(String keyword, Long clubId, boolean isAnswered, Long userId, Pageable pageable);
+    Slice<Object[]> searchQuestionsWithAnswerCount(String keyword, Long clubId, boolean answered, Long userId, Pageable pageable);
 }

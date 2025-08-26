@@ -27,14 +27,14 @@ public class Question extends BaseTime{
     private String content;
 
     @Column(nullable = false)
-    private boolean isAnonymous;
+    private boolean anonymous;
 
     @ColumnDefault("false")
     @Column(nullable = false)
-    private boolean isAnswered;
+    private boolean answered;
 
     @Column(nullable = false)
-    private boolean isPublic;
+    private boolean publicQuestion;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
@@ -47,24 +47,24 @@ public class Question extends BaseTime{
     private Club club;
 
     @Builder
-    public Question(String content, boolean isAnonymous, boolean isAnswered, boolean isPublic, User user, Club club) {
+    public Question(String content, boolean anonymous, boolean answered, boolean publicQuestion, User user, Club club) {
         this.content = content;
-        this.isAnonymous = isAnonymous;
-        this.isAnswered = isAnswered;
-        this.isPublic = isPublic;
+        this.anonymous = anonymous;
+        this.answered = answered;
+        this.publicQuestion = publicQuestion;
         this.user = user;
         this.club = club;
     }
 
-    public void update(String content, Boolean isAnonymous, Boolean isAnswered) {
+    public void update(String content, Boolean anonymous, Boolean answered) {
         if (content != null) {
             this.content = content;
         }
-        if (isAnonymous != null) {
-            this.isAnonymous = isAnonymous;
+        if (anonymous != null) {
+            this.anonymous = anonymous;
         }
-        if (isAnswered != null) {
-            this.isAnswered = isAnswered;
+        if (answered != null) {
+            this.answered = answered;
         }
     }
 }

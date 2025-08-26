@@ -25,11 +25,11 @@ public class QnaController implements QnaApiSpecification {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long clubId,
-            @RequestParam(defaultValue = "false") boolean isAnswered,
+            @RequestParam(defaultValue = "false") boolean answered,
             @RequestParam(defaultValue = "false") boolean onlyMyQuestions,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Slice<SearchQuestionResponseDto> slice = qnaService.getSearchQuestions(userDetails, keyword, clubId, isAnswered, onlyMyQuestions, size);
+        Slice<SearchQuestionResponseDto> slice = qnaService.getSearchQuestions(userDetails, keyword, clubId, answered, onlyMyQuestions, size);
         PageQuestionResponseDto<SearchQuestionResponseDto> searchQuestionResponseDtoList = new PageQuestionResponseDto<>(slice.getContent(), slice.hasNext());
         return ResponseEntity.status(HttpStatus.OK).body(searchQuestionResponseDtoList);
     }
@@ -75,7 +75,7 @@ public class QnaController implements QnaApiSpecification {
 
 
     //답변 삭제
-    @DeleteMapping("/{answerId}")
+    @DeleteMapping("/answers/{answerId}")
     public ResponseEntity<Void> deleteAnswer(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long answerId){
         qnaService.deleteAnswer(userDetails, answerId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

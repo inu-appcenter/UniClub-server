@@ -32,7 +32,7 @@ public class QnaService {
 
 
     //Qna 페이지 다중 질문 조회
-    public Slice<SearchQuestionResponseDto> getSearchQuestions(UserDetailsImpl userDetails, String keyword, Long clubId, boolean isAnswered, boolean onlyMyQuestions, int size) {
+    public Slice<SearchQuestionResponseDto> getSearchQuestions(UserDetailsImpl userDetails, String keyword, Long clubId, boolean answered, boolean onlyMyQuestions, int size) {
         // 존재하는 동아리인지 확인
         if (!clubRepository.existsById(clubId)){
             throw new CustomException(ErrorCode.CLUB_NOT_FOUND);
@@ -44,7 +44,7 @@ public class QnaService {
         //PageRequest 생성 및 정렬
         Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
 
-        Slice<Object[]> resultSlice = questionRepository.searchQuestionsWithAnswerCount(keyword, clubId, isAnswered, userId, pageable);
+        Slice<Object[]> resultSlice = questionRepository.searchQuestionsWithAnswerCount(keyword, clubId, answered, userId, pageable);
 
         // DTO 변환
         List<SearchQuestionResponseDto> content = resultSlice.getContent().stream()
@@ -110,8 +110,8 @@ public class QnaService {
         //업데이트
         existingQuestion.update(
                 questionUpdateRequestDto.getContent(),
-                questionUpdateRequestDto.getIsAnonymous(),
-                questionUpdateRequestDto.getIsAnswered()
+                questionUpdateRequestDto.getAnonymous(),
+                questionUpdateRequestDto.getAnswered()
         );
 
         log.info("질문 수정 완료: {}", existingQuestion.getQuestionId());

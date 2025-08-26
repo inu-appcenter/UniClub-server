@@ -30,19 +30,17 @@ public interface QnaApiSpecification {
                       "content": [
                         {
                           "questionId": 1,
-                          "clubName": "앱센터",
                           "name": "홍길동",
+                          "clubName": "앱센터",
                           "content": "동아리원 모집은 언제 진행하나요?",
-                          "isAnswered": true,
-                          "updatedAt": "2025-08-25T10:30:00"
+                          "countAnswer": 3
                         },
                         {
                           "questionId": 2,
-                          "clubName": "디자인소모임",
                           "name": "익명",
+                          "clubName": "디자인소모임",
                           "content": "활동비는 얼마인가요?",
-                          "isAnswered": false,
-                          "updatedAt": "2025-08-24T15:20:00"
+                          "countAnswer": 0
                         }
                       ],
                       "hasNext": true

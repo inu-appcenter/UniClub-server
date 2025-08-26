@@ -17,17 +17,17 @@ public class QuestionUpdateRequestDto {
 
     @Schema(description = "익명 여부", example = "false")
     @NotBlank(message = "익명 여부를 선택해주세요.")
-    private Boolean isAnonymous;
+    private Boolean anonymous;
 
     @Schema(description = "답변 완료 여부", example = "false")
     @NotBlank(message = "답변 완료 여부를 확인해주세요.")
-    private Boolean isAnswered;
+    private Boolean answered;
 
     public Question toEntity() {
         return Question.builder()
                 .content(content)
-                .isAnonymous(isAnonymous)
-                .isAnswered(isAnswered)
+                .anonymous(anonymous)
+                .answered(answered)
                 .build();
     }
 }

@@ -15,6 +15,9 @@ import java.util.List;
 @Getter
 public class QuestionResponseDto extends BaseTime{
 
+    @Schema(description = "질문 ID", example = "1")
+    private final Long questionId;
+
     @Schema(description = "질문 작성자명", example = "홍길동")
     private final String name;
 
@@ -25,10 +28,10 @@ public class QuestionResponseDto extends BaseTime{
     private final String content;
 
     @Schema(description = "익명 여부", example = "false")
-    private final boolean isAnonymous;
+    private final boolean anonymous;
 
     @Schema(description = "답변 완료 여부", example = "true")
-    private final boolean isAnswered;
+    private final boolean answered;
 
     @Schema(description = "질문 수정 시간", example = "2025-08-25T10:30:00")
     private final LocalDateTime updatedAt;
@@ -37,12 +40,13 @@ public class QuestionResponseDto extends BaseTime{
     private final List<AnswerResponseDto> answers;
 
     @Builder
-    public QuestionResponseDto(String name, Long userId, String content, boolean isAnonymous, boolean isAnswered, LocalDateTime updatedAt, List<AnswerResponseDto> answers) {
+    public QuestionResponseDto(Long questionId, String name, Long userId, String content, boolean anonymous, boolean answered, LocalDateTime updatedAt, List<AnswerResponseDto> answers) {
+        this.questionId = questionId;
         this.name = name;
         this.userId = userId;
         this.content = content;
-        this.isAnonymous = isAnonymous;
-        this.isAnswered = isAnswered;
+        this.anonymous = anonymous;
+        this.answered = answered;
         this.updatedAt = updatedAt;
         this.answers = answers;
     }
@@ -51,11 +55,12 @@ public class QuestionResponseDto extends BaseTime{
         String displayName = question.isAnonymous() ? "익명" : question.getUser().getName();
 
         return QuestionResponseDto.builder()
+                .questionId(question.getQuestionId())
                 .name(displayName)
                 .userId(question.getUser().getUserId())
                 .content(question.getContent())
-                .isAnonymous(question.isAnonymous())
-                .isAnswered(question.isAnswered())
+                .anonymous(question.isAnonymous())
+                .answered(question.isAnswered())
                 .updatedAt(question.getUpdateAt())
                 .answers(answers)
                 .build();

@@ -63,4 +63,5 @@ public class UserController implements UserApiSpecification {
         ToggleNotificationResponseDto toggleNotificationResponseDto = userService.toggleNotificationSetting(userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(toggleNotificationResponseDto);
     }
+
 }
