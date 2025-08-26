@@ -13,7 +13,7 @@ import java.util.List;
 
 @Schema(description = "질문 조회 DTO")
 @Getter
-public class QuestionResponseDto extends BaseTime{
+public class QuestionResponseDto {
 
     @Schema(description = "질문 ID", example = "1")
     private final Long questionId;

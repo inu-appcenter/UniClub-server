@@ -36,7 +36,7 @@ public class Question extends BaseTime{
     @Column(nullable = false)
     private boolean publicQuestion;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private User user;

@@ -8,6 +8,7 @@ import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+
+    @PostConstruct
+    public void initCategories() {
+        if (categoryRepository.count() == 0) {
+            // 모든 CategoryType을 DB에 저장
+            for (CategoryType type : CategoryType.values()) {
+                Category category = new Category(type);
+                categoryRepository.save(category);
+            }
+            log.info("카테고리 초기화 완료: {} 개", CategoryType.values().length);
+        }
+    }
+
 
     public void createCategory(CategoryRequestDto categoryRequestDto) {
         CategoryType categoryName = from(categoryRequestDto.getName());
