@@ -28,6 +28,7 @@ public enum ErrorCode {
     STATUS_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 상태를 찾을 수 없습니다."),
     CLUB_DELETED(HttpStatus.GONE, 410, "삭제된 동아리입니다."),
     USER_DELETED(HttpStatus.GONE, 410, "삭제된 사용자입니다."),
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 알림을 찾을 수 없습니다."),
 
 
     //파일 업로드 관련

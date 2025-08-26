@@ -9,6 +9,7 @@ import lombok.Getter;
 @Getter
 public class AnswerCreateResponseDto {
 
+    @Schema(description = "생성된 답변 ID", example = "456")
     private final Long answerId;
 
     @Builder

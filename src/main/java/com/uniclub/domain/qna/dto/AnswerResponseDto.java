@@ -11,38 +11,56 @@ import java.time.LocalDateTime;
 @Getter
 public class AnswerResponseDto {
 
+    @Schema(description = "답변 ID", example = "1")
     private final Long answerId;
 
+    @Schema(description = "답변 작성자명", example = "홍길동")
     private final String name;
 
+    @Schema(description = "답변 내용", example = "매 학기 초에 신입회원을 모집합니다.")
     private final String content;
 
-    private final boolean anoneymous;
+    @Schema(description = "익명 여부", example = "false")
+    private final boolean anonymous;
 
+    @Schema(description = "답변 삭제 여부", example = "false")
+    private final boolean deleted;
+
+    @Schema(description = "답변 수정 시간", example = "2025-08-25T11:00:00")
     private final LocalDateTime updateTime;
 
+    @Schema(description = "상위 답변 ID (대댓글인 경우)", example = "null")
     private final Long parentAnswerId;
 
     @Builder
-    public AnswerResponseDto(Long answerId, String name, String content, boolean anoneymous, LocalDateTime updateTime, Long parentAnswerId) {
+    public AnswerResponseDto(Long answerId, String name, String content, boolean anonymous, boolean deleted, LocalDateTime updateTime, Long parentAnswerId) {
         this.answerId = answerId;
         this.name = name;
         this.content = content;
-        this.anoneymous = anoneymous;
+        this.anonymous = anonymous;
+        this.deleted = deleted;
         this.updateTime = updateTime;
         this.parentAnswerId = parentAnswerId;
     }
 
     public static AnswerResponseDto from(Answer answer) {
-        String displayName = answer.isAnonymous() ? "익명" : answer.getUser().getName();
+        String displayName;
+        if (answer.isAnonymous()) {
+            displayName = "익명";
+        } else if (answer.getUser() == null || answer.getUser().isDeleted()) {
+            displayName = "탈퇴한 사용자";
+        } else {
+            displayName = answer.getUser().getName();
+        }
 
         return AnswerResponseDto.builder()
                 .answerId(answer.getAnswerId())
                 .name(displayName)
                 .content(answer.getContent())
-                .anoneymous(answer.isAnonymous())
+                .anonymous(answer.isAnonymous())
+                .deleted(answer.isDeleted())
                 .updateTime(answer.getUpdateAt())
-                .parentAnswerId(answer.getParentAnswer().getAnswerId())
+                .parentAnswerId(answer.getParentAnswer() != null ? answer.getParentAnswer().getAnswerId() : null)
                 .build();
     }
 }

@@ -100,4 +100,50 @@ public interface S3ApiSpecification {
     ResponseEntity<List<S3PresignedResponseDto>> getMainS3Presigned(
             @RequestBody List<S3PresignedRequestDto> s3PresignedRequestDtoList
     );
+
+    @Operation(summary = "프로필 이미지 S3 presigned url", description = "프로필 이미지 업로드를 위한 S3 Presigned URL 생성")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201", description = "Presigned URL 생성 성공",
+                    content = @Content(
+                            schema = @Schema(implementation = S3PresignedResponseDto.class),
+                            examples = @ExampleObject("""
+                    {
+                      "filename": "profile_image.jpg",
+                      "presignedUrl": "https://uniclub-bucket.s3.ap-northeast-2.amazonaws.com/profiles/user_123/2025-01-15/abc123-def456-ghi789.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=..."
+                    }
+                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "유효하지 않은 파일 타입",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 400,
+                      "name": "INVALID_FILE_TYPE",
+                      "message": "지원하지 않는 파일 형식입니다."
+                    }
+                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "유효하지 않은 파일명",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 400,
+                      "name": "INVALID_FILE_NAME",
+                      "message": "유효하지 않은 파일명입니다."
+                    }
+                    """)
+                    )
+            )
+    })
+    ResponseEntity<S3PresignedResponseDto> getUserProfileS3Presigned(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody S3PresignedRequestDto s3PresignedRequestDto
+    );
 }

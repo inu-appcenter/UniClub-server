@@ -34,4 +34,12 @@ public class S3Controller implements S3ApiSpecification {
         List<S3PresignedResponseDto> s3PresignedResponseDtoList = s3ServiceImpl.getMainPresignedUrl(s3PresignedRequestDtoList);
         return ResponseEntity.status(HttpStatus.CREATED).body(s3PresignedResponseDtoList);
     }
+
+    //프로필 이미지 S3 presigned url 요청
+    @PostMapping("/user/profile/s3-presigned")
+    @Operation(summary = "프로필 이미지 S3 presigned url", description = "프로필 이미지 S3 presigned url 요청")
+    public ResponseEntity<S3PresignedResponseDto> getUserProfileS3Presigned(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody S3PresignedRequestDto s3PresignedRequestDto) {
+        S3PresignedResponseDto s3PresignedResponseDto = s3ServiceImpl.getUserProfilePresignedUrl(userDetails, s3PresignedRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(s3PresignedResponseDto);
+    }
 }

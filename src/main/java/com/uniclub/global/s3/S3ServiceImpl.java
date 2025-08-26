@@ -70,6 +70,20 @@ public class S3ServiceImpl implements S3Service {
         return s3PresignedResponseDtoList;
     }
 
+    //프로필 이미지 S3 presigned url 요청
+    public S3PresignedResponseDto getUserProfilePresignedUrl(UserDetailsImpl userDetails, S3PresignedRequestDto s3PresignedRequestDto) {
+        log.info("프로필 이미지 presigned Url 요청: 학번={}", userDetails.getStudentId());
+
+        String filename = s3PresignedRequestDto.getFilename();
+        
+        // 이미지 파일만 허용 (비디오 제외)
+        validateProfileImageExtension(filename);
+        
+        String presignedUrl = getUploadPresignedUrl(filename);
+        
+        log.info("프로필 이미지 presigned Url 발급: userId={}", userDetails.getUserId());
+        return S3PresignedResponseDto.from(filename, presignedUrl);
+    }
 
     //단일 업로드
     private String getUploadPresignedUrl(String key) {
@@ -125,7 +139,7 @@ public class S3ServiceImpl implements S3Service {
 
     //파일명에서 확장자 추출
     private String extractFileExtension(String filename) {
-        if (filename == null || filename.trim().isEmpty()) {
+        if (filename == null || filename.isBlank()) {
             throw new CustomException(ErrorCode.INVALID_FILE_NAME);
         }
 
@@ -145,6 +159,24 @@ public class S3ServiceImpl implements S3Service {
         return filename.substring(lastDotIndex + 1);
     }
 
+
+    //프로필 이미지 확장자 검증 (이미지 파일만 허용)
+    private boolean validateProfileImageExtension(String filename) {
+        String fileExtension = extractFileExtension(filename);
+        
+        // 프로필 이미지는 이미지 파일만 허용
+        Set<String> allowedImageExtensions = Set.of(
+                "jpg", "jpeg", "png", "gif", "webp"
+        );
+
+        boolean isAllowed = allowedImageExtensions.contains(fileExtension.toLowerCase());
+
+        if (!isAllowed) {
+            throw new CustomException(ErrorCode.INVALID_FILE_TYPE);
+        }
+
+        return true;
+    }
 
     //파일 확장자 검증
     private boolean validateFileExtension(String fileExtension) {

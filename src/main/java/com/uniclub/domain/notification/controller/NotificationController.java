@@ -33,4 +33,18 @@ public class NotificationController implements NotificationApiSpecification {
         notificationService.registerNotification(notificationRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @DeleteMapping("/{notificationId}")
+    public ResponseEntity<Void> deleteNotification(@AuthenticationPrincipal UserDetailsImpl userDetails, 
+                                                   @PathVariable Long notificationId) {
+        notificationService.deleteNotification(userDetails, notificationId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PatchMapping("/{notificationId}/read")
+    public ResponseEntity<Void> markAsRead(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                          @PathVariable Long notificationId) {
+        notificationService.markAsRead(userDetails, notificationId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

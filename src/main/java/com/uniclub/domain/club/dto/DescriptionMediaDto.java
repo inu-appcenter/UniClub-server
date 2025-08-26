@@ -26,7 +26,7 @@ public class DescriptionMediaDto {
         return DescriptionMediaDto.builder()
                 .mediaLink(presingedUrl)
                 .mediaType(media.getMediaType())
-                .isMain(media.isMain())
+                .isMain(media.isMainMedia())
                 .updatedAt(media.getUpdateAt())
                 .build();
     }
