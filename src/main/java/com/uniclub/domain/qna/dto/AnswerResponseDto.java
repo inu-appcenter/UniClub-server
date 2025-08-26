@@ -44,7 +44,14 @@ public class AnswerResponseDto {
     }
 
     public static AnswerResponseDto from(Answer answer) {
-        String displayName = answer.isAnonymous() ? "익명" : answer.getUser().getName();
+        String displayName;
+        if (answer.isAnonymous()) {
+            displayName = "익명";
+        } else if (answer.getUser().isDeleted()) {
+            displayName = "탈퇴한 사용자";
+        } else {
+            displayName = answer.getUser().getName();
+        }
 
         return AnswerResponseDto.builder()
                 .answerId(answer.getAnswerId())

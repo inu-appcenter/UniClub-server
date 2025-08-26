@@ -33,7 +33,14 @@ public class SearchQuestionResponseDto {
     }
 
     public static SearchQuestionResponseDto from(Question question, Long answerCount) {
-        String displayName = question.isAnonymous() ? "익명" : question.getUser().getName();
+        String displayName;
+        if (question.isAnonymous()) {
+            displayName = "익명";
+        } else if (question.getUser().isDeleted()) {
+            displayName = "탈퇴한 사용자";
+        } else {
+            displayName = question.getUser().getName();
+        }
 
         return SearchQuestionResponseDto.builder()
                 .questionId(question.getQuestionId())

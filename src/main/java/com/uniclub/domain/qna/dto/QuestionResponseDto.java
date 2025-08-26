@@ -52,7 +52,14 @@ public class QuestionResponseDto {
     }
 
     public static QuestionResponseDto from(Question question, List<AnswerResponseDto> answers) {
-        String displayName = question.isAnonymous() ? "익명" : question.getUser().getName();
+        String displayName;
+        if (question.isAnonymous()) {
+            displayName = "익명";
+        } else if (question.getUser().isDeleted()) {
+            displayName = "탈퇴한 사용자";
+        } else {
+            displayName = question.getUser().getName();
+        }
 
         return QuestionResponseDto.builder()
                 .questionId(question.getQuestionId())
