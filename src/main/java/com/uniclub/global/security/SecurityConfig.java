@@ -60,7 +60,6 @@ public class SecurityConfig {
 
         //허용할 도메인
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:8080",
                 "https://uniclub-server.inuappcenter.kr"
         ));
 
