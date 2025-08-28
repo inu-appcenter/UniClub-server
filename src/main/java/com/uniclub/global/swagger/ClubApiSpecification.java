@@ -36,14 +36,18 @@ public interface ClubApiSpecification {
                           "name": "앱센터",
                           "info": "앱 개발 동아리",
                           "status": "ACTIVE",
-                          "favorite": true
+                          "favorite": true,
+                          "category": "LIBERAL_ACADEMIC",
+                          "clubProfileUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-club-profile"
                         },
                         {
                           "id": 2,
                           "name": "디자인소모임",
                           "info": "UI/UX 디자인",
                           "status": "CLOSED",
-                          "favorite": false
+                          "favorite": false,
+                          "category": "CULTURE",
+                          "clubProfileUrl": ""
                         }
                       ],
                       "hasNext": true

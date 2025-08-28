@@ -26,7 +26,21 @@ public interface MainApiSpecification {
             @ApiResponse(
                     responseCode = "200",
                     description = "메인페이지 미디어 조회 성공",
-                    content = @Content(schema = @Schema(implementation = MainPageMediaResponseDto.class))
+                    content = @Content(
+                            schema = @Schema(implementation = MainPageMediaResponseDto.class),
+                            examples = @ExampleObject("""
+                                    [
+                                      {
+                                        "mediaLink": "https://s3.amazonaws.com/bucket/presigned-url-for-main-banner-1",
+                                        "mediaType": "MAIN_PAGE"
+                                      },
+                                      {
+                                        "mediaLink": "https://s3.amazonaws.com/bucket/presigned-url-for-main-banner-2",
+                                        "mediaType": "MAIN_PAGE"
+                                      }
+                                    ]
+                                    """)
+                    )
             )
     })
     ResponseEntity<List<MainPageMediaResponseDto>> getMainPageMedia();
@@ -36,7 +50,28 @@ public interface MainApiSpecification {
             @ApiResponse(
                     responseCode = "200",
                     description = "메인페이지 동아리 목록 조회 성공",
-                    content = @Content(schema = @Schema(implementation = MainPageClubResponseDto.class))
+                    content = @Content(
+                            schema = @Schema(implementation = MainPageClubResponseDto.class),
+                            examples = @ExampleObject("""
+                                    [
+                                      {
+                                        "name": "앱센터",
+                                        "imageUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-club-main-image",
+                                        "favorite": true
+                                      },
+                                      {
+                                        "name": "디자인소모임",
+                                        "imageUrl": "",
+                                        "favorite": false
+                                      },
+                                      {
+                                        "name": "농구동아리",
+                                        "imageUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-basketball-club",
+                                        "favorite": true
+                                      }
+                                    ]
+                                    """)
+                    )
             )
     })
     ResponseEntity<List<MainPageClubResponseDto>> getMainPageClubs(
