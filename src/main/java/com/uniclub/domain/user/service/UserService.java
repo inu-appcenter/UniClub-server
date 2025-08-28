@@ -109,7 +109,7 @@ public class UserService {
         }
 
         log.info("마이페이지 조회 완료: 학번={}", user.getStudentId());
-        return new MyPageResponseDto(user.getMajor(), user.getName(), formattedStudentId, user.getMajor(), profileImageUrl);
+        return new MyPageResponseDto(user.getNickname(), user.getName(), formattedStudentId, user.getMajor(), profileImageUrl);
     }
 
     // 학번 추출 private 메소드
