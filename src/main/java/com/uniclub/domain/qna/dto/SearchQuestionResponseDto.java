@@ -22,7 +22,13 @@ public class SearchQuestionResponseDto {
     }
 
     public static SearchQuestionResponseDto from(Question question, Long answerCount) {
-        String displayName = question.isAnonymous() ? "익명" : question.getUser().getName();
+        String displayName;
+        if (question.getUser() == null) {   //삭제된 사용자의 질문
+            displayName = "(알 수 없음)";
+        } else {    //익명처리
+            displayName = question.isAnonymous() ? "익명" : question.getUser().getName();
+        }
+
 
         return SearchQuestionResponseDto.builder()
                 .name(displayName)

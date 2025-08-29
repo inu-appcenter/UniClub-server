@@ -34,7 +34,12 @@ public class AnswerResponseDto {
     }
 
     public static AnswerResponseDto from(Answer answer) {
-        String displayName = answer.isAnonymous() ? "익명" : answer.getUser().getName();
+        String displayName;
+        if (answer.getUser() == null) {   //삭제된 사용자의 답변
+            displayName = "(알 수 없음)";
+        } else {    //익명처리
+            displayName = answer.isAnonymous() ? "익명" : answer.getUser().getName();
+        }
 
         return AnswerResponseDto.builder()
                 .answerId(answer.getAnswerId())
