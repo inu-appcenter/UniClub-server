@@ -28,10 +28,14 @@ public class RegisterRequestDto {
     private String major;
 
     @Schema(description = "개인정보 약관 동의", example = "true")
-    @NotNull(message = "개인정보 약관에 동의해야 합니다.")
-    private boolean agreed;
+    @NotNull(message = "개인정보 수집 및 이용 동의는 필수입니다.")
+    private boolean personalInfoCollectionAgreement ;
+
+    @Schema(description = "마케팅 및 광고 활용 동의", example = "true")
+    @NotBlank(message = "마케팅 및 광고 활용 동의 여부를 입력하세요.")
+    private boolean marketingAdvertisement;
 
     @Schema(description = "재학생 인증 여부", example = "true")
-    @NotNull(message = "재학생 인증을 진행해주세요.")
+    @NotNull(message = "재학생 인증을 진행하세요.")
     private boolean studentVerification;
 }

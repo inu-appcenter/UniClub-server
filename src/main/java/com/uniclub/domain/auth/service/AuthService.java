@@ -37,7 +37,7 @@ public class AuthService {
             throw new CustomException(ErrorCode.STUDENT_VERIFICATION_REQUIRED);
         }
 
-        if (!registerRequestDto.isAgreed()){ // 개인정보 약관 동의 안한 경우 예외처리
+        if (!registerRequestDto.isPersonalInfoCollectionAgreement()){ // 개인정보 약관 동의 안한 경우 예외처리
             throw new CustomException(ErrorCode.NOT_AGREED);
         }
 
