@@ -65,7 +65,7 @@ public class QnaService {
         Question question = questionRepository.findByIdWithUser(questionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_NOT_FOUND));
 
-        //questionId에 해당하는 답변 쿼리
+        //questionId로 답변과 User를 fetch join하여 조회 (삭제된 답변 제외하되, 자식답변이 있는 삭제된 답변은 포함)
         List<Answer> answerList = answerRepository.findByQuestionIdWithUser(questionId);
 
         //반환할 Answer
@@ -129,8 +129,7 @@ public class QnaService {
             throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
         }
 
-        //삭제
-        questionRepository.delete(existingQuestion);
+        existingQuestion.softDelete();
 
         log.info("질문 삭제 완료: {}", existingQuestion.getQuestionId());
     }
@@ -167,12 +166,9 @@ public class QnaService {
             throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
         }
 
-        //매핑되어 있는 자식 Answer Entity(대댓글)이 존재한다면
-        if (answerRepository.existsChildAnswersByParentId(answerId)) {
-            existingAnswer.softDelete();
-        } else {    //대댓글이 존재하지 않는다면
-            answerRepository.delete(existingAnswer);
-        }
+        existingAnswer.softDelete();
+        
+        log.info("답변 삭제 완료: {}", existingAnswer.getAnswerId());
     }
 
 

@@ -28,7 +28,7 @@ public class ClubMediaUploadRequestDto {
         return Media.builder()
                 .mediaLink(mediaLink)
                 .mediaType(type)
-                .isMain(isMain)
+                .mainMedia(isMain)
                 .club(club)
                 .build();
     }

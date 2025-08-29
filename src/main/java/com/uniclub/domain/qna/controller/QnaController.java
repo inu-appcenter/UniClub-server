@@ -3,6 +3,7 @@ package com.uniclub.domain.qna.controller;
 import com.uniclub.domain.qna.dto.*;
 import com.uniclub.domain.qna.service.QnaService;
 import com.uniclub.global.security.UserDetailsImpl;
+import com.uniclub.global.swagger.QnaApiSpecification;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/qna")
-public class QnaController {
+public class QnaController implements QnaApiSpecification {
     private final QnaService qnaService;
 
 
@@ -24,11 +25,11 @@ public class QnaController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long clubId,
-            @RequestParam(defaultValue = "false") boolean isAnswered,
+            @RequestParam(defaultValue = "false") boolean answered,
             @RequestParam(defaultValue = "false") boolean onlyMyQuestions,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Slice<SearchQuestionResponseDto> slice = qnaService.getSearchQuestions(userDetails, keyword, clubId, isAnswered, onlyMyQuestions, size);
+        Slice<SearchQuestionResponseDto> slice = qnaService.getSearchQuestions(userDetails, keyword, clubId, answered, onlyMyQuestions, size);
         PageQuestionResponseDto<SearchQuestionResponseDto> searchQuestionResponseDtoList = new PageQuestionResponseDto<>(slice.getContent(), slice.hasNext());
         return ResponseEntity.status(HttpStatus.OK).body(searchQuestionResponseDtoList);
     }
@@ -74,7 +75,7 @@ public class QnaController {
 
 
     //답변 삭제
-    @DeleteMapping("/{answerId}")
+    @DeleteMapping("/answers/{answerId}")
     public ResponseEntity<Void> deleteAnswer(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long answerId){
         qnaService.deleteAnswer(userDetails, answerId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

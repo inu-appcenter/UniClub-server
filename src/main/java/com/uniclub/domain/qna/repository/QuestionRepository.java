@@ -14,11 +14,12 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     //Question Entity와 메핑된 User 조회
     @Query("SELECT q FROM Question q " +
             "JOIN FETCH q.user " +
-            "WHERE q.questionId = :questionId ")
+            "WHERE q.questionId = :questionId " +
+            "AND q.deleted = false")
     Optional<Question> findByIdWithUser(Long questionId);
 
     @Query("SELECT q, " +
-            "(SELECT COUNT(a) FROM Answer a WHERE a.question.questionId = q.questionId) " +
+            "(SELECT COUNT(a) FROM Answer a WHERE a.question.questionId = q.questionId AND a.deleted = false) " +
             "FROM Question q " +
             "LEFT JOIN FETCH q.user u " +
             "LEFT JOIN FETCH q.club c " +
@@ -26,6 +27,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             "AND (:clubId IS NULL OR q.club.clubId = :clubId) " +
             "AND q.answered = :answered " +
             "AND (:userId IS NULL OR q.user.userId = :userId) " +
+            "AND q.deleted = false " +
             "ORDER BY q.updateAt DESC")
     Slice<Object[]> searchQuestionsWithAnswerCount(String keyword, Long clubId, boolean answered, Long userId, Pageable pageable);
 }

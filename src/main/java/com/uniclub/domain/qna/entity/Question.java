@@ -30,6 +30,7 @@ public class Question extends BaseTime{
     private boolean anonymous;
 
     @ColumnDefault("false")
+    @Column(nullable = false)
     private boolean answered;
 
     @Column(nullable = false)

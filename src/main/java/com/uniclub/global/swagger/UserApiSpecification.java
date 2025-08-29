@@ -31,9 +31,11 @@ public interface UserApiSpecification {
                             schema = @Schema(implementation = MyPageResponseDto.class),
                             examples = @ExampleObject("""
                     {
+                      "nickname": "라면",
                       "name": "홍길동",
-                      "studentId": "20학번",
-                      "major": "컴퓨터공학부"
+                      "studentId": "23학번",
+                      "major": "컴퓨터공학부",
+                      "profileImageLink": "uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png"
                     }
                     """
                             )
@@ -334,4 +336,5 @@ public interface UserApiSpecification {
     ResponseEntity<ToggleNotificationResponseDto> toggleNotificationSetting(
             @AuthenticationPrincipal UserDetailsImpl userDetails
     );
+
 }

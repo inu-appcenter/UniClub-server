@@ -65,4 +65,44 @@ public class NotificationService {
 
         log.info("알림 생성 성공: 알림 타입={}, 메시지={}, 수신자={}", notificationRequestDto.getNotificationType(), notificationRequestDto.getMessage(), notificationRequestDto.getStudentIds());
     }
+
+    //알림 삭제
+    public void deleteNotification(UserDetailsImpl userDetails, Long notificationId) {
+
+        // 알림 존재 여부 확인
+        Notification notification = notificationRepository.findByNotificationId(notificationId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
+        
+        // 악의적인 요청, 다른 유저의 알림을 지우려 할 때
+        if (!notification.getUser().getUserId().equals(userDetails.getUserId())) {
+            log.warn("권한 없는 알림 삭제 요청: userId={}, notificationId={}, 실제 소유 userId={}",
+                    userDetails.getUserId(), notificationId, notification.getUser().getUserId());
+            throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
+        }
+        
+        // 3. 삭제 실행
+        notificationRepository.delete(notification);
+        
+        log.info("알림 삭제 완료: userId={}, notificationId={}", userDetails.getUserId(), notificationId);
+    }
+
+    //알림 읽음 처리
+    public void markAsRead(UserDetailsImpl userDetails, Long notificationId) {
+
+        // 알림 존재 여부 확인
+        Notification notification = notificationRepository.findByNotificationId(notificationId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
+        
+        // 권한 검증 (해당 유저의 알림인지)
+        if (!notification.getUser().getUserId().equals(userDetails.getUserId())) {
+            log.warn("권한 없는 알림 읽음 요청: userId={}, notificationId={}, 실제 소유 userId={}", 
+                    userDetails.getUserId(), notificationId, notification.getUser().getUserId());
+            throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
+        }
+        
+        // 읽음 처리 (더티체킹)
+        notification.markAsRead();
+        
+        log.info("알림 읽음 처리 완료: userId={}, notificationId={}", userDetails.getUserId(), notificationId);
+    }
 }

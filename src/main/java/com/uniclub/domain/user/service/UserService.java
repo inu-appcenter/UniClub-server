@@ -47,7 +47,6 @@ public class UserService {
         }
 
         // 영속성 컨택스트 이용(더티체킹)
-
         user.updateInfo(informationModificationRequestDto.getName(),
                 informationModificationRequestDto.getMajor(),
                 informationModificationRequestDto.getNickname(),
@@ -102,15 +101,15 @@ public class UserService {
     public MyPageResponseDto getMyPage(UserDetailsImpl userDetails) {
         User user = userDetails.getUser();
         String formattedStudentId = formatStudentId(user.getStudentId());
-        
+
         // 프로필 이미지 S3 키가 있으면 presigned URL 생성
         String profileImageUrl = "";
-        if (user.getProfileImageLink() != null && !user.getProfileImageLink().isEmpty()) {
+        if (user.getProfileImageLink() != null) {
            profileImageUrl = s3ServiceImpl.getDownloadPresignedUrl(user.getProfileImageLink());
         }
 
         log.info("마이페이지 조회 완료: 학번={}", user.getStudentId());
-        return new MyPageResponseDto(user.getMajor(), user.getName(), formattedStudentId, user.getMajor(), profileImageUrl);
+        return new MyPageResponseDto(user.getNickname(), user.getName(), formattedStudentId, user.getMajor(), profileImageUrl);
     }
 
     // 학번 추출 private 메소드
@@ -151,4 +150,5 @@ public class UserService {
             return new ToggleNotificationResponseDto("알림이 비활성화되었습니다.");
          }
     }
+
 }

@@ -16,13 +16,13 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
     List<Media> findByClubId(Long clubId);
 
     @Modifying
-    @Query("UPDATE Media m SET m.isMain = false WHERE m.club = :club AND m.isMain = true")
+    @Query("UPDATE Media m SET m.mainMedia = false WHERE m.club = :club AND m.mainMedia = true")
     List<Media> findByClubAndIsMainTrue(Club club);
 
     @Query("SELECT m FROM Media m WHERE m.mediaType = :mediaType")
     List<Media> findByMediaType(MediaType mediaType);
 
-    @Query("SELECT m FROM Media m WHERE m.club.clubId = :clubId AND m.isMain = true")
+    @Query("SELECT m FROM Media m WHERE m.club.clubId = :clubId AND m.mainMedia = true")
     Media findMainImageByClubId(Long clubId);
 
     @Modifying
