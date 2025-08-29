@@ -38,7 +38,7 @@ public interface ClubApiSpecification {
                           "status": "ACTIVE",
                           "favorite": true,
                           "category": "LIBERAL_ACADEMIC",
-                          "clubProfileUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-club-profile"
+                          "clubProfileUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-club"
                         },
                         {
                           "id": 2,
@@ -47,7 +47,7 @@ public interface ClubApiSpecification {
                           "status": "CLOSED",
                           "favorite": false,
                           "category": "CULTURE",
-                          "clubProfileUrl": ""
+                          "clubProfileUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-club"
                         }
                       ],
                       "hasNext": true

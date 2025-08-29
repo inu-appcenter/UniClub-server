@@ -61,7 +61,7 @@ public interface MainApiSpecification {
                                       },
                                       {
                                         "name": "디자인소모임",
-                                        "imageUrl": "",
+                                        "imageUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-club-main-image",
                                         "favorite": false
                                       },
                                       {

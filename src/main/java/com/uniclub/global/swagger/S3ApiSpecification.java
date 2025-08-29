@@ -31,11 +31,11 @@ public interface S3ApiSpecification {
                     [
                       {
                         "filename": "club_poster.jpg",
-                        "presignedUrl": "https://uniclub-bucket.s3.ap-northeast-2.amazonaws.com/uploads/2025-01-15/abc123-def456-ghi789.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=..."
+                        "presignedUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-club"
                       },
                       {
                         "filename": "activity_video.mp4",
-                        "presignedUrl": "https://uniclub-bucket.s3.ap-northeast-2.amazonaws.com/uploads/2025-01-15/xyz789-uvw456-rst123.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=..."
+                        "presignedUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-club"
                       }
                     ]
                     """)
@@ -86,11 +86,11 @@ public interface S3ApiSpecification {
                     [
                       {
                         "filename": "main_banner.jpg",
-                        "presignedUrl": "https://uniclub-bucket.s3.ap-northeast-2.amazonaws.com/uploads/2025-01-15/main-abc123-def456.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=..."
+                        "presignedUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-main"
                       },
                       {
                         "filename": "notice_image.png",
-                        "presignedUrl": "https://uniclub-bucket.s3.ap-northeast-2.amazonaws.com/uploads/2025-01-15/main-xyz789-uvw456.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=..."
+                        "presignedUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-main"
                       }
                     ]
                     """)
@@ -110,7 +110,7 @@ public interface S3ApiSpecification {
                             examples = @ExampleObject("""
                     {
                       "filename": "profile_image.jpg",
-                      "presignedUrl": "https://uniclub-bucket.s3.ap-northeast-2.amazonaws.com/profiles/user_123/2025-01-15/abc123-def456-ghi789.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=..."
+                      "presignedUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-user"
                     }
                     """)
                     )
