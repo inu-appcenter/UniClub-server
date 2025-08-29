@@ -75,7 +75,15 @@ public class ClubService {
         List<ClubResponseDto> clubResponseDtoList = new ArrayList<>();
         for (Club club : clubList) {
             boolean isFavorite = favoriteSet.contains(club.getClubId());
-            ClubResponseDto dto = ClubResponseDto.from(club, isFavorite);
+            
+            // 동아리 프로필 이미지 조회
+            Media clubProfileMedia = mediaRepository.findByClubIdAndMediaType(club.getClubId(), MediaType.CLUB_PROFILE);
+            String clubProfileUrl = "";
+            if (clubProfileMedia != null) {
+                clubProfileUrl = s3ServiceImpl.getDownloadPresignedUrl(clubProfileMedia.getMediaLink());
+            }
+            
+            ClubResponseDto dto = ClubResponseDto.from(club, isFavorite, clubProfileUrl);
             clubResponseDtoList.add(dto);
         }
         return new SliceImpl<>(clubResponseDtoList, pageable, hasNext);

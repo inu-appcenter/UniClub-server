@@ -1,9 +1,12 @@
 package com.uniclub.domain.user.service;
 
 import com.uniclub.domain.club.entity.Club;
+import com.uniclub.domain.club.entity.Media;
+import com.uniclub.domain.club.entity.MediaType;
 import com.uniclub.domain.club.entity.MemberShip;
 import com.uniclub.domain.club.entity.Role;
 import com.uniclub.domain.club.repository.ClubRepository;
+import com.uniclub.domain.club.repository.MediaRepository;
 import com.uniclub.domain.club.repository.MembershipRepository;
 import com.uniclub.domain.user.dto.InformationModificationRequestDto;
 import com.uniclub.domain.user.dto.MyPageResponseDto;
@@ -32,10 +35,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final MembershipRepository membershipRepository;
+    private final MediaRepository mediaRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final S3ServiceImpl s3ServiceImpl;
 
-    // 개인정보 수정 디자인 나오면 검증로직 추가 필요
     public void updateUser(UserDetailsImpl userDetails, InformationModificationRequestDto informationModificationRequestDto) {
         // 유저 조회, 존재하지 않는 경우 예외처리
         User user = userRepository.findByStudentId(userDetails.getStudentId())
@@ -46,11 +49,23 @@ public class UserService {
             throw new CustomException(ErrorCode.USER_DELETED);
         }
 
+        // 프로필 이미지가 제공된 경우 Media 엔티티로 저장
+        Media profileMedia = null;
+        String profileImageLink = informationModificationRequestDto.getProfileImageLink();
+        if (profileImageLink != null && !profileImageLink.isBlank()) {
+            profileMedia = Media.builder()
+                    .mediaLink(profileImageLink)
+                    .mediaType(MediaType.USER_PROFILE)
+                    .mainMedia(false)
+                    .build();
+            mediaRepository.save(profileMedia);
+        }
+
         // 영속성 컨택스트 이용(더티체킹)
         user.updateInfo(informationModificationRequestDto.getName(),
                 informationModificationRequestDto.getMajor(),
                 informationModificationRequestDto.getNickname(),
-                informationModificationRequestDto.getProfileImageLink());
+                profileMedia);
 
 
         log.info("사용자 정보 업데이트 성공: 학번={}", user.getStudentId());
@@ -102,10 +117,10 @@ public class UserService {
         User user = userDetails.getUser();
         String formattedStudentId = formatStudentId(user.getStudentId());
 
-        // 프로필 이미지 S3 키가 있으면 presigned URL 생성
+        // 프로필 이미지가 있으면 presigned URL 생성
         String profileImageUrl = "";
-        if (user.getProfileImageLink() != null) {
-           profileImageUrl = s3ServiceImpl.getDownloadPresignedUrl(user.getProfileImageLink());
+        if (user.getProfileMedia() != null) {
+           profileImageUrl = s3ServiceImpl.getDownloadPresignedUrl(user.getProfileMedia().getMediaLink());
         }
 
         log.info("마이페이지 조회 완료: 학번={}", user.getStudentId());

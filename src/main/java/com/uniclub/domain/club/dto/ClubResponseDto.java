@@ -1,6 +1,7 @@
 package com.uniclub.domain.club.dto;
 
 import com.uniclub.domain.category.entity.Category;
+import com.uniclub.domain.category.entity.CategoryType;
 import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.entity.ClubStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,26 +31,31 @@ public class ClubResponseDto {
     private final boolean favorite;
 
     @Schema(description = "동아리 카테고리", example = "SPORTS")
-    private final Category category;
+    private final CategoryType category;
+
+    @Schema(description = "동아리 프로필 이미지 url")
+    private final String clubProfileUrl;
 
     @Builder
-    private ClubResponseDto(Long id, String name, String info, ClubStatus status, boolean favorite, Category category) {
+    private ClubResponseDto(Long id, String name, String info, ClubStatus status, boolean favorite, CategoryType category, String clubProfileUrl) {
         this.id = id;
         this.name = name;
         this.info = info;
         this.status = status;
         this.favorite = favorite;
         this.category = category;
+        this.clubProfileUrl = clubProfileUrl;
     }
 
-    public static ClubResponseDto from(Club club, boolean favorite) {
+    public static ClubResponseDto from(Club club, boolean favorite, String clubProfileUrl) {
         return ClubResponseDto.builder()
                 .id(club.getClubId())
                 .name(club.getName())
                 .info(club.getSimpleDescription())
                 .status(club.getStatus())
                 .favorite(favorite)
-                .category(club.getCategory())
+                .category(club.getCategory().getName())
+                .clubProfileUrl(clubProfileUrl)
                 .build();
     }
 }

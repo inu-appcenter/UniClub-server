@@ -21,6 +21,6 @@ public class MyPageResponseDto {
     @Schema(description = "전공", example = "컴퓨터공학부")
     private final String major;
 
-    @Schema(description = "프로필 이미지 url", example = "uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png")
+    @Schema(description = "프로필 이미지 URL", example = "https://s3.amazonaws.com/bucket/presigned-url-for-user-profile")
     private final String profileImageLink;
 }

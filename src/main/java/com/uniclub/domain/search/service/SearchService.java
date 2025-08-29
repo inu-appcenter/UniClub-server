@@ -2,8 +2,12 @@ package com.uniclub.domain.search.service;
 
 import com.uniclub.domain.club.dto.ClubResponseDto;
 import com.uniclub.domain.club.entity.Club;
+import com.uniclub.domain.club.entity.Media;
+import com.uniclub.domain.club.entity.MediaType;
 import com.uniclub.domain.club.repository.ClubRepository;
+import com.uniclub.domain.club.repository.MediaRepository;
 import com.uniclub.domain.favorite.repository.FavoriteRepository;
+import com.uniclub.global.s3.S3ServiceImpl;
 import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,8 @@ public class SearchService {
 
     private final ClubRepository clubRepository;
     private final FavoriteRepository favoriteRepository;
+    private final MediaRepository mediaRepository;
+    private final S3ServiceImpl s3ServiceImpl;
 
 
     @Transactional(readOnly = true)
@@ -34,7 +40,15 @@ public class SearchService {
 
         for (Club club : clubs) {
             boolean isFavorite = favoriteSet.contains(club.getClubId());    //favortes에 clubId가 있으면 true
-            clubResponseDtoList.add(ClubResponseDto.from(club,isFavorite));
+            
+            // 동아리 프로필 이미지 조회
+            Media clubProfileMedia = mediaRepository.findByClubIdAndMediaType(club.getClubId(), MediaType.CLUB_PROFILE);
+            String clubProfileUrl = "";
+            if (clubProfileMedia != null) {
+                clubProfileUrl = s3ServiceImpl.getDownloadPresignedUrl(clubProfileMedia.getMediaLink());
+            }
+            
+            clubResponseDtoList.add(ClubResponseDto.from(club, isFavorite, clubProfileUrl));
         }
 
         return clubResponseDtoList;

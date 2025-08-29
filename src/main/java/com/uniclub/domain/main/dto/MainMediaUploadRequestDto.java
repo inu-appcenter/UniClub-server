@@ -15,15 +15,11 @@ public class MainMediaUploadRequestDto {
     @Schema(description = "미디어 URL", example = "uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png")
     @NotBlank(message = "미디어 URL을 입력해주세요.")
     private String mediaLink;
-    
-    @Schema(description = "미디어 타입", example = "MAIN_PAGE, CLUB_PROMOTION, CLUB_PROFILE, CLUB_BACKGROUND")
-    @NotBlank(message = "미디어 타입을 지정해주세요.")
-    private String mediaType;
 
-    public Media toMediaEntity(MediaType mediatype) {
+    public Media toMediaEntity() {
         return Media.builder()
                 .mediaLink(mediaLink)
-                .mediaType(mediatype)
+                .mediaType(MediaType.MAIN_PAGE)
                 .build();
     }
 }
