@@ -27,9 +27,6 @@ public class User extends BaseTime {
     private String studentId;   //학번
 
     @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = false)
     private Major major;    //전공
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -41,10 +38,9 @@ public class User extends BaseTime {
     private boolean notificationEnabled;    //알림설정
 
 
-    public User(String name, String studentId, String password, Major major) {
+    public User(String name, String studentId, Major major) {
         this.name = name;
         this.studentId = studentId;
-        this.password = password;
         this.major = major;
         this.nickname = name;
     }

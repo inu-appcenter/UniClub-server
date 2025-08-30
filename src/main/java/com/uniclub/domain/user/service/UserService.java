@@ -1,30 +1,21 @@
 package com.uniclub.domain.user.service;
 
-import com.uniclub.domain.club.entity.Club;
-import com.uniclub.domain.club.entity.Media;
-import com.uniclub.domain.club.entity.MediaType;
-import com.uniclub.domain.club.entity.MemberShip;
-import com.uniclub.domain.club.entity.Role;
+import com.uniclub.domain.auth.repository.INUAuthRepository;
+import com.uniclub.domain.club.entity.*;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.club.repository.MediaRepository;
 import com.uniclub.domain.club.repository.MembershipRepository;
-import com.uniclub.domain.user.dto.InformationModificationRequestDto;
-import com.uniclub.domain.user.dto.MyPageResponseDto;
-import com.uniclub.domain.user.dto.NotificationSettingResponseDto;
-import com.uniclub.domain.user.dto.ToggleNotificationResponseDto;
-import com.uniclub.domain.user.dto.UserDeleteRequestDto;
+import com.uniclub.domain.user.dto.*;
 import com.uniclub.domain.user.entity.Major;
-import com.uniclub.global.s3.S3ServiceImpl;
-import com.uniclub.domain.user.dto.UserRoleRequestDto;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.domain.user.repository.UserRepository;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
+import com.uniclub.global.s3.S3ServiceImpl;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +28,7 @@ public class UserService {
     private final ClubRepository clubRepository;
     private final MembershipRepository membershipRepository;
     private final MediaRepository mediaRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final INUAuthRepository inuAuthRepository;
     private final S3ServiceImpl s3ServiceImpl;
 
     public void updateUser(UserDetailsImpl userDetails, InformationModificationRequestDto informationModificationRequestDto) {
@@ -88,12 +79,9 @@ public class UserService {
         }
 
         // 비밀번호 확인
-        boolean isValid = passwordEncoder.matches(
-                userDeleteRequestDto.getPassword(),
-                userDetails.getPassword()
-        );
-        
-        if (!isValid) {
+        boolean verification = inuAuthRepository.verifySchoolLogin(userDetails.getStudentId(), userDeleteRequestDto.getPassword());
+
+        if (!verification) {
             throw new CustomException(ErrorCode.PASSWORD_NOT_MATCHED);
         }
 
@@ -112,7 +100,13 @@ public class UserService {
 
         Role role = EnumConverter.stringToEnum(userRoleRequestDto.getRole(), Role.class, ErrorCode.ROLE_NOT_FOUND);
 
-        membershipRepository.save(MemberShip.builder().user(user).club(club).role(role).build());
+        membershipRepository.save(
+                MemberShip.builder()
+                        .user(user)
+                        .club(club)
+                        .role(role)
+                        .build()
+        );
         log.info("사용자 권한 부여 완료: 학번={}, 권한={}", user.getStudentId(), role);
     }
 
