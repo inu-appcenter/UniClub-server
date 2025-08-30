@@ -20,7 +20,7 @@ public class QuestionResponseDto {
 
     @Schema(description = "질문 작성자명", example = "홍길동")
     private final String name;
-    
+
     @Schema(description = "질문 내용", example = "동아리원 모집은 언제 진행하나요?")
     private final String content;
 

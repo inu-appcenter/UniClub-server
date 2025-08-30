@@ -20,7 +20,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .servers(Arrays.asList(
-                        new Server().url("http://localhost:8080")
+                        new Server().url("https://uniclub-server.inuappcenter.kr")
                 ))
                 .components(new Components()
                         // JWT 보안 스키마 추가
