@@ -79,21 +79,27 @@ public interface QnaApiSpecification {
                             schema = @Schema(implementation = QuestionResponseDto.class),
                             examples = @ExampleObject("""
                     {
+                      "questionId": 1,
                       "name": "홍길동",
                       "userId": 123,
                       "content": "동아리원 모집은 언제 진행하나요?",
-                      "isAnonymous": false,
-                      "isAnswered": true,
+                      "anonymous": false,
+                      "answered": true,
                       "updatedAt": "2025-08-25T10:30:00",
                       "answers": [
                         {
                           "answerId": 1,
                           "name": "김동아리",
                           "content": "매 학기 초에 진행합니다.",
-                          "parentsAnswerId": null,
-                          "updatedAt": "2025-08-25T11:00:00"
+                          "anonymous": false,
+                          "deleted": false,
+                          "updateTime": "2025-08-25T11:00:00",
+                          "parentAnswerId": null,
+                          "owner": false
                         }
-                      ]
+                      ],
+                      "owner": true,
+                      "president": false
                     }
                     """
                             )
@@ -313,6 +319,19 @@ public interface QnaApiSpecification {
     @Operation(summary = "답변 삭제", description = "본인이 작성한 답변 삭제")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "삭제 성공"),
+            @ApiResponse(responseCode = "400", description = "답변 완료된 질문의 답변 삭제 시도",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 400,
+                      "name": "CANNOT_DELETE_ANSWER_ANSWERED_QUESTION",
+                      "message": "답변이 완료된 질문의 답변은 삭제할 수 없습니다."
+                    }
+                    """
+                            )
+                    )
+            ),
             @ApiResponse(responseCode = "404", description = "답변 찾기 실패",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
@@ -343,5 +362,40 @@ public interface QnaApiSpecification {
     ResponseEntity<Void> deleteAnswer(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long answerId
+    );
+
+    @Operation(summary = "질문 답변 완료 표시", description = "동아리 회장이 질문을 답변 완료로 표시")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "답변 완료 표시 성공"),
+            @ApiResponse(responseCode = "404", description = "질문 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "QUESTION_NOT_FOUND",
+                      "message": "질문을 찾을 수 없습니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "403", description = "권한 없음 (회장이 아님)",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 403,
+                      "name": "INSUFFICIENT_PERMISSION",
+                      "message": "사용 권한이 없습니다."
+                    }
+                    """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<Void> markQuestionAsAnswered(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long questionId
     );
 }

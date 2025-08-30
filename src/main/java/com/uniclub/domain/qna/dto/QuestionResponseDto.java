@@ -39,8 +39,14 @@ public class QuestionResponseDto {
     @Schema(description = "답변 목록")
     private final List<AnswerResponseDto> answers;
 
+    @Schema(description = "본인 질문 여부", example = "true")
+    private final boolean owner;
+
+    @Schema(description = "동아리 회장 여부", example = "false")
+    private final boolean president;
+
     @Builder
-    public QuestionResponseDto(Long questionId, String name, Long userId, String content, boolean anonymous, boolean answered, LocalDateTime updatedAt, List<AnswerResponseDto> answers) {
+    public QuestionResponseDto(Long questionId, String name, Long userId, String content, boolean anonymous, boolean answered, LocalDateTime updatedAt, List<AnswerResponseDto> answers, boolean owner, boolean president) {
         this.questionId = questionId;
         this.name = name;
         this.userId = userId;
@@ -49,9 +55,11 @@ public class QuestionResponseDto {
         this.answered = answered;
         this.updatedAt = updatedAt;
         this.answers = answers;
+        this.owner = owner;
+        this.president = president;
     }
 
-    public static QuestionResponseDto from(Question question, List<AnswerResponseDto> answers) {
+    public static QuestionResponseDto from(Question question, List<AnswerResponseDto> answers, Long userId, boolean president) {
         String displayName;
         if (question.isAnonymous()) {
             displayName = "익명";
@@ -61,15 +69,20 @@ public class QuestionResponseDto {
             displayName = question.getUser().getName();
         }
 
+        boolean owner = question.getUser() != null &&
+                       question.getUser().getUserId().equals(userId);
+
         return QuestionResponseDto.builder()
                 .questionId(question.getQuestionId())
                 .name(displayName)
-                .userId(question.getUser().getUserId())
+                .userId(question.getUser() != null ? question.getUser().getUserId() : null)
                 .content(question.getContent())
                 .anonymous(question.isAnonymous())
                 .answered(question.isAnswered())
                 .updatedAt(question.getUpdateAt())
                 .answers(answers)
+                .owner(owner)
+                .president(president)
                 .build();
 
     }
