@@ -19,6 +19,7 @@ public enum ErrorCode {
     DUPLICATE_CLUB_NAME(HttpStatus.CONFLICT, 409, "이미 존재하는 동아리입니다."),
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, 400, "잘못된 입력입니다."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 카테고리를 찾을 수 없습니다."),
+    MAJOR_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 전공을 찾을 수 없습니다."),
     DUPLICATE_CATEGORY_NAME(HttpStatus.CONFLICT, 409, "이미 존재하는 카테고리입니다."),
     NOTIFICATION_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 알림 타입을 찾을 수 없습니다."),
     SCHOOL_SERVER_ERROR(HttpStatus.BAD_GATEWAY, 502, "학교 서버 응답에 문제가 발생했습니다."),

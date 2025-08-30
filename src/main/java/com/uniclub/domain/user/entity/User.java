@@ -29,8 +29,8 @@ public class User extends BaseTime {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, length = 20)
-    private String major;    //전공
+    @Column(nullable = false)
+    private Major major;    //전공
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_media_id")
@@ -41,7 +41,7 @@ public class User extends BaseTime {
     private boolean notificationEnabled;    //알림설정
 
 
-    public User(String name, String studentId, String password, String major) {
+    public User(String name, String studentId, String password, Major major) {
         this.name = name;
         this.studentId = studentId;
         this.password = password;
@@ -49,11 +49,11 @@ public class User extends BaseTime {
         this.nickname = name;
     }
 
-    public void updateInfo(String name, String major, String nickname, Media profileMedia) {
+    public void updateInfo(String name, Major major, String nickname, Media profileMedia) {
         if (name != null && !name.isBlank()) {
             this.name = name;
         }
-        if (major != null && !major.isBlank()) {
+        if (major != null) {
             this.major = major;
         }
         if (nickname != null && !nickname.isBlank()) {

@@ -13,6 +13,7 @@ import com.uniclub.domain.user.dto.MyPageResponseDto;
 import com.uniclub.domain.user.dto.NotificationSettingResponseDto;
 import com.uniclub.domain.user.dto.ToggleNotificationResponseDto;
 import com.uniclub.domain.user.dto.UserDeleteRequestDto;
+import com.uniclub.domain.user.entity.Major;
 import com.uniclub.global.s3.S3ServiceImpl;
 import com.uniclub.domain.user.dto.UserRoleRequestDto;
 import com.uniclub.domain.user.entity.User;
@@ -61,9 +62,12 @@ public class UserService {
             mediaRepository.save(profileMedia);
         }
 
+        // String -> major 변환
+        Major major = EnumConverter.stringToEnum(informationModificationRequestDto.getMajor(), Major.class, ErrorCode.MAJOR_NOT_FOUND);
+
         // 영속성 컨택스트 이용(더티체킹)
         user.updateInfo(informationModificationRequestDto.getName(),
-                informationModificationRequestDto.getMajor(),
+                major,
                 informationModificationRequestDto.getNickname(),
                 profileMedia);
 
