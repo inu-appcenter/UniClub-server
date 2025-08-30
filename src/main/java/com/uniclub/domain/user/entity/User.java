@@ -26,6 +26,7 @@ public class User extends BaseTime {
     @Column(nullable = false, length = 15, unique = true)
     private String studentId;   //학번
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Major major;    //전공
 
