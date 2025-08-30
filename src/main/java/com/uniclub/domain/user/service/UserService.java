@@ -8,6 +8,10 @@ import com.uniclub.domain.club.entity.Role;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.club.repository.MediaRepository;
 import com.uniclub.domain.club.repository.MembershipRepository;
+import com.uniclub.domain.terms.dto.RegisterTermsRequestDto;
+import com.uniclub.domain.terms.entity.Terms;
+import com.uniclub.domain.terms.repository.TermsRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import com.uniclub.domain.user.dto.InformationModificationRequestDto;
 import com.uniclub.domain.user.dto.MyPageResponseDto;
 import com.uniclub.domain.user.dto.NotificationSettingResponseDto;
@@ -22,6 +26,7 @@ import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.util.EnumConverter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -37,6 +42,7 @@ public class UserService {
     private final ClubRepository clubRepository;
     private final MembershipRepository membershipRepository;
     private final MediaRepository mediaRepository;
+    private final TermsRepository termsRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final S3ServiceImpl s3ServiceImpl;
 
@@ -133,8 +139,10 @@ public class UserService {
 
     // 학번 추출 private 메소드
     private String formatStudentId(String studentId) {
-        if (studentId != null && studentId.length() >= 2) {
-            return studentId.substring(0, 2) + "학번";
+
+        // 실제 운영때는 수정 필요
+        if (studentId != null && studentId.length() >= 4) {
+            return studentId.substring(2, 4) + "학번";
         }
         return studentId + "학번";
     }
@@ -170,4 +178,54 @@ public class UserService {
          }
     }
 
+    public void registerTerms(RegisterTermsRequestDto registerTermsRequestDto, HttpServletRequest request) {
+        User user = userRepository.findByStudentId(registerTermsRequestDto.getStudentId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_DELETED);
+        }
+
+        String ipAddress = getClientIpAddress(request);
+        String userAgent = request.getHeader("User-Agent");
+        
+        if (userAgent == null) {
+            userAgent = "Unknown";
+        }
+
+        Terms terms = Terms.builder()
+                .personalInfoCollectionAgreement(registerTermsRequestDto.isPersonalInfoCollectionAgreement())
+                .marketingAdvertisement(registerTermsRequestDto.isMarketingAdvertisement())
+                .version("1.0")
+                .ipAddress(ipAddress)
+                .userAgent(userAgent)
+                .user(user)
+                .build();
+
+        termsRepository.save(terms);
+        log.info("약관 동의 저장 완료: 학번={}, IP={}", user.getStudentId(), ipAddress);
+    }
+
+    private String getClientIpAddress(HttpServletRequest request) {
+        String[] headerNames = {
+            "X-Forwarded-For",
+            "X-Real-IP", 
+            "Proxy-Client-IP",
+            "WL-Proxy-Client-IP",
+            "HTTP_CLIENT_IP",
+            "HTTP_X_FORWARDED_FOR"
+        };
+
+        // 프록시를 거쳐서 들어오는 경우 진짜 클라이언트 IP 주소를 찾음
+        for (String headerName : headerNames) {
+            String ip = request.getHeader(headerName);
+            if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+                if (ip.contains(",")) {
+                    ip = ip.split(",")[0].trim();
+                }
+                return ip;
+            }
+        }
+        return request.getRemoteAddr();
+    }
 }

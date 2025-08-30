@@ -67,7 +67,7 @@ public interface QnaApiSpecification {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long clubId,
-            @RequestParam(defaultValue = "false") boolean isAnswered,
+            @RequestParam(defaultValue = "false") boolean answered,
             @RequestParam(defaultValue = "false") boolean onlyMyQuestions,
             @RequestParam(defaultValue = "10") int size
     );
