@@ -33,10 +33,10 @@ public class UserDetailsImpl implements UserDetails {
         return this.user.getStudentId();
     }
 
-    //비밀번호
+    //비밀번호 (저장 안 함)
     @Override
     public String getPassword() {
-        return this.user.getPassword();
+        return null;
     }
 
     //이름

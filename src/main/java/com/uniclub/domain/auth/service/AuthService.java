@@ -2,8 +2,6 @@ package com.uniclub.domain.auth.service;
 
 import com.uniclub.domain.auth.dto.*;
 import com.uniclub.domain.auth.repository.INUAuthRepository;
-import com.uniclub.domain.category.entity.Category;
-import com.uniclub.domain.category.entity.CategoryType;
 import com.uniclub.domain.user.entity.Major;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.domain.user.repository.UserRepository;
@@ -14,11 +12,8 @@ import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AuthService {
 
-    private final AuthenticationManager authenticationManager;
-    private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final INUAuthRepository inuAuthRepository;
@@ -55,7 +48,6 @@ public class AuthService {
         User user = new User(
                 registerRequestDto.getName(),
                 registerRequestDto.getStudentId(),
-                passwordEncoder.encode(registerRequestDto.getPassword()),
                 major
         );
 
@@ -65,11 +57,28 @@ public class AuthService {
 
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
         log.info("로그인 시작: 학번={}", loginRequestDto.getStudentId());
-        //인증 객체 생성
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginRequestDto.getStudentId(), loginRequestDto.getPassword());
 
-        //인증 메니저로 인증
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+        //교내 DB로 인증 책임
+        boolean verification = inuAuthRepository.verifySchoolLogin(loginRequestDto.getStudentId(), loginRequestDto.getPassword());
+
+        if (!verification) {
+            throw new CustomException(ErrorCode.BAD_CREDENTIALS);
+        }
+
+        //유저 정보 조회
+        User user = userRepository.findByStudentId(loginRequestDto.getStudentId()).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
+
+        //Entity 변환
+        UserDetailsImpl userDetails = UserDetailsImpl.of(user);
+
+        //Authentication 객체 생성
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
+        );
 
         //인증 성공 시 SecurityContext에 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -81,7 +90,6 @@ public class AuthService {
         Long expiresIn = jwtTokenProvider.getTokenValidityInMilliseconds() / 1000;
 
         // 인증된 사용자 정보 추출
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         Long userId = userDetails.getUserId();
 
         log.info("로그인 성공: 학번={}", userDetails.getUsername());

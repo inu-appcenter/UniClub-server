@@ -26,9 +26,6 @@ public class User extends BaseTime {
     @Column(nullable = false, length = 15, unique = true)
     private String studentId;   //학번
 
-    @Column(nullable = false)
-    private String password;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Major major;    //전공
@@ -42,10 +39,9 @@ public class User extends BaseTime {
     private boolean notificationEnabled;    //알림설정
 
 
-    public User(String name, String studentId, String password, Major major) {
+    public User(String name, String studentId, Major major) {
         this.name = name;
         this.studentId = studentId;
-        this.password = password;
         this.major = major;
         this.nickname = name;
     }
