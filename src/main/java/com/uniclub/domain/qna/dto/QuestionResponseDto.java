@@ -20,10 +20,7 @@ public class QuestionResponseDto {
 
     @Schema(description = "질문 작성자명", example = "홍길동")
     private final String name;
-
-    @Schema(description = "질문 작성자 ID", example = "123")
-    private final Long userId;
-
+    
     @Schema(description = "질문 내용", example = "동아리원 모집은 언제 진행하나요?")
     private final String content;
 
@@ -46,10 +43,9 @@ public class QuestionResponseDto {
     private final boolean president;
 
     @Builder
-    public QuestionResponseDto(Long questionId, String name, Long userId, String content, boolean anonymous, boolean answered, LocalDateTime updatedAt, List<AnswerResponseDto> answers, boolean owner, boolean president) {
+    public QuestionResponseDto(Long questionId, String name, String content, boolean anonymous, boolean answered, LocalDateTime updatedAt, List<AnswerResponseDto> answers, boolean owner, boolean president) {
         this.questionId = questionId;
         this.name = name;
-        this.userId = userId;
         this.content = content;
         this.anonymous = anonymous;
         this.answered = answered;
@@ -75,7 +71,6 @@ public class QuestionResponseDto {
         return QuestionResponseDto.builder()
                 .questionId(question.getQuestionId())
                 .name(displayName)
-                .userId(question.getUser() != null ? question.getUser().getUserId() : null)
                 .content(question.getContent())
                 .anonymous(question.isAnonymous())
                 .answered(question.isAnswered())

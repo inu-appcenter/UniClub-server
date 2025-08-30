@@ -81,7 +81,6 @@ public interface QnaApiSpecification {
                     {
                       "questionId": 1,
                       "name": "홍길동",
-                      "userId": 123,
                       "content": "동아리원 모집은 언제 진행하나요?",
                       "anonymous": false,
                       "answered": true,
