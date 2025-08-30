@@ -32,8 +32,11 @@ public class AnswerResponseDto {
     @Schema(description = "상위 답변 ID (대댓글인 경우)", example = "null")
     private final Long parentAnswerId;
 
+    @Schema(description = "본인 답변 여부", example = "true")
+    private final boolean owner;
+
     @Builder
-    public AnswerResponseDto(Long answerId, String name, String content, boolean anonymous, boolean deleted, LocalDateTime updateTime, Long parentAnswerId) {
+    public AnswerResponseDto(Long answerId, String name, String content, boolean anonymous, boolean deleted, LocalDateTime updateTime, Long parentAnswerId, boolean owner) {
         this.answerId = answerId;
         this.name = name;
         this.content = content;
@@ -41,9 +44,10 @@ public class AnswerResponseDto {
         this.deleted = deleted;
         this.updateTime = updateTime;
         this.parentAnswerId = parentAnswerId;
+        this.owner = owner;
     }
 
-    public static AnswerResponseDto from(Answer answer) {
+    public static AnswerResponseDto from(Answer answer, Long userId) {
         String displayName;
         if (answer.isAnonymous()) {
             displayName = "익명";
@@ -53,6 +57,9 @@ public class AnswerResponseDto {
             displayName = answer.getUser().getName();
         }
 
+        boolean owner = answer.getUser() != null &&
+                    answer.getUser().getUserId().equals(userId);
+
         return AnswerResponseDto.builder()
                 .answerId(answer.getAnswerId())
                 .name(displayName)
@@ -61,6 +68,7 @@ public class AnswerResponseDto {
                 .deleted(answer.isDeleted())
                 .updateTime(answer.getUpdateAt())
                 .parentAnswerId(answer.getParentAnswer() != null ? answer.getParentAnswer().getAnswerId() : null)
+                .owner(owner)
                 .build();
     }
 }

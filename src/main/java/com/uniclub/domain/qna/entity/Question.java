@@ -67,4 +67,8 @@ public class Question extends BaseTime{
             this.answered = answered;
         }
     }
+
+    public void markAsAnswered() {
+        this.answered = true;
+    }
 }

@@ -10,9 +10,10 @@ import java.util.Optional;
 
 @Repository
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
-    //Answer Entity와 메핑된 User 조회
+    //Answer Entity와 메핑된 User, Question 조회
     @Query("SELECT a FROM Answer a " +
             "JOIN FETCH a.user " +
+            "JOIN FETCH a.question " +
             "WHERE a.answerId = :answerId " +
             "AND a.deleted = false")
     Optional<Answer> findByIdWithUser(Long answerId);
