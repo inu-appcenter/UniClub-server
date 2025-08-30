@@ -29,6 +29,7 @@ public class User extends BaseTime {
     @Column(nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Major major;    //전공
 
