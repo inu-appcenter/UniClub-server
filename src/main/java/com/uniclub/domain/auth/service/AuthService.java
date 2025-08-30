@@ -2,12 +2,16 @@ package com.uniclub.domain.auth.service;
 
 import com.uniclub.domain.auth.dto.*;
 import com.uniclub.domain.auth.repository.INUAuthRepository;
+import com.uniclub.domain.category.entity.Category;
+import com.uniclub.domain.category.entity.CategoryType;
+import com.uniclub.domain.user.entity.Major;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.domain.user.repository.UserRepository;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.JwtTokenProvider;
 import com.uniclub.global.security.UserDetailsImpl;
+import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -45,11 +49,14 @@ public class AuthService {
             throw new CustomException(ErrorCode.DUPLICATE_STUDENT_ID);
         }
 
+        // String -> major 변환
+        Major major = EnumConverter.stringToEnum(registerRequestDto.getMajor(), Major.class, ErrorCode.MAJOR_NOT_FOUND);
+
         User user = new User(
                 registerRequestDto.getName(),
                 registerRequestDto.getStudentId(),
                 passwordEncoder.encode(registerRequestDto.getPassword()),
-                registerRequestDto.getMajor()
+                major
         );
 
         userRepository.save(user);
