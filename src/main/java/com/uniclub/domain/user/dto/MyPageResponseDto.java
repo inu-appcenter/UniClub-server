@@ -1,5 +1,6 @@
 package com.uniclub.domain.user.dto;
 
+import com.uniclub.domain.user.entity.Major;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class MyPageResponseDto {
     private final String studentId;
 
     @Schema(description = "전공", example = "컴퓨터공학부")
-    private final String major;
+    private final Major major;
 
     @Schema(description = "프로필 이미지 URL", example = "https://s3.amazonaws.com/bucket/presigned-url-for-user-profile")
     private final String profileImageLink;
