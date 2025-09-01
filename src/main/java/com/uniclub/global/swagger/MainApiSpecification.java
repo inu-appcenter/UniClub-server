@@ -55,16 +55,19 @@ public interface MainApiSpecification {
                             examples = @ExampleObject("""
                                     [
                                       {
+                                        "clubId": 1,
                                         "name": "앱센터",
                                         "imageUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-club-main-image",
                                         "favorite": true
                                       },
                                       {
+                                        "clubId": 2,
                                         "name": "디자인소모임",
                                         "imageUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-club-main-image",
                                         "favorite": false
                                       },
                                       {
+                                        "clubId": 3,
                                         "name": "농구동아리",
                                         "imageUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-basketball-club",
                                         "favorite": true
