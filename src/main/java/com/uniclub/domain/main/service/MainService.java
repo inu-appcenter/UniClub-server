@@ -77,6 +77,7 @@ public class MainService {
             
             boolean isFavorite = favoriteSet.contains(club.getClubId());
             MainPageClubResponseDto dto = MainPageClubResponseDto.builder()
+                    .clubId(club.getClubId())
                     .name(club.getName())
                     .imageUrl(imageUrl)
                     .favorite(isFavorite)
