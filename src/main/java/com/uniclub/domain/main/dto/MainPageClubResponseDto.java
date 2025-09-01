@@ -10,6 +10,11 @@ import lombok.Getter;
 @Schema(description = "메인페이지 동아리 응답 DTO")
 @Getter
 public class MainPageClubResponseDto {
+    //id값
+
+    @Schema(description = "동아리 Id", example = "1")
+    private Long clubId;
+
     @Schema(description = "동아리 이름", example = "앱센터")
     private final String name;
     
@@ -20,7 +25,8 @@ public class MainPageClubResponseDto {
     private final boolean favorite;
 
     @Builder
-    public MainPageClubResponseDto(String name, String imageUrl, boolean favorite) {
+    public MainPageClubResponseDto(Long clubId, String name, String imageUrl, boolean favorite) {
+        this.clubId = clubId;
         this.name = name;
         this.imageUrl = imageUrl;
         this.favorite = favorite;

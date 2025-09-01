@@ -1,7 +1,9 @@
 package com.uniclub.domain.qna.service;
 
 import com.uniclub.domain.club.entity.Club;
+import com.uniclub.domain.club.entity.Role;
 import com.uniclub.domain.club.repository.ClubRepository;
+import com.uniclub.domain.club.repository.MembershipRepository;
 import com.uniclub.domain.qna.dto.*;
 import com.uniclub.domain.qna.entity.Answer;
 import com.uniclub.domain.qna.entity.Question;
@@ -29,6 +31,7 @@ public class QnaService {
     private final ClubRepository clubRepository;
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
+    private final MembershipRepository membershipRepository;
 
 
     //Qna 페이지 다중 질문 조회
@@ -71,11 +74,17 @@ public class QnaService {
         //반환할 Answer
         List<AnswerResponseDto> answerResponseDtoList = new ArrayList<>();
 
+        Long userId = userDetails.getUserId();
         for (Answer answer : answerList) {
-            answerResponseDtoList.add(AnswerResponseDto.from(answer));
+            answerResponseDtoList.add(AnswerResponseDto.from(answer, userId));
         }
+
+        // 동아리 회장 여부 확인
+        boolean president = membershipRepository.findByUserIdAndClubId(userId, question.getClub().getClubId())
+                .map(membership -> membership.getRole() == Role.PRESIDENT)
+                .orElse(false);
         
-        return QuestionResponseDto.from(question, answerResponseDtoList);
+        return QuestionResponseDto.from(question, answerResponseDtoList, userId, president);
     }
 
     //질문 등록
@@ -157,7 +166,7 @@ public class QnaService {
 
     //답변 삭제
     public void deleteAnswer(UserDetailsImpl userDetails, Long answerId) {
-        //기존 Answer Entity 불러오기
+        //기존 Answer Entity 불러오기 (Question도 함께 fetch join)
         Answer existingAnswer = answerRepository.findByIdWithUser(answerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_NOT_FOUND));
 
@@ -166,11 +175,33 @@ public class QnaService {
             throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
         }
 
+        //답변 완료된 질문의 답변은 삭제 불가
+        if (existingAnswer.getQuestion().isAnswered()) {
+            throw new CustomException(ErrorCode.CANNOT_DELETE_ANSWER_ANSWERED_QUESTION);
+        }
+
         existingAnswer.softDelete();
         
         log.info("답변 삭제 완료: {}", existingAnswer.getAnswerId());
     }
 
+    //회장이 질문을 답변 완료로 표시
+    public void markQuestionAsAnswered(UserDetailsImpl userDetails, Long questionId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_NOT_FOUND));
 
+        // 해당 동아리의 회장인지 확인
+        Role userRole = membershipRepository.findByUserIdAndClubId(userDetails.getUserId(), question.getClub().getClubId())
+                .map(membership -> membership.getRole())
+                .orElse(Role.GUEST);
+
+        if (userRole != Role.PRESIDENT) {
+            throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
+        }
+
+        // 답변 완료로 표시
+        question.markAsAnswered();
+        log.info("질문 답변완료 처리: questionId={}, 처리자={}", questionId, userDetails.getStudentId());
+    }
 
 }

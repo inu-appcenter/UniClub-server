@@ -226,6 +226,7 @@ public interface ClubApiSpecification {
                             schema = @Schema(implementation = ClubPromotionResponseDto.class),
                             examples = @ExampleObject("""
                     {
+                      "role": "ADMIN",
                       "name": "앱센터",
                       "status": "ACTIVE",
                       "startTime": "2025-08-10T09:00:00",
@@ -237,11 +238,20 @@ public interface ClubApiSpecification {
                       "presidentPhone": "010-1234-5678",
                       "youtubeLink": "https://youtu.be/example",
                       "instagramLink": "https://instagram.com/appcenter",
-                      "profileImage": "https://cdn.example.com/profile.jpg",
-                      "backgroundImage": "https://cdn.example.com/bg.jpg",
-                      "mediaLinks": [
-                        "https://cdn.example.com/media1.png",
-                        "https://cdn.example.com/media2.mp4"
+                      "applicationFormLink": "https://forms.google.com/example",
+                      "mediaList": [
+                        {
+                          "mediaLink": "https://s3.amazonaws.com/bucket/presigned-url-for-media1",
+                          "mediaType": "DESCRIPTION",
+                          "isMain": true,
+                          "updatedAt": "2025-08-10T15:30:00"
+                        },
+                        {
+                          "mediaLink": "https://s3.amazonaws.com/bucket/presigned-url-for-media2",
+                          "mediaType": "DESCRIPTION",
+                          "isMain": false,
+                          "updatedAt": "2025-08-11T10:45:00"
+                        }
                       ]
                     }
                     """

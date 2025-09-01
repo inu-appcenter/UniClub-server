@@ -239,7 +239,15 @@ public interface UserApiSpecification {
             @ApiResponse(
                     responseCode = "200",
                     description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = NotificationSettingResponseDto.class))
+                    content = @Content(
+                            schema = @Schema(implementation = NotificationSettingResponseDto.class),
+                            examples = @ExampleObject("""
+                    {
+                      "notificationEnabled": true
+                    }
+                    """
+                            )
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
