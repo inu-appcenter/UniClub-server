@@ -80,7 +80,7 @@ public interface AuthApiSpecification {
                             schema = @Schema(implementation = StudentVerificationResponseDto.class),
                             examples = @ExampleObject("""
                     {
-                        "verified": true
+                        "verification": true
                     }
                     """)
                     )
