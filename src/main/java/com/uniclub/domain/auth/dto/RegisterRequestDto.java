@@ -15,10 +15,6 @@ public class RegisterRequestDto {
     @NotBlank(message = "학번을 입력해주세요.")
     private String studentId;
 
-    @Schema(description = "비밀번호", example = "qwer123")
-    @NotBlank(message = "비밀번호를 입력해주세요.")
-    private String password;
-
     @Schema(description = "사용자 이름", example = "홍길동")
     @NotBlank(message = "이름을 입력해주세요.")
     private String name;
