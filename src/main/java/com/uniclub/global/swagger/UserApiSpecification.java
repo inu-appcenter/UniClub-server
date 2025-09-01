@@ -37,7 +37,7 @@ public interface UserApiSpecification {
                       "nickname": "라면",
                       "name": "홍길동",
                       "studentId": "23학번",
-                      "major": "컴퓨터공학부",
+                      "major": "COMPUTER_ENGINEERING",
                       "profileImageLink": "https://s3.amazonaws.com/bucket/presigned-url-for-user-profile"
                     }
                     """
