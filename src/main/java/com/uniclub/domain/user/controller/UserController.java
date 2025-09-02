@@ -1,5 +1,6 @@
 package com.uniclub.domain.user.controller;
 
+import com.uniclub.domain.terms.dto.RegisterTermsRequestDto;
 import com.uniclub.domain.user.dto.InformationModificationRequestDto;
 import com.uniclub.domain.user.dto.MyPageResponseDto;
 import com.uniclub.domain.user.dto.NotificationSettingResponseDto;
@@ -9,6 +10,7 @@ import com.uniclub.domain.user.dto.UserRoleRequestDto;
 import com.uniclub.domain.user.service.UserService;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.swagger.UserApiSpecification;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -62,6 +64,12 @@ public class UserController implements UserApiSpecification {
     public ResponseEntity<ToggleNotificationResponseDto> toggleNotificationSetting(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         ToggleNotificationResponseDto toggleNotificationResponseDto = userService.toggleNotificationSetting(userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(toggleNotificationResponseDto);
+    }
+
+    @PostMapping("/terms")
+    public ResponseEntity<Void> registerTerms(@Valid @RequestBody RegisterTermsRequestDto registerTermsRequestDto, HttpServletRequest request) {
+        userService.registerTerms(registerTermsRequestDto, request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 }

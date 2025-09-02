@@ -1,5 +1,6 @@
 package com.uniclub.global.swagger;
 
+import com.uniclub.domain.terms.dto.RegisterTermsRequestDto;
 import com.uniclub.domain.user.dto.InformationModificationRequestDto;
 import com.uniclub.domain.user.dto.MyPageResponseDto;
 import com.uniclub.domain.user.dto.NotificationSettingResponseDto;
@@ -15,11 +16,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "유저 API", description = "유저 정보 조회, 수정, 탈퇴, 알림설정 기능")
+@Tag(name = "유저 API", description = "유저 정보 조회, 수정, 탈퇴, 알림설정, 약관동의 기능")
 public interface UserApiSpecification {
 
     @Operation(summary = "마이페이지 조회", description = "로그인한 유저의 이름, 학번, 전공 정보 조회")
@@ -34,7 +37,7 @@ public interface UserApiSpecification {
                       "nickname": "라면",
                       "name": "홍길동",
                       "studentId": "23학번",
-                      "major": "컴퓨터공학부",
+                      "major": "COMPUTER_ENGINEERING",
                       "profileImageLink": "https://s3.amazonaws.com/bucket/presigned-url-for-user-profile"
                     }
                     """
@@ -236,7 +239,15 @@ public interface UserApiSpecification {
             @ApiResponse(
                     responseCode = "200",
                     description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = NotificationSettingResponseDto.class))
+                    content = @Content(
+                            schema = @Schema(implementation = NotificationSettingResponseDto.class),
+                            examples = @ExampleObject("""
+                    {
+                      "notificationEnabled": true
+                    }
+                    """
+                            )
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
@@ -335,6 +346,63 @@ public interface UserApiSpecification {
     })
     ResponseEntity<ToggleNotificationResponseDto> toggleNotificationSetting(
             @AuthenticationPrincipal UserDetailsImpl userDetails
+    );
+
+    @Operation(summary = "개인정보 약관 동의 저장", description = "사용자의 개인정보 수집 및 마케팅 동의 정보를 IP, User-Agent와 함께 저장")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "약관 동의 저장 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 데이터",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 400,
+                      "name": "VALIDATION_ERROR",
+                      "message": "개인정보 수집 및 이용 동의는 필수입니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "유저 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "USER_NOT_FOUND",
+                      "message": "해당 유저를 찾을 수 없습니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "410",
+                    description = "삭제된 유저",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 410,
+                      "name": "USER_DELETED",
+                      "message": "삭제된 유저입니다."
+                    }
+                    """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<Void> registerTerms(
+            @Valid @RequestBody RegisterTermsRequestDto registerTermsRequestDto,
+            HttpServletRequest request
     );
 
 }

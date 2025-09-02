@@ -70,7 +70,8 @@ public enum ErrorCode {
     //질문 관련
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "질문을 찾을 수 없습니다."),
     CANNOT_UPDATE_ANSWERED_QUESTION(HttpStatus.BAD_REQUEST, 400, "답변이 채택된 질문은 수정할 수 없습니다."),
-    ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "답변을 찾을 수 없습니다.");
+    ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "답변을 찾을 수 없습니다."),
+    CANNOT_DELETE_ANSWER_ANSWERED_QUESTION(HttpStatus.BAD_REQUEST, 400, "답변이 완료된 질문의 답변은 삭제할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final Integer code;

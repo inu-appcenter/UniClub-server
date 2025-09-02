@@ -33,8 +33,14 @@ public class ClubPromotionResponseDto {
     @Schema(description = "모집 마감 시간", example = "2025-08-03T14:30:00")
     private final LocalDateTime endTime;
 
+    @Schema(description = "동아리 한 줄 소개")
+    private final String simpleDescription;
+
     @Schema(description = "소개글")
     private final String description;
+
+    @Schema(description = "관심동아리 여부", example = "true")
+    private final boolean favorite;
 
     @Schema(description = "공지")
     private final String notice;
@@ -61,13 +67,15 @@ public class ClubPromotionResponseDto {
     private final List<DescriptionMediaDto> mediaList;
 
     @Builder
-    public ClubPromotionResponseDto(Role role, String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime, String description, String notice, String location, String presidentName, String presidentPhone, String youtubeLink, String instagramLink, String applicationFormLink, List<DescriptionMediaDto> mediaList) {
+    public ClubPromotionResponseDto(Role role, String name, ClubStatus status, LocalDateTime startTime, LocalDateTime endTime, String simpleDescription, String description, boolean favorite, String notice, String location, String presidentName, String presidentPhone, String youtubeLink, String instagramLink, String applicationFormLink, List<DescriptionMediaDto> mediaList) {
         this.role = role;
         this.name = name;
         this.status = status;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.simpleDescription = simpleDescription;
         this.description = description;
+        this.favorite = favorite;
         this.notice = notice;
         this.location = location;
         this.presidentName = presidentName;
@@ -79,14 +87,16 @@ public class ClubPromotionResponseDto {
     }
 
 
-    public static ClubPromotionResponseDto from(Role role, Club club, List<DescriptionMediaDto> mediaList) {
+    public static ClubPromotionResponseDto from(Role role, Club club, boolean favorite, List<DescriptionMediaDto> mediaList) {
         return ClubPromotionResponseDto.builder()
                 .role(role)
                 .name(club.getName())
                 .status(club.getStatus())
                 .startTime(club.getStartTime())
                 .endTime(club.getEndTime())
+                .simpleDescription(club.getSimpleDescription())
                 .description(club.getDescription())
+                .favorite(favorite)
                 .notice(club.getNotice())
                 .location(club.getLocation())
                 .presidentName(club.getPresidentName())

@@ -280,12 +280,13 @@ public class ClubService {
 
 
         List<Media> mediaList = mediaRepository.findByClubId(clubId);
+        boolean favorite = favoriteRepository.existsByUserIdAndClubId(userDetails.getUserId(), clubId);
         List<DescriptionMediaDto> mediaResList = new ArrayList<>();
         for (Media media : mediaList) {
             String presignedUrl = s3ServiceImpl.getDownloadPresignedUrl(media.getMediaLink());
             mediaResList.add(DescriptionMediaDto.from(media, presignedUrl));
         }
-        return ClubPromotionResponseDto.from(checkRole(userDetails.getUserId(), clubId), club, mediaResList);
+        return ClubPromotionResponseDto.from(checkRole(userDetails.getUserId(), clubId), club, favorite, mediaResList);
     }
 
 

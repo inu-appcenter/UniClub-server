@@ -81,6 +81,13 @@ public class QnaController implements QnaApiSpecification {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    //회장이 질문을 답변 완료로 표시
+    @PatchMapping("/{questionId}/answered")
+    public ResponseEntity<Void> markQuestionAsAnswered(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long questionId){
+        qnaService.markQuestionAsAnswered(userDetails, questionId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 
     /*
     //신고
