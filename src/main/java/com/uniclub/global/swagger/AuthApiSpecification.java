@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Tag(name = "인증 API", description = "회원가입·로그인 관련 기능")
 public interface AuthApiSpecification {
 
-    @Operation(summary = "회원가입", description = "신규 회원 가입")
+    @Operation(summary = "회원가입", description = "신규 회원 가입 (닉네임 포함)")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "회원가입 성공"),
             @ApiResponse(

@@ -23,6 +23,10 @@ public class RegisterRequestDto {
     @NotBlank(message = "전공을 입력해주세요.")
     private String major;
 
+    @Schema(description = "닉네임", example = "밥줘배고파")
+    @NotBlank(message = "닉네임을 입력해주세요.")
+    private String nickname;
+
     @Schema(description = "개인정보 약관 동의", example = "true")
     @NotNull(message = "개인정보 수집 및 이용 동의는 필수입니다.")
     private boolean personalInfoCollectionAgreement;

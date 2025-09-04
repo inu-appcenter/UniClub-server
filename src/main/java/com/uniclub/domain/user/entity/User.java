@@ -39,11 +39,11 @@ public class User extends BaseTime {
     private boolean notificationEnabled;    //알림설정
 
 
-    public User(String name, String studentId, Major major) {
+    public User(String name, String studentId, Major major, String nickname) {
         this.name = name;
         this.studentId = studentId;
         this.major = major;
-        this.nickname = name;
+        this.nickname = nickname;
     }
 
     public void updateInfo(String name, Major major, String nickname, Media profileMedia) {

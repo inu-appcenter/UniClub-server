@@ -14,8 +14,8 @@ public class AnswerResponseDto {
     @Schema(description = "답변 ID", example = "1")
     private final Long answerId;
 
-    @Schema(description = "답변 작성자명", example = "홍길동")
-    private final String name;
+    @Schema(description = "답변 작성자 닉네임", example = "라면")
+    private final String nickname;
 
     @Schema(description = "답변 내용", example = "매 학기 초에 신입회원을 모집합니다.")
     private final String content;
@@ -36,9 +36,9 @@ public class AnswerResponseDto {
     private final boolean owner;
 
     @Builder
-    public AnswerResponseDto(Long answerId, String name, String content, boolean anonymous, boolean deleted, LocalDateTime updateTime, Long parentAnswerId, boolean owner) {
+    public AnswerResponseDto(Long answerId, String nickname, String content, boolean anonymous, boolean deleted, LocalDateTime updateTime, Long parentAnswerId, boolean owner) {
         this.answerId = answerId;
-        this.name = name;
+        this.nickname = nickname;
         this.content = content;
         this.anonymous = anonymous;
         this.deleted = deleted;
@@ -54,7 +54,7 @@ public class AnswerResponseDto {
         } else if (answer.getUser() == null || answer.getUser().isDeleted()) {
             displayName = "탈퇴한 사용자";
         } else {
-            displayName = answer.getUser().getName();
+            displayName = answer.getUser().getNickname();
         }
 
         boolean owner = answer.getUser() != null &&
@@ -62,7 +62,7 @@ public class AnswerResponseDto {
 
         return AnswerResponseDto.builder()
                 .answerId(answer.getAnswerId())
-                .name(displayName)
+                .nickname(displayName)
                 .content(answer.getContent())
                 .anonymous(answer.isAnonymous())
                 .deleted(answer.isDeleted())

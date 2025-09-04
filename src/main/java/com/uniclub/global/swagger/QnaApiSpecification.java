@@ -30,14 +30,14 @@ public interface QnaApiSpecification {
                       "content": [
                         {
                           "questionId": 1,
-                          "name": "홍길동",
+                          "nickname": "라면",
                           "clubName": "앱센터",
                           "content": "동아리원 모집은 언제 진행하나요?",
                           "countAnswer": 3
                         },
                         {
                           "questionId": 2,
-                          "name": "익명",
+                          "nickname": "익명",
                           "clubName": "디자인소모임",
                           "content": "활동비는 얼마인가요?",
                           "countAnswer": 0
@@ -80,7 +80,7 @@ public interface QnaApiSpecification {
                             examples = @ExampleObject("""
                     {
                       "questionId": 1,
-                      "name": "홍길동",
+                      "nickname": "라면",
                       "content": "동아리원 모집은 언제 진행하나요?",
                       "anonymous": false,
                       "answered": true,
@@ -88,7 +88,7 @@ public interface QnaApiSpecification {
                       "answers": [
                         {
                           "answerId": 1,
-                          "name": "김동아리",
+                          "nickname": "김동아리",
                           "content": "매 학기 초에 진행합니다.",
                           "anonymous": false,
                           "deleted": false,

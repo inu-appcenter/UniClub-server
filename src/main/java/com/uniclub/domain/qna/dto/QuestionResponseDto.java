@@ -18,8 +18,8 @@ public class QuestionResponseDto {
     @Schema(description = "질문 ID", example = "1")
     private final Long questionId;
 
-    @Schema(description = "질문 작성자명", example = "홍길동")
-    private final String name;
+    @Schema(description = "질문 작성자 닉네임", example = "라면")
+    private final String nickname;
 
     @Schema(description = "질문 내용", example = "동아리원 모집은 언제 진행하나요?")
     private final String content;
@@ -43,9 +43,9 @@ public class QuestionResponseDto {
     private final boolean president;
 
     @Builder
-    public QuestionResponseDto(Long questionId, String name, String content, boolean anonymous, boolean answered, LocalDateTime updatedAt, List<AnswerResponseDto> answers, boolean owner, boolean president) {
+    public QuestionResponseDto(Long questionId, String nickname, String content, boolean anonymous, boolean answered, LocalDateTime updatedAt, List<AnswerResponseDto> answers, boolean owner, boolean president) {
         this.questionId = questionId;
-        this.name = name;
+        this.nickname = nickname;
         this.content = content;
         this.anonymous = anonymous;
         this.answered = answered;
@@ -62,7 +62,7 @@ public class QuestionResponseDto {
         } else if (question.getUser() == null || question.getUser().isDeleted()) {
             displayName = "탈퇴한 사용자";
         } else {
-            displayName = question.getUser().getName();
+            displayName = question.getUser().getNickname();
         }
 
         boolean owner = question.getUser() != null &&
@@ -70,7 +70,7 @@ public class QuestionResponseDto {
 
         return QuestionResponseDto.builder()
                 .questionId(question.getQuestionId())
-                .name(displayName)
+                .nickname(displayName)
                 .content(question.getContent())
                 .anonymous(question.isAnonymous())
                 .answered(question.isAnswered())

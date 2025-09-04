@@ -48,7 +48,8 @@ public class AuthService {
         User user = new User(
                 registerRequestDto.getName(),
                 registerRequestDto.getStudentId(),
-                major
+                major,
+                registerRequestDto.getNickname()
         );
 
         userRepository.save(user);
