@@ -38,7 +38,7 @@ public interface ClubApiSpecification {
                           "status": "ACTIVE",
                           "favorite": true,
                           "category": "LIBERAL_ACADEMIC",
-                          "clubProfileUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-club"
+                          "clubProfileUrl": "https://uniclubs3.s3.ap-northeast-2.amazonaws.com/uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250813T162429Z&X-Amz-SignedHeaders=host&X-Amz-Expires=1200&X-Amz-Credential=AKIAYHJAM5L7YOWJHC4E%2F20250813%2Fap-northeast-2%2Fs3%2Faws4_request&X-Amz-Signature=46a114c0ef5c5921b9ea480b5fd10a197a7dfcafb782e633487fec858de4"
                         },
                         {
                           "id": 2,
@@ -47,7 +47,7 @@ public interface ClubApiSpecification {
                           "status": "CLOSED",
                           "favorite": false,
                           "category": "CULTURE",
-                          "clubProfileUrl": "https://s3.amazonaws.com/bucket/presigned-url-for-club"
+                          "clubProfileUrl": "https://uniclubs3.s3.ap-northeast-2.amazonaws.com/uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250813T162429Z&X-Amz-SignedHeaders=host&X-Amz-Expires=1200&X-Amz-Credential=AKIAYHJAM5L7YOWJHC4E%2F20250813%2Fap-northeast-2%2Fs3%2Faws4_request&X-Amz-Signature=46a114c0ef5c5921b9ea480b5fd10a197a7dfcafb782e633487fec858de4"
                         }
                       ],
                       "hasNext": true
@@ -243,13 +243,13 @@ public interface ClubApiSpecification {
                       "applicationFormLink": "https://forms.google.com/example",
                       "mediaList": [
                         {
-                          "mediaLink": "https://s3.amazonaws.com/bucket/presigned-url-for-media1",
+                          "mediaLink": "https://uniclubs3.s3.ap-northeast-2.amazonaws.com/uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250813T162429Z&X-Amz-SignedHeaders=host&X-Amz-Expires=1200&X-Amz-Credential=AKIAYHJAM5L7YOWJHC4E%2F20250813%2Fap-northeast-2%2Fs3%2Faws4_request&X-Amz-Signature=46a114c0ef5c5921b9ea480b5fd10a197a7dfcafb782e633487fec858de4",
                           "mediaType": "DESCRIPTION",
                           "isMain": true,
                           "updatedAt": "2025-08-10T15:30:00"
                         },
                         {
-                          "mediaLink": "https://s3.amazonaws.com/bucket/presigned-url-for-media2",
+                          "mediaLink": "https://uniclubs3.s3.ap-northeast-2.amazonaws.com/uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250813T162429Z&X-Amz-SignedHeaders=host&X-Amz-Expires=1200&X-Amz-Credential=AKIAYHJAM5L7YOWJHC4E%2F20250813%2Fap-northeast-2%2Fs3%2Faws4_request&X-Amz-Signature=46a114c0ef5c5921b9ea480b5fd10a197a7dfcafb782e633487fec858de4",
                           "mediaType": "DESCRIPTION",
                           "isMain": false,
                           "updatedAt": "2025-08-11T10:45:00"

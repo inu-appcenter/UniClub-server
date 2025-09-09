@@ -16,6 +16,6 @@ public class InformationModificationRequestDto {
     @Schema(description = "닉네임", example = "빌려온 고양이")
     private String nickname;
 
-    @Schema(description = "프로필 이미지 URL", example = "https://s3.amazonaws.com/bucket/presigned-url-for-user-profile")
+    @Schema(description = "프로필 이미지 URL", example = "uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png")
     private String profileImageLink;
 }
