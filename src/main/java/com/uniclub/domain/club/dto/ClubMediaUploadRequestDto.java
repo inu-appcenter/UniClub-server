@@ -5,6 +5,7 @@ import com.uniclub.domain.club.entity.Media;
 import com.uniclub.domain.club.entity.MediaType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,7 +22,7 @@ public class ClubMediaUploadRequestDto {
     private String mediaType;
     
     @Schema(description = "메인 이미지 여부", example = "false")
-    @NotBlank(message = "메인 이미지 여부를 지정해주세요.")
+    @NotNull(message = "메인 이미지 여부를 지정해주세요.")
     private boolean isMain;
 
     public Media toMediaEntity(Club club, MediaType type) {
