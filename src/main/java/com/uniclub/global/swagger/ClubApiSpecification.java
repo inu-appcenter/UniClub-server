@@ -350,7 +350,7 @@ public interface ClubApiSpecification {
     ResponseEntity<Void> uploadClubMedia(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long clubId,
-            @RequestBody List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList
+            @Valid @RequestBody List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList
     );
 
     @Operation(summary = "동아리 삭제", description = "동아리 삭제")
