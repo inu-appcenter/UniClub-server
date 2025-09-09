@@ -59,8 +59,12 @@ public class UserService {
             mediaRepository.save(profileMedia);
         }
 
-        // String -> major 변환
-        Major major = EnumConverter.stringToEnum(informationModificationRequestDto.getMajor(), Major.class, ErrorCode.MAJOR_NOT_FOUND);
+        // 전공이 빈칸이나 null로 왔을 때 기존값 유지를 위한 로직
+        Major major = null;
+        if (informationModificationRequestDto.getMajor() != null && !informationModificationRequestDto.getMajor().isBlank()){
+            // String -> major 변환
+            major = EnumConverter.stringToEnum(informationModificationRequestDto.getMajor(), Major.class, ErrorCode.MAJOR_NOT_FOUND);
+        }
 
         // 영속성 컨택스트 이용(더티체킹)
         user.updateInfo(informationModificationRequestDto.getName(),
@@ -118,7 +122,11 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public MyPageResponseDto getMyPage(UserDetailsImpl userDetails) {
-        User user = userDetails.getUser();
+
+        // 트랜잭션 유지를 위해 DB에서 유저 조회
+        Long userId = userDetails.getUser().getUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         String formattedStudentId = formatStudentId(user.getStudentId());
 
         // 프로필 이미지가 있으면 presigned URL 생성
