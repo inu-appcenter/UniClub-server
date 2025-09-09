@@ -208,6 +208,7 @@ public class ClubService {
             MediaType mediaType = EnumConverter.stringToEnum(clubMediaUploadRequestDto.getMediaType(), MediaType.class, ErrorCode.MEDIA_TYPE_NOT_FOUND);
             Media media = clubMediaUploadRequestDto.toMediaEntity(club, mediaType);
             mediaRepository.save(media);
+            log.info("동아리 미디어 DB 저장 완료: 메인 이미지 여부 = {}", media.isMainMedia());
 
             // 업로드된 미디어 정보 추가 (URL에서 파일명만 추출)
             String fileName = extractFileName(clubMediaUploadRequestDto.getMediaLink());
