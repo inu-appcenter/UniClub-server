@@ -19,7 +19,7 @@ public class NotificationResponseDto {
     private final String message;
 
     @Schema(description = "읽음 여부", example = "false")
-    private final boolean isRead;
+    private final boolean read;
 
     @Schema(description = "알림 종류", example = "PERSONAL")
     private final NotificationType type;
@@ -28,10 +28,10 @@ public class NotificationResponseDto {
     private final LocalDateTime createdAt;
 
     @Builder
-    public NotificationResponseDto(Long notificationId, String message, boolean isRead, NotificationType type, LocalDateTime createdAt) {
+    public NotificationResponseDto(Long notificationId, String message, boolean read, NotificationType type, LocalDateTime createdAt) {
         this.notificationId = notificationId;
         this.message = message;
-        this.isRead = isRead;
+        this.read = read;
         this.type = type;
         this.createdAt = createdAt;
     }
@@ -40,7 +40,7 @@ public class NotificationResponseDto {
         return NotificationResponseDto.builder()
                 .notificationId(notification.getNotificationId())
                 .message(notification.getMessage())
-                .isRead(notification.isRead())
+                .read(notification.isRead())
                 .type(notification.getType())
                 .createdAt(notification.getCreatedAt())
                 .build();
