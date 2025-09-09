@@ -11,8 +11,8 @@ public class SearchQuestionResponseDto {
     @Schema(description = "질문 ID", example = "1")
     private final Long questionId;
     
-    @Schema(description = "질문 작성자명", example = "홍길동")
-    private final String name;
+    @Schema(description = "질문 작성자 닉네임", example = "라면")
+    private final String nickname;
     
     @Schema(description = "동아리명", example = "앱센터")
     private final String clubName;
@@ -24,9 +24,9 @@ public class SearchQuestionResponseDto {
     private final Long countAnswer;
 
     @Builder
-    public SearchQuestionResponseDto(Long questionId, String name, String clubName, String content, Long countAnswer) {
+    public SearchQuestionResponseDto(Long questionId, String nickname, String clubName, String content, Long countAnswer) {
         this.questionId = questionId;
-        this.name = name;
+        this.nickname = nickname;
         this.clubName = clubName;
         this.content = content;
         this.countAnswer = countAnswer;
@@ -39,12 +39,12 @@ public class SearchQuestionResponseDto {
         } else if (question.getUser() == null || question.getUser().isDeleted()) {
             displayName = "탈퇴한 사용자";
         } else {
-            displayName = question.getUser().getName();
+            displayName = question.getUser().getNickname();
         }
 
         return SearchQuestionResponseDto.builder()
                 .questionId(question.getQuestionId())
-                .name(displayName)
+                .nickname(displayName)
                 .clubName(question.getClub().getName())
                 .content(question.getContent())
                 .countAnswer(answerCount)
