@@ -24,7 +24,7 @@ public class Notification extends BaseTime {
     private String message; //알림 메시지
 
     @ColumnDefault("false")
-    @Column(nullable = false)
+    @Column(name = "is_read", nullable = false)
     private boolean read; //읽음 여부
 
     @Enumerated(EnumType.STRING)
