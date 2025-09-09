@@ -25,7 +25,7 @@ public class Notification extends BaseTime {
 
     @ColumnDefault("false")
     @Column(nullable = false)
-    private boolean isRead; //읽음 여부
+    private boolean read; //읽음 여부
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -44,6 +44,6 @@ public class Notification extends BaseTime {
     }
     
     public void markAsRead() {
-        this.isRead = true;
+        this.read = true;
     }
 }

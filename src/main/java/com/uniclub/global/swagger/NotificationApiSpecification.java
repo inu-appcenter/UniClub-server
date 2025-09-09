@@ -35,14 +35,14 @@ public interface NotificationApiSpecification {
                         "message": "질문에 답변이 도착했어요.",
                         "type": "PERSONAL",
                         "createdAt": "2025-08-03T14:30:00",
-                        "isRead": false
+                        "read": false
                       },
                       {
                         "notificationId": 2,
                         "message": "동아리 가입 요청이 승인되었습니다.",
                         "type": "SYSTEM",
                         "createdAt": "2025-08-02T09:15:30",
-                        "isRead": true
+                        "read": true
                       }
                     ]
                     """
