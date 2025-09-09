@@ -83,8 +83,8 @@ public class ClubService {
                 clubProfileUrl = s3ServiceImpl.getDownloadPresignedUrl(clubProfileMedia.getMediaLink());
             }
             
-            ClubResponseDto dto = ClubResponseDto.from(club, isFavorite, clubProfileUrl);
-            clubResponseDtoList.add(dto);
+            ClubResponseDto clubResponseDto = ClubResponseDto.from(club, isFavorite, clubProfileUrl);
+            clubResponseDtoList.add(clubResponseDto);
         }
         return new SliceImpl<>(clubResponseDtoList, pageable, hasNext);
     }
