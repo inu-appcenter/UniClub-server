@@ -162,6 +162,7 @@ public class ClubService {
                 clubStatus,
                 promotionRegisterRequestDto.getStartTime(),
                 promotionRegisterRequestDto.getEndTime(),
+                promotionRegisterRequestDto.getSimpleDescription(),
                 promotionRegisterRequestDto.getDescription(),
                 promotionRegisterRequestDto.getNotice(),
                 promotionRegisterRequestDto.getLocation(),

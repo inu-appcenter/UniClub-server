@@ -84,7 +84,7 @@ public class Club extends BaseTime {
         this.category = category;
     }
 
-    public void updatePromotion(ClubStatus clubStatus, LocalDateTime startTime, LocalDateTime endTime,
+    public void updatePromotion(ClubStatus clubStatus, LocalDateTime startTime, LocalDateTime endTime, String simpleDescription,
                                 String description, String notice, String location,
                                 String presidentName, String presidentPhone,
                                 String youtubeLink, String instagramLink, String applicationFormLink) {
@@ -92,6 +92,7 @@ public class Club extends BaseTime {
         if (clubStatus != null) this.status = clubStatus;
         if (startTime != null) this.startTime = startTime;
         if (endTime != null) this.endTime = endTime;
+        if (simpleDescription != null) this.simpleDescription = simpleDescription;
         if (description != null) this.description = description;
         if (notice != null) this.notice = notice;
         if (location != null) this.location = location;
