@@ -71,18 +71,33 @@ public class ClubService {
                 favoriteRepository.findClubIdsByUserId(userId)
         );
 
+        // 동아리 ID 목록 추출
+        List<Long> clubIds = new ArrayList<>();
+        for (Club club : clubList) {
+            clubIds.add(club.getClubId());
+        }
+
+        // 한 번의 쿼리로 동아리들의 프로필 이미지 조회
+        List<Media> clubProfileMedias = mediaRepository.findClubProfilesByClubIds(clubIds);
+
+        // clubId를 키로 하는 Map 생성
+        Map<Long, Media> clubProfileMap = new HashMap<>();
+        for (Media media : clubProfileMedias) {
+            clubProfileMap.put(media.getClub().getClubId(), media);
+        }
+
         // 추출된 동아리 목록에서 관심등록 여부 확인 후 DTO 리스트 생성
         List<ClubResponseDto> clubResponseDtoList = new ArrayList<>();
         for (Club club : clubList) {
             boolean isFavorite = favoriteSet.contains(club.getClubId());
-            
-            // 동아리 프로필 이미지 조회
-            Media clubProfileMedia = mediaRepository.findByClubIdAndMediaType(club.getClubId(), MediaType.CLUB_PROFILE);
+
+            // Map에서 프로필 이미지 조회
+            Media clubProfileMedia = clubProfileMap.get(club.getClubId());
             String clubProfileUrl = "";
             if (clubProfileMedia != null) {
                 clubProfileUrl = s3ServiceImpl.getDownloadPresignedUrl(clubProfileMedia.getMediaLink());
             }
-            
+
             ClubResponseDto clubResponseDto = ClubResponseDto.from(club, isFavorite, clubProfileUrl);
             clubResponseDtoList.add(clubResponseDto);
         }

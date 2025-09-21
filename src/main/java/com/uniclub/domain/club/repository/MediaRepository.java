@@ -22,11 +22,8 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
     @Query("SELECT m FROM Media m WHERE m.mediaType = :mediaType")
     List<Media> findByMediaType(MediaType mediaType);
 
-    @Query("SELECT m FROM Media m WHERE m.club.clubId = :clubId AND m.mainMedia = true")
-    Media findMainImageByClubId(Long clubId);
-
-    @Query("SELECT m FROM Media m WHERE m.club.clubId = :clubId AND m.mediaType = :mediaType")
-    Media findByClubIdAndMediaType(Long clubId, MediaType mediaType);
+    @Query("SELECT m FROM Media m WHERE m.club.clubId IN :clubIds AND m.mediaType = 'CLUB_PROFILE'")
+    List<Media> findClubProfilesByClubIds(List<Long> clubIds);
 
     @Modifying
     @Query("DELETE FROM Media m WHERE m.club.clubId = :clubId AND m.mediaType = :mediaType")
