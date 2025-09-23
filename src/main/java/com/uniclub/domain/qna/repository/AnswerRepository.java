@@ -26,6 +26,7 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     @Query("SELECT a FROM Answer a JOIN FETCH a.user " +
            "WHERE a.question.questionId = :questionId " +
            "AND (a.deleted = false OR " +
-           "(a.deleted = true AND EXISTS (SELECT 1 FROM Answer child WHERE child.parentAnswer.answerId = a.answerId AND child.deleted = false)))")
+           "(a.deleted = true AND EXISTS (SELECT 1 FROM Answer child WHERE child.parentAnswer.answerId = a.answerId AND child.deleted = false))) " +
+           "ORDER BY a.createdAt ASC")
     List<Answer> findByQuestionIdWithUser(Long questionId);
 }

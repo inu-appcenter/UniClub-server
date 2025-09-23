@@ -19,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -71,19 +73,35 @@ public class QnaService {
         //questionId로 답변과 User를 fetch join하여 조회 (삭제된 답변 제외하되, 자식답변이 있는 삭제된 답변은 포함)
         List<Answer> answerList = answerRepository.findByQuestionIdWithUser(questionId);
 
-        //반환할 Answer
-        List<AnswerResponseDto> answerResponseDtoList = new ArrayList<>();
-
+        Long questionAuthorId = question.getUser().getUserId();
         Long userId = userDetails.getUserId();
+
+
+        // 유저 - 익명번호 매핑 map 생성
+        Map<Long, Integer> anonymousNumberMap = createAnonymousNumberMap(answerList, questionAuthorId);
+
+        List<AnswerResponseDto> answerResponseDtoList = new ArrayList<>();
         for (Answer answer : answerList) {
-            answerResponseDtoList.add(AnswerResponseDto.from(answer, userId));
+            Integer anonymousNumber = null;
+            // 삭제된 유저가 아니고, 익명이고 글 작성자가 아니면 익명번호 부여, 글 작성자라면 anonymousNumber는 null
+            if (answer.isAnonymous() && answer.getUser() != null && !answer.getUser().getUserId().equals(questionAuthorId)) {
+                anonymousNumber = anonymousNumberMap.get(answer.getUser().getUserId());
+            }
+
+            // 익명(작성자), 닉네임, 익명1 등 보여지는 이름
+            String displayName = createDisplayName(answer, anonymousNumber, questionAuthorId);
+            // 댓글 작성자 본인여부
+            boolean owner = answer.getUser() != null &&
+                    answer.getUser().getUserId().equals(userId);
+
+            answerResponseDtoList.add(AnswerResponseDto.from(answer, displayName, owner));
         }
 
         // 동아리 회장 여부 확인
         boolean president = membershipRepository.findByUserIdAndClubId(userId, question.getClub().getClubId())
                 .map(membership -> membership.getRole() == Role.PRESIDENT)
                 .orElse(false);
-        
+
         return QuestionResponseDto.from(question, answerResponseDtoList, userId, president);
     }
 
@@ -181,7 +199,7 @@ public class QnaService {
         }
 
         existingAnswer.softDelete();
-        
+
         log.info("답변 삭제 완료: {}", existingAnswer.getAnswerId());
     }
 
@@ -202,6 +220,52 @@ public class QnaService {
         // 답변 완료로 표시
         question.markAsAnswered();
         log.info("질문 답변완료 처리: questionId={}, 처리자={}", questionId, userDetails.getStudentId());
+    }
+
+
+    private Map<Long, Integer> createAnonymousNumberMap(List<Answer> answerList, Long questionAuthorId) {
+        Map<Long, Integer> anonymousNumberMap = new HashMap<>();
+        int anonymousCounter = 1;
+
+        for (Answer answer : answerList) {
+            if (answer.isAnonymous() && answer.getUser() != null) {
+                Long answerUserId = answer.getUser().getUserId();
+                // 질문 작성자가 아닌 경우에만 익명번호 부여
+                if (!answerUserId.equals(questionAuthorId)) {
+                    if (!anonymousNumberMap.containsKey(answerUserId)) {
+                        anonymousNumberMap.put(answerUserId, anonymousCounter++);
+                    }
+                }
+            }
+        }
+        return anonymousNumberMap;
+    }
+
+    private String createDisplayName(Answer answer, Integer anonymousNumber, Long questionAuthorId) {
+        boolean isQuestionAuthor = answer.getUser() != null && answer.getUser().getUserId().equals(questionAuthorId);
+
+        // 탈퇴한 사용자인 경우
+        if (answer.getUser() == null || answer.getUser().isDeleted()) {
+            return "탈퇴한 사용자";
+        }
+
+        // 익명인 경우
+        else if (answer.isAnonymous()) {
+            if (isQuestionAuthor) {
+                return "익명(작성자)";
+            } else {
+                return "익명" + anonymousNumber;
+            }
+        }
+
+        // 익명이 아닌 경우(닉네임)
+        else {
+            String displayName = answer.getUser().getNickname();
+            if (isQuestionAuthor) {
+                displayName += "(작성자)";
+            }
+            return displayName;
+        }
     }
 
 }
