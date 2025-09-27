@@ -47,18 +47,8 @@ public class AnswerResponseDto {
         this.owner = owner;
     }
 
-    public static AnswerResponseDto from(Answer answer, Long userId) {
-        String displayName;
-        if (answer.isAnonymous()) {
-            displayName = "익명";
-        } else if (answer.getUser() == null || answer.getUser().isDeleted()) {
-            displayName = "탈퇴한 사용자";
-        } else {
-            displayName = answer.getUser().getNickname();
-        }
 
-        boolean owner = answer.getUser() != null &&
-                    answer.getUser().getUserId().equals(userId);
+    public static AnswerResponseDto from(Answer answer, String displayName, boolean owner) {
 
         return AnswerResponseDto.builder()
                 .answerId(answer.getAnswerId())
