@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,7 +26,7 @@ public class User extends BaseTime {
     @Column(nullable = false)
     private String nickname;  // 회원가입창에서 입력 X, 디폴트는 이름
 
-    @Column(nullable = false, length = 15, unique = true)
+    @Column(nullable = false, length = 30, unique = true)
     private String studentId;   //학번
 
     @Enumerated(EnumType.STRING)
@@ -65,5 +68,11 @@ public class User extends BaseTime {
         this.notificationEnabled = !this.notificationEnabled;
     }
 
+    @Override
+    public void softDelete() {
+        super.softDelete();
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+        this.studentId = "d_" + timestamp + "_" + this.studentId;
+    }
 
 }
