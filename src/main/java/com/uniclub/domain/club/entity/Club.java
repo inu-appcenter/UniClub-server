@@ -100,7 +100,6 @@ public class Club extends BaseTime {
         if (youtubeLink != null) this.youtubeLink = youtubeLink;
         if (instagramLink != null) this.instagramLink = instagramLink;
         if (applicationFormLink != null) this.applicationFormLink = applicationFormLink;
-
     }
 
 

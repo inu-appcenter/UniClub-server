@@ -26,7 +26,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class QnaService {
+public class
+QnaService {
 
     private final ClubRepository clubRepository;
     private final QuestionRepository questionRepository;

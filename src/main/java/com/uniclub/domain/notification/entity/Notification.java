@@ -7,9 +7,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -20,30 +17,37 @@ public class Notification extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long notificationId;    //PK
 
-    @Column(columnDefinition = "TEXT")
-    private String message; //알림 메시지
-
-    @ColumnDefault("false")
     @Column(nullable = false)
-    private boolean isRead; //읽음 여부
+    private String title;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String message;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private NotificationType type;  //알림 유형
+    private NotificationType notificationType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId")    //FK
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private User user;
+    @Column
+    private Long targetId;
+
+    @Column(nullable = false)
+    private boolean read = false;
+
+    @Column(nullable = false)
+    private Long userId;
 
     @Builder
-    public Notification(String message, NotificationType type, User user) {
+    public Notification(String title, String message, NotificationType notificationType, Long targetId, Long userId) {
+        this.title = title;
         this.message = message;
-        this.type = type;
-        this.user = user;
+        this.notificationType = notificationType;
+        this.targetId = targetId;
+        this.userId = userId;
+        this.read = false;
     }
-    
+
     public void markAsRead() {
-        this.isRead = true;
+        this.read = true;
     }
+
 }

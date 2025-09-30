@@ -35,6 +35,7 @@ public class S3ServiceImpl implements S3Service {
 
 
     //동아리 S3 presigned url 요청
+    @Override
     public List<S3PresignedResponseDto> getClubPresignedUrl(UserDetailsImpl userDetails, Long clubId, List<S3PresignedRequestDto> s3PresignedRequestDtoList) {
         log.info("동아리 presigned Url 요청: 학번={}, clubId={}", userDetails.getStudentId(), clubId);
 
@@ -57,6 +58,7 @@ public class S3ServiceImpl implements S3Service {
 
 
     //메인페이지 S3 presigned url 요청
+    @Override
     public List<S3PresignedResponseDto> getMainPresignedUrl(List<S3PresignedRequestDto> s3PresignedRequestDtoList) {
         log.info("메인 페이지 presigned Url 요청");
         List<S3PresignedResponseDto> s3PresignedResponseDtoList = new ArrayList<>();
@@ -71,6 +73,7 @@ public class S3ServiceImpl implements S3Service {
     }
 
     //프로필 이미지 S3 presigned url 요청
+    @Override
     public S3PresignedResponseDto getUserProfilePresignedUrl(UserDetailsImpl userDetails, S3PresignedRequestDto s3PresignedRequestDto) {
         log.info("프로필 이미지 presigned Url 요청: 학번={}", userDetails.getStudentId());
 

@@ -5,6 +5,7 @@ import com.uniclub.domain.qna.entity.Question;
 import com.uniclub.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,7 +19,7 @@ public class AnswerCreateRequestDto {
     private String content;
 
     @Schema(description = "익명 여부", example = "false")
-    @NotBlank(message = "익명 여부를 선택해주세요.")
+    @NotNull(message = "익명 여부를 선택해주세요.")
     private boolean anonymous;
 
     public Answer toEntity(UserDetailsImpl userDetails, Question question, Answer parentAnswer) {

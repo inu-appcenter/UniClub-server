@@ -23,13 +23,13 @@ public class ClubMediaUploadRequestDto {
     
     @Schema(description = "메인 이미지 여부", example = "false")
     @NotNull(message = "메인 이미지 여부를 지정해주세요.")
-    private boolean isMain;
+    private boolean main;
 
     public Media toMediaEntity(Club club, MediaType type) {
         return Media.builder()
                 .mediaLink(mediaLink)
                 .mediaType(type)
-                .mainMedia(isMain)
+                .mainMedia(main)
                 .club(club)
                 .build();
     }

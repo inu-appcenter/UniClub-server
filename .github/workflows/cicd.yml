@@ -17,6 +17,15 @@ jobs:
           ${{ secrets.APPLICATION_YML }}
           EOF
 
+      #Set Firebase Admin Key
+      - name: Make Firebase Admin Key
+        run: |
+          mkdir -p ./src/main/resources/firebase
+          cat > ./src/main/resources/firebase/uniclub_firebase_admin_key.json << 'EOF'
+          ${{ secrets.FIREBASE_ADMIN_KEY }}
+          EOF
+          
+          
 
       #Set Java
       - name: Set Java JDK 21

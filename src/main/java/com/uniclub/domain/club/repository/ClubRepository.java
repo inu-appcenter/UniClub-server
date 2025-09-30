@@ -67,4 +67,19 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     order by function('rand')
     """)
     List<Club> getMainPageClubs(Pageable pageable);
+
+    String findNameByClubId(Long clubId);
+
+
+    //알림 스케줄링 관련
+
+    //24시간 이내 모집 시작된 동아리
+    @Query("SELECT c FROM Club c WHERE c.startTime >= CURRENT_TIMESTAMP - 1 DAY AND c.startTime < CURRENT_TIMESTAMP AND c.status = 'ACTIVE'")
+    List<Club> findRecruitmentStartedInLast24Hours();
+
+    //n일 후 모집 마감되는 동아리
+    @Query("SELECT c FROM Club c WHERE DATE(c.endTime) = DATE(CURRENT_DATE + :days) AND c.status = 'ACTIVE'")
+    List<Club> findRecruitmentEndingInDays(@Param("days") int days);
+
+
 }
