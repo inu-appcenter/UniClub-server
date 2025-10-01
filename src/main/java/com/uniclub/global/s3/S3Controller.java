@@ -17,13 +17,12 @@ import java.util.List;
 public class S3Controller implements S3ApiSpecification {
 
     private final S3Service s3Service;
-    private final S3ServiceImpl s3ServiceImpl;
 
     //동아리 홍보글 미디어 S3 presigned url 요청
     @PostMapping("/club/{clubId}/s3-presigned")
     @Operation(summary = "동아리 S3 presigned url", description = "동아리 미디어 S3 presigned url 요청")
     public ResponseEntity<List<S3PresignedResponseDto>> getClubS3Presigned(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long clubId, @RequestBody List<S3PresignedRequestDto> s3PresignedRequestDtoList) {
-        List<S3PresignedResponseDto> s3PresignedResponseDtoList = s3ServiceImpl.getClubPresignedUrl(userDetails, clubId, s3PresignedRequestDtoList);
+        List<S3PresignedResponseDto> s3PresignedResponseDtoList = s3Service.getClubPresignedUrl(userDetails, clubId, s3PresignedRequestDtoList);
         return ResponseEntity.status(HttpStatus.CREATED).body(s3PresignedResponseDtoList);
     }
 
@@ -31,7 +30,7 @@ public class S3Controller implements S3ApiSpecification {
     @PostMapping("/main/s3-presigned")
     @Operation(summary = "메인 페이지 S3 presigned url", description = "메인 페이지 미디어 S3 presigned url 요청")
     public ResponseEntity<List<S3PresignedResponseDto>> getMainS3Presigned(@RequestBody List<S3PresignedRequestDto> s3PresignedRequestDtoList) {
-        List<S3PresignedResponseDto> s3PresignedResponseDtoList = s3ServiceImpl.getMainPresignedUrl(s3PresignedRequestDtoList);
+        List<S3PresignedResponseDto> s3PresignedResponseDtoList = s3Service.getMainPresignedUrl(s3PresignedRequestDtoList);
         return ResponseEntity.status(HttpStatus.CREATED).body(s3PresignedResponseDtoList);
     }
 
@@ -39,7 +38,7 @@ public class S3Controller implements S3ApiSpecification {
     @PostMapping("/user/profile/s3-presigned")
     @Operation(summary = "프로필 이미지 S3 presigned url", description = "프로필 이미지 S3 presigned url 요청")
     public ResponseEntity<S3PresignedResponseDto> getUserProfileS3Presigned(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody S3PresignedRequestDto s3PresignedRequestDto) {
-        S3PresignedResponseDto s3PresignedResponseDto = s3ServiceImpl.getUserProfilePresignedUrl(userDetails, s3PresignedRequestDto);
+        S3PresignedResponseDto s3PresignedResponseDto = s3Service.getUserProfilePresignedUrl(userDetails, s3PresignedRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(s3PresignedResponseDto);
     }
 }

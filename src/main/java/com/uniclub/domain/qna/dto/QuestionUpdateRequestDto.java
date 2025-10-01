@@ -3,6 +3,7 @@ package com.uniclub.domain.qna.dto;
 import com.uniclub.domain.qna.entity.Question;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,7 +21,7 @@ public class QuestionUpdateRequestDto {
     private Boolean anonymous;
 
     @Schema(description = "답변 완료 여부", example = "false")
-    @NotBlank(message = "답변 완료 여부를 확인해주세요.")
+    @NotNull(message = "답변 완료 여부를 확인해주세요.")
     private Boolean answered;
 
     public Question toEntity() {

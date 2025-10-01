@@ -45,12 +45,12 @@ public class AuthService {
         // String -> major 변환
         Major major = EnumConverter.stringToEnum(registerRequestDto.getMajor(), Major.class, ErrorCode.MAJOR_NOT_FOUND);
 
-        User user = new User(
-                registerRequestDto.getName(),
-                registerRequestDto.getStudentId(),
-                major,
-                registerRequestDto.getNickname()
-        );
+        User user = User.builder()
+                .name(registerRequestDto.getName())
+                .studentId(registerRequestDto.getStudentId())
+                .major(major)
+                .nickname(registerRequestDto.getNickname())
+                .build();
 
         userRepository.save(user);
         log.info("회원가입 성공: 학번={}, 이름={}", registerRequestDto.getStudentId(), registerRequestDto.getName());

@@ -14,11 +14,10 @@ import com.uniclub.domain.user.entity.User;
 import com.uniclub.domain.user.repository.UserRepository;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
-import com.uniclub.global.s3.S3ServiceImpl;
+import com.uniclub.global.s3.S3Service;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.util.EnumConverter;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,7 +34,7 @@ public class UserService {
     private final MediaRepository mediaRepository;
     private final INUAuthRepository inuAuthRepository;
     private final TermsRepository termsRepository;
-    private final S3ServiceImpl s3ServiceImpl;
+    private final S3Service s3Service;
 
     public void updateUser(UserDetailsImpl userDetails, InformationModificationRequestDto informationModificationRequestDto) {
         // 유저 조회, 존재하지 않는 경우 예외처리
@@ -132,7 +131,7 @@ public class UserService {
         // 프로필 이미지가 있으면 presigned URL 생성
         String profileImageUrl = "";
         if (user.getProfileMedia() != null) {
-           profileImageUrl = s3ServiceImpl.getDownloadPresignedUrl(user.getProfileMedia().getMediaLink());
+           profileImageUrl = s3Service.getDownloadPresignedUrl(user.getProfileMedia().getMediaLink());
         }
 
         log.info("마이페이지 조회 완료: 학번={}", user.getStudentId());

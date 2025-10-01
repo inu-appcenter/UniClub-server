@@ -5,5 +5,5 @@ public enum NotificationType {
     FEDERATION, //총동연
     CLUB,   //동아리
     PERSONAL,   //개인
-    QNA,    //질문게시판
+    QNA;    //질문게시판
 }
