@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 public class DescriptionMediaDto {
     private final String mediaLink;
     private final MediaType mediaType;
-    private final boolean isMain;
+    private final boolean main;
     private final LocalDateTime updatedAt;
 
     @Builder
-    public DescriptionMediaDto(String mediaLink, MediaType mediaType, boolean isMain, LocalDateTime updatedAt) {
+    public DescriptionMediaDto(String mediaLink, MediaType mediaType, boolean main, LocalDateTime updatedAt) {
         this.mediaLink = mediaLink;
         this.mediaType = mediaType;
-        this.isMain = isMain;
+        this.main = main;
         this.updatedAt = updatedAt;
     }
 
@@ -26,7 +26,7 @@ public class DescriptionMediaDto {
         return DescriptionMediaDto.builder()
                 .mediaLink(presingedUrl)
                 .mediaType(media.getMediaType())
-                .isMain(media.isMainMedia())
+                .main(media.isMainMedia())
                 .updatedAt(media.getUpdateAt())
                 .build();
     }

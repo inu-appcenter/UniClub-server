@@ -60,14 +60,13 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
 
 
     @Query("""
-    select c
-    from Club c
-    join Media m on m.club = c and m.mainMedia = true
-    where c.deleted = false
-    order by function('rand')
+    SELECT NEW com.uniclub.domain.main.dto.MainPageClubResponseDto(c.clubId, c.name, m.mediaLink, CASE WHEN f.favoriteId IS NOT NULL THEN true ELSE false END)
+    FROM Club c
+    LEFT JOIN Media m ON m.club = c AND m.mainMedia = true
+    LEFT JOIN Favorite f ON f.club = c AND f.user.userId = :userId
+    WHERE c.deleted = false
+    ORDER BY RAND()
     """)
-    List<Club> getMainPageClubs(Pageable pageable);
-
     String findNameByClubId(Long clubId);
 
 
@@ -81,5 +80,7 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     @Query("SELECT c FROM Club c WHERE DATE(c.endTime) = DATE(CURRENT_DATE + :days) AND c.status = 'ACTIVE'")
     List<Club> findRecruitmentEndingInDays(@Param("days") int days);
 
+
+    List<MainPageClubResponseDto> getMainPageClubs(@Param("userId") Long userId, Pageable pageable);
 
 }

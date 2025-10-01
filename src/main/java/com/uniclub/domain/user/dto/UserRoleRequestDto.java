@@ -8,9 +8,9 @@ import lombok.Getter;
 @Schema(description = "유저 권한 부여 요청 DTO")
 @Getter
 public class UserRoleRequestDto {
-    @Schema(description = "사용자 이름", example = "홍길동")
+    @Schema(description = "사용자 학번", example = "201901237")
     @NotBlank(message = "이름을 입력해주세요.")
-    private String userName;
+    private String studentId;
     
     @Schema(description = "동아리 이름", example = "앱센터")
     @NotBlank(message = "동아리 이름을 입력해주세요.")

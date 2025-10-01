@@ -101,7 +101,7 @@ public class UserService {
 
     // 유저 권한부여 테스트용 API
     public void addRole(UserRoleRequestDto userRoleRequestDto) {
-        User user = userRepository.findByName(userRoleRequestDto.getUserName()).
+        User user = userRepository.findByStudentId(userRoleRequestDto.getStudentId()).
                 orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Club club = clubRepository.findByName(userRoleRequestDto.getClubName()).
