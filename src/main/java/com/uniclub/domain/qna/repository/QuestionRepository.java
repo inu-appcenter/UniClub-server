@@ -30,4 +30,11 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             "AND q.deleted = false " +
             "ORDER BY q.updateAt DESC")
     Slice<Object[]> searchQuestionsWithAnswerCount(String keyword, Long clubId, boolean answered, Long userId, Pageable pageable);
+
+    //Question Entity와 메핑된 Club 조회
+    @Query("SELECT q FROM Question q " +
+            "JOIN FETCH q.club " +
+            "WHERE q.questionId = :questionId " +
+            "AND q.deleted = false")
+    Optional<Question> findByIdWithClub(Long questionId);
 }

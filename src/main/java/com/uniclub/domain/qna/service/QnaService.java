@@ -1,9 +1,11 @@
 package com.uniclub.domain.qna.service;
 
 import com.uniclub.domain.club.entity.Club;
+import com.uniclub.domain.club.entity.MemberShip;
 import com.uniclub.domain.club.entity.Role;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.club.repository.MembershipRepository;
+import com.uniclub.domain.notification.service.NotificationEventProcessor;
 import com.uniclub.domain.qna.dto.*;
 import com.uniclub.domain.qna.entity.Answer;
 import com.uniclub.domain.qna.entity.Question;
@@ -26,13 +28,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class
-QnaService {
+public class QnaService {
 
     private final ClubRepository clubRepository;
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final MembershipRepository membershipRepository;
+    private final NotificationEventProcessor notificationEventProcessor;
 
 
     //Qna 페이지 다중 질문 조회
@@ -97,6 +99,9 @@ QnaService {
         Question question = questionCreateRequestDto.toQuestionEntity(userDetails.getUser(), club);
         questionRepository.save(question);
         log.info("질문 등록 완료: {}", question.getQuestionId());
+
+        notificationEventProcessor.questionRegistered(question.getQuestionId(), clubId);
+
         return QuestionCreateResponseDto.from(question);
     }
 
@@ -152,15 +157,22 @@ QnaService {
                 .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_NOT_FOUND));
 
         //상위 댓글 존재하는지 확인
-        Answer parentsAnswer = answerRepository.findById(parentsAnswerId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_NOT_FOUND));
+        Answer parentsAnswer = answerRepository.findById(parentsAnswerId).orElseThrow(
+                () -> new CustomException(ErrorCode.QUESTION_NOT_FOUND)
+        );
 
         Answer answer = answerCreateRequestDto.toEntity(userDetails, question, parentsAnswer);
 
         //저장
         answerRepository.save(answer);
-
         log.info("답변 등록 완료: {}", answer.getAnswerId());
+
+        //푸시 알림 전송 및 알림 엔티티 저장
+        notificationEventProcessor.answerRegisterd(questionId, answer.getAnswerId(), question.getContent(), question.getUser().getUserId());
+        if (parentsAnswer != null) {    //대댓글 알림
+            notificationEventProcessor.replyRegistered(questionId, parentsAnswerId, question.getContent());
+        }
+
         return AnswerCreateResponseDto.from(answer);
     }
 
@@ -188,12 +200,12 @@ QnaService {
 
     //회장이 질문을 답변 완료로 표시
     public void markQuestionAsAnswered(UserDetailsImpl userDetails, Long questionId) {
-        Question question = questionRepository.findById(questionId)
+        Question question = questionRepository.findByIdWithClub(questionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_NOT_FOUND));
 
         // 해당 동아리의 회장인지 확인
         Role userRole = membershipRepository.findByUserIdAndClubId(userDetails.getUserId(), question.getClub().getClubId())
-                .map(membership -> membership.getRole())
+                .map(MemberShip::getRole)
                 .orElse(Role.GUEST);
 
         if (userRole != Role.PRESIDENT) {

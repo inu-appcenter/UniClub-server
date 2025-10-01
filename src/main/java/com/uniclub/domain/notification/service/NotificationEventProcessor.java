@@ -38,17 +38,17 @@ public class NotificationEventProcessor {
         log.info("동아리 모집 시작 푸시 알림 전송 시작: clubId={}, clubName={}", clubId, clubName);
 
         try{
-            List<Long> favoritedUserIds = getFavoriteUserIds(clubId);
+            List<Long> favoriteUserIds = getFavoriteUserIds(clubId);
 
-            if (favoritedUserIds.isEmpty()) {
+            if (favoriteUserIds.isEmpty()) {
                 log.info("관심 등록한 유저 없음: clubId={}, clubName={}", clubId, clubName);
                 return;
             }
 
-            String title = "UniClub";
+            String title = String.format("%s 모집 시작", clubName);
             String message = String.format("%s 동아리의 모집이 시작되었습니다!", clubName);
 
-            processNotification(favoritedUserIds, title, message, NotificationType.CLUB, clubId);
+            processNotification(favoriteUserIds, title, message, NotificationType.CLUB, clubId);
 
         } catch (Exception e) {
             log.warn("동아리 모집 시작 푸시 알림 전송 중 오류: clubId={}, clubName={}", clubId, clubName);
@@ -69,7 +69,7 @@ public class NotificationEventProcessor {
                 return;
             }
 
-            String title = "UniClub";
+            String title = String.format("%s 동아리 모집 마감 예정", clubName);
             String message = String.format("%s 동아리의 모집이 %d일 후 마감됩니다!", clubName, dayLeft);
 
             processNotification(favoritedUserIds, title, message, NotificationType.CLUB, clubId);
@@ -79,7 +79,7 @@ public class NotificationEventProcessor {
         }
     }
 
-    //동아리 모집 마감 처리
+    //동아리 모집 마감 처리(사용 안 함)
     @Async("messageExecutor")
     public void clubRecruitmentEnded(Long clubId) {
         String clubName = getClubName(clubId);
@@ -105,11 +105,11 @@ public class NotificationEventProcessor {
 
     //답변 등록
     @Async("messageExecutor")
-    public void answerRegisterd(Long questionId, Long answerId, String questionTitle, Long questionerId) {
+    public void answerRegisterd(Long questionId, Long answerId, String content, Long questionerId) {
         log.info("답변 등록 푸시 알림 전송 시작: qustionId={}, answerId={}", questionId, answerId);
 
         try {
-            String title = questionTitle;
+            String title = truncateContent(content, 15);
             String message = "질문에 새로운 답변이 등록되었습니다.";
 
             processNotification(List.of(questionerId), title, message, NotificationType.QNA, questionId);
@@ -133,8 +133,8 @@ public class NotificationEventProcessor {
                 return;
             }
 
-            String title = clubName;
-            String message = "동아리에 새로운 질문이 등록되었습니다!";
+            String title = "답변을 기다리고 있는 질문이 있어요!";
+            String message = String.format("%s 동아리에 새로운 질문이 등록되었습니다.", clubName);
 
             processNotification(List.of(clubPresidentId), title, message, NotificationType.QNA, questionId);
 
@@ -145,12 +145,12 @@ public class NotificationEventProcessor {
 
     //대댓글 알림
     @Async("messageExecutor")
-    public void replyRegistered(Long questionId, Long answererId, String questionTitle) {
+    public void replyRegistered(Long questionId, Long answererId, String content) {
         log.info("대댓글 등록 푸시 알림 전송 시작: questionId={}", questionId);
 
         try {
-            String title = questionTitle;
-            String message = "대댓글이 등록되었습니다.";
+            String title = truncateContent(content, 15);
+            String message = "새로운 대댓글이 등록되었습니다.";
 
             processNotification(List.of(answererId), title, message, NotificationType.QNA, questionId);
 
@@ -220,6 +220,15 @@ public class NotificationEventProcessor {
     private Long getClubPresidentId(Long clubId) {
         return membershipRepository.findUserIdByClubIdAndRole(clubId, Role.PRESIDENT)
                 .orElseThrow(null);
+    }
+
+    //질문 내용 자르기
+    private String truncateContent(String content, int maxLength) {
+        String trimmed = content.trim();
+        if (trimmed.length() <= maxLength) {
+            return trimmed;
+        }
+        return trimmed.substring(0, maxLength) + "...";
     }
 
 

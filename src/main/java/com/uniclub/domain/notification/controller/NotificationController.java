@@ -5,12 +5,14 @@ import com.uniclub.domain.notification.service.NotificationService;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.swagger.NotificationApiSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,15 +20,15 @@ import java.util.List;
 public class NotificationController implements NotificationApiSpecification {
 
     private final NotificationService notificationService;
-/*
-    @GetMapping("/unread")
-    public ResponseEntity<List<NotificationResponseDto>> getUnReadNotifications(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        notificationService.getUnReadNotifications(userDetails);
-    }
 
-    @GetMapping("/read")
-    public ResponseEntity<List<NotificationResponseDto>> getReadNotifications(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-
+    @GetMapping
+    public ResponseEntity<Page<NotificationResponseDto>> getNotifications(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) Boolean isRead
+    ) {
+        Page<NotificationResponseDto> notificationResponseDtoPage = notificationService.getNotifications(userDetails, pageable, isRead);
+        return ResponseEntity.status(HttpStatus.OK).body(notificationResponseDtoPage);
     }
 
     @PatchMapping("/{notificationId}/read")
@@ -41,5 +43,5 @@ public class NotificationController implements NotificationApiSpecification {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
- */
+
 }

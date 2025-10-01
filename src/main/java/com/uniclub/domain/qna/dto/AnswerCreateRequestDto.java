@@ -27,6 +27,7 @@ public class AnswerCreateRequestDto {
                 .content(content)
                 .anonymous(anonymous)
                 .question(question)
+                .user(userDetails.getUser())
                 .parentAnswer(parentAnswer)
                 .build();
     }
