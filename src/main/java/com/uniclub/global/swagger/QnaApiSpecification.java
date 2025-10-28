@@ -95,6 +95,46 @@ public interface QnaApiSpecification {
                           "updateTime": "2025-08-25T11:00:00",
                           "parentAnswerId": null,
                           "owner": false
+                        },
+                        {
+                          "answerId": 2,
+                          "nickname": "익명1",
+                          "content": "저도 궁금했어요!",
+                          "anonymous": true,
+                          "deleted": false,
+                          "updateTime": "2025-08-25T11:30:00",
+                          "parentAnswerId": null,
+                          "owner": false
+                        },
+                        {
+                          "answerId": 3,
+                          "nickname": "익명(작성자)",
+                          "content": "감사합니다!",
+                          "anonymous": true,
+                          "deleted": false,
+                          "updateTime": "2025-08-25T12:00:00",
+                          "parentAnswerId": 1,
+                          "owner": true
+                        },
+                        {
+                          "answerId": 4,
+                          "nickname": "탈퇴한 사용자",
+                          "content": "도움이 되었네요.",
+                          "anonymous": true,
+                          "deleted": false,
+                          "updateTime": "2025-08-25T12:30:00",
+                          "parentAnswerId": 1,
+                          "owner": false
+                        },
+                        {
+                          "answerId": 5,
+                          "nickname": "익명2",
+                          "content": "추가 질문이 있어요.",
+                          "anonymous": true,
+                          "deleted": false,
+                          "updateTime": "2025-08-25T13:00:00",
+                          "parentAnswerId": null,
+                          "owner": false
                         }
                       ],
                       "owner": true,

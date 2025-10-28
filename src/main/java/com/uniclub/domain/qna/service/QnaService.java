@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -71,22 +73,38 @@ public class QnaService {
         Question question = questionRepository.findByIdWithUser(questionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_NOT_FOUND));
 
-        //questionId로 답변과 User를 fetch join하여 조회 (삭제된 답변 제외하되, 자식답변이 있는 삭제된 답변은 포함)
+        //questionId로 답변과 User를 fetch join하여 조회 (삭제된 답변은 자식답변이 있는 경우에만 조회)
         List<Answer> answerList = answerRepository.findByQuestionIdWithUser(questionId);
 
-        //반환할 Answer
-        List<AnswerResponseDto> answerResponseDtoList = new ArrayList<>();
-
+        Long questionAuthorId = question.getUser().getUserId();
         Long userId = userDetails.getUserId();
+
+
+        // 유저 - 익명번호 매핑 map 생성
+        Map<Long, Integer> anonymousNumberMap = createAnonymousNumberMap(answerList, questionAuthorId, questionId);
+
+        List<AnswerResponseDto> answerResponseDtoList = new ArrayList<>();
         for (Answer answer : answerList) {
-            answerResponseDtoList.add(AnswerResponseDto.from(answer, userId));
+            Integer anonymousNumber = null;
+            // 삭제된 유저가 아니고, 익명이고 글 작성자가 아니면 익명번호 부여, 글 작성자라면 anonymousNumber는 null
+            if (answer.isAnonymous() && answer.getUser() != null && !answer.getUser().isDeleted() && !answer.getUser().getUserId().equals(questionAuthorId)) {
+                anonymousNumber = anonymousNumberMap.get(answer.getUser().getUserId());
+            }
+
+            // 익명(작성자), 닉네임, 익명1 등 보여지는 이름
+            String displayName = createDisplayName(answer, anonymousNumber, questionAuthorId);
+            // 댓글 작성자 본인여부
+            boolean owner = answer.getUser() != null && !answer.getUser().isDeleted() &&
+                    answer.getUser().getUserId().equals(userId);
+
+            answerResponseDtoList.add(AnswerResponseDto.from(answer, displayName, owner));
         }
 
         // 동아리 회장 여부 확인
         boolean president = membershipRepository.findByUserIdAndClubId(userId, question.getClub().getClubId())
                 .map(membership -> membership.getRole() == Role.PRESIDENT)
                 .orElse(false);
-        
+
         return QuestionResponseDto.from(question, answerResponseDtoList, userId, president);
     }
 
@@ -194,7 +212,7 @@ public class QnaService {
         }
 
         existingAnswer.softDelete();
-        
+
         log.info("답변 삭제 완료: {}", existingAnswer.getAnswerId());
     }
 
@@ -215,6 +233,62 @@ public class QnaService {
         // 답변 완료로 표시
         question.markAsAnswered();
         log.info("질문 답변완료 처리: questionId={}, 처리자={}", questionId, userDetails.getStudentId());
+    }
+
+
+    private Map<Long, Integer> createAnonymousNumberMap(List<Answer> answerList, Long questionAuthorId, Long questionId) {
+        Map<Long, Integer> anonymousNumberMap = new HashMap<>();
+
+        // 모든 답변(삭제된 답변 포함)의 최대 익명번호 조회
+        Integer maxExistingOrder = answerRepository.findMaxAnonymousOrderByQuestionId(questionId);
+        if (maxExistingOrder == null) {
+            maxExistingOrder = 0;
+        }
+        // 새로 생긴 댓글 익명번호는 기존 최대 익명번호 + 1
+        int anonymousCounter = maxExistingOrder + 1;
+
+        for (Answer answer : answerList) {
+            // 삭제된 답변은 map에 추가 X
+            if (answer.isAnonymous() && answer.getUser() != null && !answer.getUser().isDeleted()) {
+                Long answerUserId = answer.getUser().getUserId();
+                // 질문 작성자가 아닌 경우에만 익명번호 부여, 같은 유저는 같은 익명번호 사용
+                if (!answerUserId.equals(questionAuthorId) && !anonymousNumberMap.containsKey(answerUserId)) {
+                    // 기존에 익명번호가 부여돼있는 답변은 map에 그대로 들어가고, 새로운 답변은 익명번호 추가
+                    if (answer.getAnonymousOrder() == null) {
+                        answer.assignAnonymousOrderIfNull(anonymousCounter++);
+                    }
+                    anonymousNumberMap.put(answerUserId, answer.getAnonymousOrder());
+                }
+            }
+        }
+        return anonymousNumberMap;
+    }
+
+    private String createDisplayName(Answer answer, Integer anonymousNumber, Long questionAuthorId) {
+        boolean isQuestionAuthor = answer.getUser() != null && answer.getUser().getUserId().equals(questionAuthorId);
+
+        // 탈퇴한 사용자인 경우
+        if (answer.getUser() == null || answer.getUser().isDeleted()) {
+            return "탈퇴한 사용자";
+        }
+
+        // 익명인 경우
+        else if (answer.isAnonymous()) {
+            if (isQuestionAuthor) {
+                return "익명(작성자)";
+            } else {
+                return "익명" + anonymousNumber;
+            }
+        }
+
+        // 익명이 아닌 경우(닉네임)
+        else {
+            String displayName = answer.getUser().getNickname();
+            if (isQuestionAuthor) {
+                displayName += "(작성자)";
+            }
+            return displayName;
+        }
     }
 
 }

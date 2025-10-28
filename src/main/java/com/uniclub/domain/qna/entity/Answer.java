@@ -27,6 +27,9 @@ public class Answer extends BaseTime {
     @Column(nullable = false)
     private boolean anonymous;
 
+    @Column
+    private Integer anonymousOrder;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "questionId")
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -42,11 +45,18 @@ public class Answer extends BaseTime {
     private Answer parentAnswer;
 
     @Builder
-    public Answer(String content, boolean anonymous, Question question, User user, Answer parentAnswer) {
+    public Answer(String content, boolean anonymous, Integer anonymousOrder, Question question, User user, Answer parentAnswer) {
         this.content = content;
         this.anonymous = anonymous;
+        this.anonymousOrder = anonymousOrder;
         this.question = question;
         this.user = user;
         this.parentAnswer = parentAnswer;
+    }
+
+    public void assignAnonymousOrderIfNull(Integer order) {
+        if (this.anonymousOrder == null) {
+            this.anonymousOrder = order;
+        }
     }
 }

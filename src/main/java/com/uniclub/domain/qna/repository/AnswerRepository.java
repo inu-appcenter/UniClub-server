@@ -23,9 +23,14 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     boolean existsChildAnswersByParentId(Long answerId);
 
     //questionId로 답변과 User를 fetch join하여 호출 (삭제된 답변 제외하되, 자식답변이 있는 삭제된 답변은 포함)
-    @Query("SELECT a FROM Answer a JOIN FETCH a.user " +
+    @Query("SELECT a FROM Answer a LEFT JOIN FETCH a.user " +
            "WHERE a.question.questionId = :questionId " +
            "AND (a.deleted = false OR " +
-           "(a.deleted = true AND EXISTS (SELECT 1 FROM Answer child WHERE child.parentAnswer.answerId = a.answerId AND child.deleted = false)))")
+           "(a.deleted = true AND EXISTS (SELECT 1 FROM Answer child WHERE child.parentAnswer.answerId = a.answerId AND child.deleted = false))) " +
+           "ORDER BY a.createdAt ASC, a.answerId ASC")
     List<Answer> findByQuestionIdWithUser(Long questionId);
+
+    //해당 질문의 최대 anonymousOrder 조회
+    @Query("SELECT MAX(a.anonymousOrder) FROM Answer a WHERE a.question.questionId = :questionId")
+    Integer findMaxAnonymousOrderByQuestionId(Long questionId);
 }

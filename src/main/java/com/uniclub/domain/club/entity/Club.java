@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Getter
@@ -20,7 +21,7 @@ public class Club extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long clubId; // PK
 
-    @Column(nullable = false, length = 20, unique = true)
+    @Column(nullable = false, length = 50, unique = true)
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -103,5 +104,11 @@ public class Club extends BaseTime {
         if (applicationFormLink != null) this.applicationFormLink = applicationFormLink;
     }
 
+    @Override
+    public void softDelete() {
+        super.softDelete();
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+        this.name = "d_" + timestamp + "_" + this.name;
+    }
 
 }
