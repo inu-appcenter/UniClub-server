@@ -1,5 +1,6 @@
 package com.uniclub.global.exception;
 
+import com.google.firebase.FirebaseException;
 import com.uniclub.global.util.CustomLogger;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -102,5 +103,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SdkClientException.class)
     public ResponseEntity<ErrorResponse> handleSdkClientException(SdkClientException e) {
         return CustomLogger.errorLog("S3 연결 클라이언트 오류 발생", ErrorCode.S3_CONNECTION_ERROR, e);
+    }
+
+    //Firebase 관련 오류
+    @ExceptionHandler(FirebaseException.class)
+    public ResponseEntity<ErrorResponse> handleFirebaseException(FirebaseException e) {
+        return CustomLogger.errorLog("Firebase 서비스 오류 발생", ErrorCode.FIREBASE_SERVICE_ERROR, e);
     }
 }

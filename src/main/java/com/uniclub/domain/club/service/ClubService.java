@@ -13,7 +13,7 @@ import com.uniclub.domain.favorite.repository.FavoriteRepository;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
-import com.uniclub.global.s3.S3ServiceImpl;
+import com.uniclub.global.s3.S3Service;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class ClubService {
     private final MembershipRepository membershipRepository;
     private final FavoriteRepository favoriteRepository;
     private final MediaRepository mediaRepository;
-    private final S3ServiceImpl s3ServiceImpl;
+    private final S3Service s3Service;
 
     //동아리 목록 조회
     @Transactional(readOnly = true)
@@ -95,7 +95,7 @@ public class ClubService {
             Media clubProfileMedia = clubProfileMap.get(club.getClubId());
             String clubProfileUrl = "";
             if (clubProfileMedia != null) {
-                clubProfileUrl = s3ServiceImpl.getDownloadPresignedUrl(clubProfileMedia.getMediaLink());
+                clubProfileUrl = s3Service.getDownloadPresignedUrl(clubProfileMedia.getMediaLink());
             }
 
             ClubResponseDto clubResponseDto = ClubResponseDto.from(club, isFavorite, clubProfileUrl);
@@ -136,7 +136,7 @@ public class ClubService {
         log.info("동아리 생성 시작: 동아리명={}", clubCreateRequestDto.getName());
         if (clubRepository.existsByName(clubCreateRequestDto.getName())){   //동아리 이름 중복 검증
             throw new CustomException(ErrorCode.DUPLICATE_CLUB_NAME);
-        };
+        }
 
         // String -> categoryType 변환
         CategoryType categoryType = EnumConverter.stringToEnum(clubCreateRequestDto.getCategory(), CategoryType.class, ErrorCode.CATEGORY_NOT_FOUND);
@@ -300,7 +300,7 @@ public class ClubService {
         boolean favorite = favoriteRepository.existsByUserIdAndClubId(userDetails.getUserId(), clubId);
         List<DescriptionMediaDto> mediaResList = new ArrayList<>();
         for (Media media : mediaList) {
-            String presignedUrl = s3ServiceImpl.getDownloadPresignedUrl(media.getMediaLink());
+            String presignedUrl = s3Service.getDownloadPresignedUrl(media.getMediaLink());
             mediaResList.add(DescriptionMediaDto.from(media, presignedUrl));
         }
         return ClubPromotionResponseDto.from(checkRole(userDetails.getUserId(), clubId), club, favorite, mediaResList);

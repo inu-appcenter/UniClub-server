@@ -1,5 +1,7 @@
 package com.uniclub.domain.auth.dto;
 
+import com.uniclub.domain.user.entity.Major;
+import com.uniclub.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,6 +20,7 @@ public class RegisterRequestDto {
     @Schema(description = "사용자 이름", example = "홍길동")
     @NotBlank(message = "이름을 입력해주세요.")
     private String name;
+
 
     @Schema(description = "사용자 전공", example = "COMPUTER_ENGINEERING")
     @NotBlank(message = "전공을 입력해주세요.")

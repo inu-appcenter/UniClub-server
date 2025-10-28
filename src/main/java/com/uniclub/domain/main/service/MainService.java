@@ -1,29 +1,23 @@
 package com.uniclub.domain.main.service;
 
-import com.uniclub.domain.club.dto.ClubMediaUploadRequestDto;
 import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.entity.Media;
 import com.uniclub.domain.club.entity.MediaType;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.club.repository.MediaRepository;
+import com.uniclub.domain.favorite.repository.FavoriteRepository;
 import com.uniclub.domain.main.dto.MainMediaUploadRequestDto;
 import com.uniclub.domain.main.dto.MainPageClubResponseDto;
 import com.uniclub.domain.main.dto.MainPageMediaResponseDto;
-import com.uniclub.global.exception.CustomException;
-import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.s3.S3Service;
-import com.uniclub.global.s3.S3ServiceImpl;
 import com.uniclub.global.security.UserDetailsImpl;
-import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +30,9 @@ public class MainService {
 
     private final ClubRepository clubRepository;
     private final MediaRepository mediaRepository;
-    private final S3ServiceImpl s3ServiceImpl;
+    private final FavoriteRepository favoriteRepository;
+    private final S3Service s3Service;
+
 
 
     //메인 페이지 베너 호출
@@ -45,7 +41,7 @@ public class MainService {
         List<Media> mainPageMediaList = mediaRepository.findByMediaType(MediaType.MAIN_PAGE);
         List<MainPageMediaResponseDto> mainPageMediaDtoList = new ArrayList<>();
         for (Media media : mainPageMediaList) {
-            String presignedUrl = s3ServiceImpl.getDownloadPresignedUrl(media.getMediaLink());
+            String presignedUrl = s3Service.getDownloadPresignedUrl(media.getMediaLink());
             mainPageMediaDtoList.add(MainPageMediaResponseDto.from(media, presignedUrl));
         }
         return mainPageMediaDtoList;
@@ -55,7 +51,6 @@ public class MainService {
     //메인 페이지 동아리 목록 호출
     @Transactional(readOnly = true)
     public List<MainPageClubResponseDto> getMainPageClubs(UserDetailsImpl userDetails){
-        log.info("메인페이지 동아리 목록 조회 시작");
 
         // JOIN으로 좋아요 정보, S3 키 모두 가져옴
         List<MainPageClubResponseDto> clubList =
@@ -66,7 +61,7 @@ public class MainService {
         for (MainPageClubResponseDto dto : clubList) {
             String imageUrl = dto.getImageUrl();
             if (imageUrl != null) {
-                imageUrl = s3ServiceImpl.getDownloadPresignedUrl(imageUrl);
+                imageUrl = s3Service.getDownloadPresignedUrl(imageUrl);
             }
 
             // S3 키 -> presigned url를 가진 Dto 생성 후 반환
@@ -79,7 +74,6 @@ public class MainService {
 
             mainPageClubResponseDtoList.add(responseDto);
         }
-        log.info("메인페이지 동아리 목록 조회 성공: 학번 = {}", userDetails.getUserId());
         return mainPageClubResponseDtoList;
     }
 

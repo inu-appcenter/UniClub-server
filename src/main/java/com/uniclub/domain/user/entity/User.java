@@ -4,6 +4,7 @@ import com.uniclub.domain.club.entity.Media;
 import com.uniclub.global.util.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -41,7 +42,7 @@ public class User extends BaseTime {
     @Column(nullable = false)
     private boolean notificationEnabled;    //알림설정
 
-
+    @Builder
     public User(String name, String studentId, Major major, String nickname) {
         this.name = name;
         this.studentId = studentId;
