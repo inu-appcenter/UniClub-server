@@ -67,7 +67,7 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     WHERE c.deleted = false
     ORDER BY RAND()
     """)
-    List<Club> getMainPageClubs(Pageable pageable);
+    List<MainPageClubResponseDto> getMainPageClubs(@Param("userId") Long userId, Pageable pageable);
 
     String findNameByClubId(Long clubId);
 
