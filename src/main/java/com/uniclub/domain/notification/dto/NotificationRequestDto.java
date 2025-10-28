@@ -26,12 +26,4 @@ public class NotificationRequestDto {
     @NotEmpty(message = "알림을 받을 유저를 명시해주세요.")
     private List<@NotBlank(message = "학번은 빈 값일 수 없습니다.") String> studentIds;
 
-    // 저장을 위해 알림 객체 생성
-    public Notification toNotificationEntity(User user, NotificationType type) {
-        return Notification.builder()
-                .user(user)
-                .message(message)
-                .type(type)
-                .build();
-    }
 }
