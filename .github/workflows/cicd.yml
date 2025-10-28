@@ -41,6 +41,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: cache clean
+        run: ./gradlew clean
+
       - name: Run build with Gradle Wrapper
         run: ./gradlew build -x test
 
