@@ -262,7 +262,7 @@ public class QnaService {
         // 익명인 경우
         else if (answer.isAnonymous()) {
             if (isQuestionAuthor) {
-                return "익명(작성자)";
+                return "작성자";
             } else {
                 return "익명" + anonymousNumber;
             }
