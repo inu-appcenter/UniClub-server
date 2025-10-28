@@ -90,7 +90,7 @@ public class MainService {
             mediaRepository.save(media);
 
             // 업로드된 미디어 정보 추가 (URL에서 파일명만 추출)
-            String fileName = extractFileName(mainMedi  aUploadRequestDto.getMediaLink());
+            String fileName = extractFileName(mainMediaUploadRequestDto.getMediaLink());
             uploadedMediaInfo.add("MAIN_PAGE" + ":" + fileName);
         }
         log.info("메인페이지 미디어 업로드 완료: upload_media={}", uploadedMediaInfo);
