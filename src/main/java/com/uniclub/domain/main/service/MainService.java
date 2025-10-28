@@ -5,7 +5,6 @@ import com.uniclub.domain.club.entity.Media;
 import com.uniclub.domain.club.entity.MediaType;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.club.repository.MediaRepository;
-import com.uniclub.domain.favorite.repository.FavoriteRepository;
 import com.uniclub.domain.main.dto.MainMediaUploadRequestDto;
 import com.uniclub.domain.main.dto.MainPageClubResponseDto;
 import com.uniclub.domain.main.dto.MainPageMediaResponseDto;
@@ -34,6 +33,7 @@ public class MainService {
     private final S3Service s3Service;
 
 
+
     //메인 페이지 베너 호출
     @Transactional(readOnly = true)
     public List<MainPageMediaResponseDto> getMainPageMedia() {
@@ -50,33 +50,28 @@ public class MainService {
     //메인 페이지 동아리 목록 호출
     @Transactional(readOnly = true)
     public List<MainPageClubResponseDto> getMainPageClubs(UserDetailsImpl userDetails){
-        List<Club> clubList = clubRepository.getMainPageClubs(PageRequest.of(0,6));
-        
-        // 유저가 관심 등록한 동아리 목록
-        Set<Long> favoriteSet = new HashSet<>(
-                favoriteRepository.findClubIdsByUserId(userDetails.getUserId())
-        );
-        
-        // 동아리 목록에서 메인 이미지만 가져와서 DTO 생성
-        List<MainPageClubResponseDto> mainPageClubResponseDtoList = new ArrayList<>();
-        for (Club club : clubList) {
-            // 해당 동아리의 메인 이미지만 가져오기
-            Media mainImage = mediaRepository.findMainImageByClubId(club.getClubId());
-            String imageUrl = "";
 
-            if (mainImage != null) {
-                imageUrl = s3Service.getDownloadPresignedUrl(mainImage.getMediaLink());
+        // JOIN으로 좋아요 정보, S3 키 모두 가져옴
+        List<MainPageClubResponseDto> clubList =
+                clubRepository.getMainPageClubs(userDetails.getUserId(), PageRequest.of(0,6));
+        
+        // 이미지 URL만 presigned URL로 변환
+        List<MainPageClubResponseDto> mainPageClubResponseDtoList = new ArrayList<>();
+        for (MainPageClubResponseDto dto : clubList) {
+            String imageUrl = dto.getImageUrl();
+            if (imageUrl != null) {
+                imageUrl = s3Service.getDownloadPresignedUrl(imageUrl);
             }
-            
-            boolean isFavorite = favoriteSet.contains(club.getClubId());
-            MainPageClubResponseDto dto = MainPageClubResponseDto.builder()
-                    .clubId(club.getClubId())
-                    .name(club.getName())
+
+            // S3 키 -> presigned url를 가진 Dto 생성 후 반환
+            MainPageClubResponseDto responseDto = MainPageClubResponseDto.builder()
+                    .clubId(dto.getClubId())
+                    .name(dto.getName())
                     .imageUrl(imageUrl)
-                    .favorite(isFavorite)
+                    .favorite(dto.isFavorite())
                     .build();
 
-            mainPageClubResponseDtoList.add(dto);
+            mainPageClubResponseDtoList.add(responseDto);
         }
         return mainPageClubResponseDtoList;
     }
@@ -95,7 +90,7 @@ public class MainService {
             mediaRepository.save(media);
 
             // 업로드된 미디어 정보 추가 (URL에서 파일명만 추출)
-            String fileName = extractFileName(mainMediaUploadRequestDto.getMediaLink());
+            String fileName = extractFileName(mainMedi  aUploadRequestDto.getMediaLink());
             uploadedMediaInfo.add("MAIN_PAGE" + ":" + fileName);
         }
         log.info("메인페이지 미디어 업로드 완료: upload_media={}", uploadedMediaInfo);
