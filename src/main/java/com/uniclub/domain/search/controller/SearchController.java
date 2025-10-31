@@ -29,4 +29,5 @@ public class SearchController implements SearchApiSpecification {
         List<ClubResponseDto> clubResponseDtoList = searchService.search(userDetails, keyword);
         return ResponseEntity.status(HttpStatus.OK).body(clubResponseDtoList);
     }
+
 }

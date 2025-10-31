@@ -235,6 +235,14 @@ public class QnaService {
         log.info("질문 답변완료 처리: questionId={}, 처리자={}", questionId, userDetails.getStudentId());
     }
 
+    @Transactional(readOnly = true)
+    public List<QnaClubResponseDto> getSearchClubs(String keyword) {
+        //키워드 공란일시
+        if (keyword == null || keyword.isBlank()) {
+            return clubRepository.searchAllClubsForQna();
+        }
+        return clubRepository.searchClubsForQna(keyword);
+    }
 
     private Map<Long, Integer> createAnonymousNumberMap(List<Answer> answerList, Long questionAuthorId, Long questionId) {
         Map<Long, Integer> anonymousNumberMap = new HashMap<>();
@@ -290,5 +298,6 @@ public class QnaService {
             return displayName;
         }
     }
+
 
 }
