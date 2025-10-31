@@ -60,13 +60,13 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
 
 
     //전체 조회(키워드 공백시)
-    @Query("SELECT new com.uniclub.domain.qna.dto.QnaClubResponseDto(c.clubId, c.name, cat) " +
+    @Query("SELECT new com.uniclub.domain.qna.dto.QnaClubResponseDto(c.clubId, c.name, cat.name) " +
             "FROM Club c " +
             "INNER JOIN c.category cat " +
             "ORDER BY c.name")
     List<QnaClubResponseDto> searchAllClubsForQna();
 
-    @Query("SELECT new com.uniclub.domain.qna.dto.QnaClubResponseDto(c.clubId, c.name, cat) " +
+    @Query("SELECT new com.uniclub.domain.qna.dto.QnaClubResponseDto(c.clubId, c.name, cat.name) " +
             "FROM Club c " +
             "INNER JOIN c.category cat " +
             "WHERE c.name LIKE %:keyword% " +

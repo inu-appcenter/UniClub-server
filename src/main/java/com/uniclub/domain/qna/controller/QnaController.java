@@ -92,7 +92,7 @@ public class QnaController implements QnaApiSpecification {
 
     //Qna페이지 동아리 검색(키워드 없다면 모든 동아리 조회)
     @GetMapping("/search-clubs")
-    public ResponseEntity<List<QnaClubResponseDto>> getSearchClubs(@RequestParam String keyword){
+    public ResponseEntity<List<QnaClubResponseDto>> getSearchClubs(@RequestParam(required = false) String keyword){
         List<QnaClubResponseDto> QnaClubResponseDtoList = qnaService.getSearchClubs(keyword);
         return ResponseEntity.status(HttpStatus.OK).body(QnaClubResponseDtoList);
     }

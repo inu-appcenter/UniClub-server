@@ -2,6 +2,7 @@ package com.uniclub.domain.qna.dto;
 
 
 import com.uniclub.domain.category.entity.Category;
+import com.uniclub.domain.category.entity.CategoryType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,20 +12,20 @@ import lombok.Getter;
 public class QnaClubResponseDto {
     private final Long clubId;
     private final String clubName;
-    private final Category category;
+    private final CategoryType categoryType;
 
     @Builder
-    public QnaClubResponseDto(Long clubId, String clubName, Category category) {
+    public QnaClubResponseDto(Long clubId, String clubName, CategoryType category) {
         this.clubId = clubId;
         this.clubName = clubName;
-        this.category = category;
+        this.categoryType = category;
     }
 
-    public static QnaClubResponseDto from(Long clubId, String clubName, Category category) {
+    public static QnaClubResponseDto from(Long clubId, String clubName, CategoryType categoryType) {
         return QnaClubResponseDto.builder()
                 .clubId(clubId)
                 .clubName(clubName)
-                .category(category)
+                .category(categoryType)
                 .build();
     }
 }
