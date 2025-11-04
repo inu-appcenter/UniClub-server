@@ -85,7 +85,8 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     """)
     List<MainPageClubResponseDto> getMainPageClubs(@Param("userId") Long userId, Pageable pageable);
 
-    String findNameByClubId(Long clubId);
+    @Query("SELECT c.name FROM Club c WHERE c.clubId = :clubId")
+    String findNameByClubId(@Param("clubId") Long clubId);
 
 
     //알림 스케줄링 관련
