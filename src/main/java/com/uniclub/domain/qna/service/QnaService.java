@@ -175,9 +175,13 @@ public class QnaService {
                 .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_NOT_FOUND));
 
         //상위 댓글 존재하는지 확인
-        Answer parentsAnswer = answerRepository.findById(parentsAnswerId).orElseThrow(
-                () -> new CustomException(ErrorCode.QUESTION_NOT_FOUND)
-        );
+        Answer parentsAnswer = null;
+        if (parentsAnswerId != null) {
+            parentsAnswer = answerRepository.findById(parentsAnswerId).orElseThrow(
+                    () -> new CustomException(ErrorCode.QUESTION_NOT_FOUND)
+            );
+        }
+
 
         Answer answer = answerCreateRequestDto.toEntity(userDetails, question, parentsAnswer);
 
