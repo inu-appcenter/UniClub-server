@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -105,6 +106,7 @@ public class NotificationEventProcessor {
 
     //답변 등록
     @Async("messageExecutor")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void answerRegisterd(Long questionId, Long answerId, String content, Long questionerId) {
         log.info("답변 등록 푸시 알림 전송 시작: qustionId={}, answerId={}", questionId, answerId);
 
@@ -121,6 +123,7 @@ public class NotificationEventProcessor {
 
     //질문 등록 (동아리 회장에게 알림)
     @Async("messageExecutor")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void questionRegistered(Long questionId, Long clubId) {
         String clubName = getClubName(clubId);
         log.info("질문 등록 푸시 알림 전송 시작: questionId={}, clubId={}, clubName={}", questionId, clubId, clubName);
@@ -145,6 +148,7 @@ public class NotificationEventProcessor {
 
     //대댓글 알림
     @Async("messageExecutor")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void replyRegistered(Long questionId, Long answererId, String content) {
         log.info("대댓글 등록 푸시 알림 전송 시작: questionId={}", questionId);
 
