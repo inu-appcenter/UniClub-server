@@ -118,11 +118,8 @@ public class QnaService {
         questionRepository.save(question);
         log.info("질문 등록 완료: {}", question.getQuestionId());
 
-        try {
-            notificationEventProcessor.questionRegistered(question.getQuestionId(), clubId);
-        } catch (CustomException e) {
-            log.error("알림 전송중 오류, 질문은 정상 저장");
-        }
+        notificationEventProcessor.questionRegistered(question.getQuestionId(), clubId);
+
 
 
         return QuestionCreateResponseDto.from(question);
@@ -194,13 +191,9 @@ public class QnaService {
         log.info("답변 등록 완료: {}", answer.getAnswerId());
 
         //푸시 알림 전송 및 알림 엔티티 저장
-        try{
-            notificationEventProcessor.answerRegisterd(questionId, answer.getAnswerId(), question.getContent(), question.getUser().getUserId());
-            if (parentsAnswer != null) {    //대댓글 알림
-                notificationEventProcessor.replyRegistered(questionId, parentsAnswerId, question.getContent());
-            }
-        } catch (CustomException e) {
-            log.error("알림 전송 중 오류, 답변은 정상 저장");
+        notificationEventProcessor.answerRegisterd(questionId, answer.getAnswerId(), question.getContent(), question.getUser().getUserId());
+        if (parentsAnswer != null) {    //대댓글 알림
+            notificationEventProcessor.replyRegistered(questionId, parentsAnswerId, question.getContent());
         }
 
 
