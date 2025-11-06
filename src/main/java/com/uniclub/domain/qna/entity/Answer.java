@@ -35,7 +35,7 @@ public class Answer extends BaseTime {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Question question;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private User user;
