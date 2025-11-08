@@ -18,6 +18,14 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             "AND q.deleted = false")
     Optional<Question> findByIdWithUser(Long questionId);
 
+    //Question Entity와 메핑된 User 조회
+    @Query("SELECT q FROM Question q " +
+            "JOIN FETCH q.user " +
+            "JOIN FETCH q.club " +
+            "WHERE q.questionId = :questionId " +
+            "AND q.deleted = false")
+    Optional<Question> findByIdWithUserAndClub(Long questionId);
+
     @Query("SELECT q, " +
             "(SELECT COUNT(a) FROM Answer a WHERE a.question.questionId = q.questionId AND a.deleted = false) " +
             "FROM Question q " +

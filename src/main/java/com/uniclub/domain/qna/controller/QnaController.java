@@ -71,7 +71,7 @@ public class QnaController implements QnaApiSpecification {
     //답변 등록 및 대댓글
     @PostMapping("/{questionId}/answers")
     public ResponseEntity<AnswerCreateResponseDto> createAnswer(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long questionId, @RequestParam(required = false) Long parentsAnswerId, @Valid @RequestBody AnswerCreateRequestDto answerCreateRequestDto){
-        AnswerCreateResponseDto answerCreateResponseDto = qnaService.createAnswer(userDetails, questionId, parentsAnswerId, answerCreateRequestDto);
+        AnswerCreateResponseDto answerCreateResponseDto = qnaService.createAnswer(userDetails,questionId, parentsAnswerId, answerCreateRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(answerCreateResponseDto);
     }
 

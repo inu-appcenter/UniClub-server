@@ -30,9 +30,6 @@ public class QuestionResponseDto {
     @Schema(description = "질문 수정 시간", example = "2025-08-25T10:30:00")
     private final LocalDateTime updatedAt;
 
-    @Schema(description = "답변 목록")
-    private final List<AnswerResponseDto> answers;
-
     @Schema(description = "본인 질문 여부", example = "true")
     private final boolean owner;
 
@@ -41,6 +38,9 @@ public class QuestionResponseDto {
 
     @Schema(description = "동아리 회장 여부", example = "false")
     private final boolean president;
+
+    @Schema(description = "답변 목록")
+    private final List<AnswerResponseDto> answers;
 
     @Builder
     public QuestionResponseDto(Long questionId, String nickname, String content, boolean anonymous, boolean answered, LocalDateTime updatedAt, List<AnswerResponseDto> answers, boolean owner, String profile, boolean president) {
