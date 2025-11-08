@@ -11,8 +11,10 @@ import com.uniclub.domain.qna.entity.Answer;
 import com.uniclub.domain.qna.entity.Question;
 import com.uniclub.domain.qna.repository.AnswerRepository;
 import com.uniclub.domain.qna.repository.QuestionRepository;
+import com.uniclub.domain.user.repository.UserRepository;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
+import com.uniclub.global.s3.S3Service;
 import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +22,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,7 +35,9 @@ public class QnaService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final MembershipRepository membershipRepository;
+    private final S3Service s3Service;
     private final NotificationEventProcessor notificationEventProcessor;
+    private final UserRepository userRepository;
 
 
     //Qna 페이지 다중 질문 조회
@@ -97,7 +98,25 @@ public class QnaService {
             boolean owner = answer.getUser() != null && !answer.getUser().isDeleted() &&
                     answer.getUser().getUserId().equals(userId);
 
-            answerResponseDtoList.add(AnswerResponseDto.from(answer, displayName, owner));
+            // 답변자 프로필 사진
+            String answererProfile = null;
+            if (!answer.isAnonymous() && answer.getUser() != null && !answer.getUser().isDeleted()) {
+                Optional<String> answererProfileLink = userRepository.findProfileLinkByUserId(answer.getUser().getUserId());
+                if (answererProfileLink.isPresent()) {
+                    answererProfile = s3Service.getDownloadPresignedUrl(answererProfileLink.get());
+                }
+            }
+
+            answerResponseDtoList.add(AnswerResponseDto.from(answer, displayName, owner, answererProfile));
+        }
+
+        // 질문자 프로필 사진
+        String questionerProfile = null;
+        if (!question.isAnonymous() && !question.getUser().isDeleted()) {
+            Optional<String> questionerProfileLink = userRepository.findProfileLinkByUserId(questionAuthorId);
+            if (questionerProfileLink.isPresent()) {
+                questionerProfile = s3Service.getDownloadPresignedUrl(questionerProfileLink.get());
+            }
         }
 
         // 동아리 회장 여부 확인
@@ -105,7 +124,7 @@ public class QnaService {
                 .map(membership -> membership.getRole() == Role.PRESIDENT)
                 .orElse(false);
 
-        return QuestionResponseDto.from(question, answerResponseDtoList, userId, president);
+        return QuestionResponseDto.from(question, answerResponseDtoList, userId, questionerProfile, president);
     }
 
     //질문 등록
