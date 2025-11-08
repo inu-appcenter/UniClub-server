@@ -192,7 +192,7 @@ public class QnaService {
     //답변 등록
     public AnswerCreateResponseDto createAnswer(UserDetailsImpl userDetails, Long questionId, Long parentsAnswerId, AnswerCreateRequestDto answerCreateRequestDto) {
         //존재하는 질문인지 확인
-        Question question = questionRepository.findByIdWithUser(questionId)
+        Question question = questionRepository.findByIdWithUserAndClub(questionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_NOT_FOUND));
 
         //상위 댓글 존재하는지 확인
@@ -203,7 +203,11 @@ public class QnaService {
             );
         }
 
-        Answer answer = answerCreateRequestDto.toEntity(userDetails, question, parentsAnswer);
+        // 동아리 회장 답변인지
+        Long clubId = question.getClub().getClubId();
+        boolean presidentAnswer = membershipRepository.hasRole(userDetails.getUserId(), clubId, Role.PRESIDENT);
+
+        Answer answer = answerCreateRequestDto.toEntity(userDetails, question, parentsAnswer, presidentAnswer);
 
         //저장
         answerRepository.save(answer);
@@ -214,7 +218,6 @@ public class QnaService {
         if (parentsAnswer != null) {    //대댓글 알림
             notificationEventProcessor.replyRegistered(questionId, parentsAnswerId, question.getContent());
         }
-
 
         return AnswerCreateResponseDto.from(answer);
     }
