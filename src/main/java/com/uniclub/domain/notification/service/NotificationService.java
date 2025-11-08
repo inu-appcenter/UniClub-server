@@ -24,7 +24,14 @@ public class NotificationService {
 
     //알림 조회
     public Page<NotificationResponseDto> getNotifications(UserDetailsImpl userDetails, Pageable pageable, Boolean isRead) {
-        Page<Notification> notifications = notificationRepository.findByUserIdAndRead(userDetails.getUserId(), isRead, pageable);
+        Page<Notification> notifications;
+        if (isRead == null) {
+            // 모든 알림 조회
+            notifications = notificationRepository.findByUserId(userDetails.getUserId(), pageable);
+        } else {
+            // 읽음/안읽음 필터링
+            notifications = notificationRepository.findByUserIdAndRead(userDetails.getUserId(), isRead, pageable);
+        }
         return notifications.map(NotificationResponseDto::from);
     }
 

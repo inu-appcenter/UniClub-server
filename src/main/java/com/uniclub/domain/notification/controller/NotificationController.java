@@ -24,7 +24,7 @@ public class NotificationController implements NotificationApiSpecification {
     @GetMapping
     public ResponseEntity<Page<NotificationResponseDto>> getNotifications(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) Boolean isRead
     ) {
         Page<NotificationResponseDto> notificationResponseDtoPage = notificationService.getNotifications(userDetails, pageable, isRead);
