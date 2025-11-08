@@ -30,7 +30,7 @@ public class Answer extends BaseTime {
     @Column
     private Integer anonymousOrder;
 
-    @Column
+    @Column(nullable = false)
     private boolean presidentAnswer;
 
     @ManyToOne(fetch = FetchType.LAZY)
