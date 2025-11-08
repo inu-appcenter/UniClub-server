@@ -21,7 +21,14 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query("SELECT n FROM Notification n WHERE n.notificationId = :notificationId AND n.userId = :userId")
     Optional<Notification> findByNotificationIdAndUserId(Long notificationId, Long userId);
 
+    //int로 변경시 추후 개수 반환 가능
+    @Modifying
+    @Query("UPDATE Notification n SET n.read = true WHERE n.userId = :userId AND n.read = false")
+    void markAllAsReadByUserId(Long userId);
+
     @Modifying
     @Query("DELETE FROM Notification n WHERE n.userId IN :userIds")
     void deleteByUserIds(List<Long> userIds);
+
+    void deleteAllByUserId(Long userId);
 }
