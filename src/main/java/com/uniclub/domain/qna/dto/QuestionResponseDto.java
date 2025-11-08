@@ -1,9 +1,6 @@
 package com.uniclub.domain.qna.dto;
 
-import com.uniclub.domain.qna.entity.Answer;
 import com.uniclub.domain.qna.entity.Question;
-import com.uniclub.global.security.UserDetailsImpl;
-import com.uniclub.global.util.BaseTime;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,11 +36,14 @@ public class QuestionResponseDto {
     @Schema(description = "본인 질문 여부", example = "true")
     private final boolean owner;
 
+    @Schema(description = "질문자 프로필")
+    private final String profile;
+
     @Schema(description = "동아리 회장 여부", example = "false")
     private final boolean president;
 
     @Builder
-    public QuestionResponseDto(Long questionId, String nickname, String content, boolean anonymous, boolean answered, LocalDateTime updatedAt, List<AnswerResponseDto> answers, boolean owner, boolean president) {
+    public QuestionResponseDto(Long questionId, String nickname, String content, boolean anonymous, boolean answered, LocalDateTime updatedAt, List<AnswerResponseDto> answers, boolean owner, String profile, boolean president) {
         this.questionId = questionId;
         this.nickname = nickname;
         this.content = content;
@@ -52,10 +52,11 @@ public class QuestionResponseDto {
         this.updatedAt = updatedAt;
         this.answers = answers;
         this.owner = owner;
+        this.profile = profile;
         this.president = president;
     }
 
-    public static QuestionResponseDto from(Question question, List<AnswerResponseDto> answers, Long userId, boolean president) {
+    public static QuestionResponseDto from(Question question, List<AnswerResponseDto> answers, Long userId, String displayProfile,boolean president) {
         String displayName;
         if (question.isAnonymous()) {
             displayName = "익명";
@@ -77,6 +78,7 @@ public class QuestionResponseDto {
                 .updatedAt(question.getUpdateAt())
                 .answers(answers)
                 .owner(owner)
+                .profile(displayProfile)
                 .president(president)
                 .build();
 

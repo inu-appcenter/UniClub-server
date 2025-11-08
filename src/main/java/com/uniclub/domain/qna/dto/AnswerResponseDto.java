@@ -35,8 +35,11 @@ public class AnswerResponseDto {
     @Schema(description = "본인 답변 여부", example = "true")
     private final boolean owner;
 
+    @Schema(description = "답변자 프로필 이미지")
+    private final String profile;
+
     @Builder
-    public AnswerResponseDto(Long answerId, String nickname, String content, boolean anonymous, boolean deleted, LocalDateTime updateTime, Long parentAnswerId, boolean owner) {
+    public AnswerResponseDto(Long answerId, String nickname, String content, boolean anonymous, boolean deleted, LocalDateTime updateTime, Long parentAnswerId, boolean owner, String profile) {
         this.answerId = answerId;
         this.nickname = nickname;
         this.content = content;
@@ -45,10 +48,11 @@ public class AnswerResponseDto {
         this.updateTime = updateTime;
         this.parentAnswerId = parentAnswerId;
         this.owner = owner;
+        this.profile = profile;
     }
 
 
-    public static AnswerResponseDto from(Answer answer, String displayName, boolean owner) {
+    public static AnswerResponseDto from(Answer answer, String displayName, boolean owner, String profile) {
 
         return AnswerResponseDto.builder()
                 .answerId(answer.getAnswerId())
@@ -59,6 +63,7 @@ public class AnswerResponseDto {
                 .updateTime(answer.getUpdateAt())
                 .parentAnswerId(answer.getParentAnswer() != null ? answer.getParentAnswer().getAnswerId() : null)
                 .owner(owner)
+                .profile(profile)
                 .build();
     }
 }
