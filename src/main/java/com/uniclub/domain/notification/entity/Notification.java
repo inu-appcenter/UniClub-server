@@ -30,7 +30,7 @@ public class Notification extends BaseTime {
     @Column
     private Long targetId;
 
-    @Column(nullable = false)
+    @Column(name = "is_read", nullable = false)
     private boolean read = false;
 
     @Column(nullable = false)
