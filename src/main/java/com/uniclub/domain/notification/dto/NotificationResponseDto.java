@@ -15,6 +15,9 @@ public class NotificationResponseDto {
     @Schema(description = "알림 ID", example = "1")
     private final Long notificationId;
 
+    @Schema(description = "알림 제목", example = "앱센터 모집 시작")
+    private final String title;
+
     @Schema(description = "알림 메시지", example = "질문에 답변이 도착했어요.")
     private final String message;
 
@@ -31,8 +34,9 @@ public class NotificationResponseDto {
     private final LocalDateTime createdAt;
 
     @Builder
-    public NotificationResponseDto(Long notificationId, String message, boolean read, NotificationType notificationType, Long targetId, LocalDateTime createdAt) {
+    public NotificationResponseDto(Long notificationId, String title, String message, boolean read, NotificationType notificationType, Long targetId, LocalDateTime createdAt) {
         this.notificationId = notificationId;
+        this.title = title;
         this.message = message;
         this.read = read;
         this.notificationType = notificationType;
@@ -43,6 +47,7 @@ public class NotificationResponseDto {
     public static NotificationResponseDto from(Notification notification) {
         return NotificationResponseDto.builder()
                 .notificationId(notification.getNotificationId())
+                .title(notification.getTitle())
                 .message(notification.getMessage())
                 .read(notification.isRead())
                 .notificationType(notification.getNotificationType())
