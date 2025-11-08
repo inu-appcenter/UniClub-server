@@ -1,12 +1,11 @@
 package com.uniclub.domain.notification.controller;
 
-import com.uniclub.domain.notification.dto.NotificationResponseDto;
+import com.uniclub.domain.notification.dto.NotificationPageResponseDto;
 import com.uniclub.domain.notification.service.NotificationService;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.swagger.NotificationApiSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -23,13 +22,13 @@ public class NotificationController implements NotificationApiSpecification {
     private final NotificationService notificationService;
 
     @GetMapping
-    public ResponseEntity<Page<NotificationResponseDto>> getNotifications(
+    public ResponseEntity<NotificationPageResponseDto> getNotifications(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @ParameterObject @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) Boolean isRead
     ) {
-        Page<NotificationResponseDto> notificationResponseDtoPage = notificationService.getNotifications(userDetails, pageable, isRead);
-        return ResponseEntity.status(HttpStatus.OK).body(notificationResponseDtoPage);
+        NotificationPageResponseDto notificationPageResponseDto = notificationService.getNotifications(userDetails, pageable, isRead);
+        return ResponseEntity.status(HttpStatus.OK).body(notificationPageResponseDto);
     }
 
     @PatchMapping("/{notificationId}/read")

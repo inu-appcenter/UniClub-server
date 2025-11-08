@@ -1,5 +1,6 @@
 package com.uniclub.domain.notification.service;
 
+import com.uniclub.domain.notification.dto.NotificationPageResponseDto;
 import com.uniclub.domain.notification.dto.NotificationResponseDto;
 import com.uniclub.domain.notification.entity.Notification;
 import com.uniclub.domain.notification.repository.NotificationRepository;
@@ -23,7 +24,7 @@ public class NotificationService {
 
 
     //알림 조회
-    public Page<NotificationResponseDto> getNotifications(UserDetailsImpl userDetails, Pageable pageable, Boolean isRead) {
+    public NotificationPageResponseDto getNotifications(UserDetailsImpl userDetails, Pageable pageable, Boolean isRead) {
         Page<Notification> notifications;
         if (isRead == null) {
             // 모든 알림 조회
@@ -32,7 +33,8 @@ public class NotificationService {
             // 읽음/안읽음 필터링
             notifications = notificationRepository.findByUserIdAndRead(userDetails.getUserId(), isRead, pageable);
         }
-        return notifications.map(NotificationResponseDto::from);
+        Page<NotificationResponseDto> notificationDtoPage= notifications.map(NotificationResponseDto::from);
+        return NotificationPageResponseDto.from(notificationDtoPage);
     }
 
 
