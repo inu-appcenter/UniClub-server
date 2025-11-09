@@ -1,5 +1,6 @@
 package com.uniclub.domain.notification.service;
 
+import com.uniclub.domain.notification.dto.NotificationPageResponseDto;
 import com.uniclub.domain.notification.dto.NotificationResponseDto;
 import com.uniclub.domain.notification.entity.Notification;
 import com.uniclub.domain.notification.repository.NotificationRepository;
@@ -23,9 +24,15 @@ public class NotificationService {
 
 
     //알림 조회
-    public Page<NotificationResponseDto> getNotifications(UserDetailsImpl userDetails, Pageable pageable, Boolean isRead) {
-        Page<Notification> notifications = notificationRepository.findByUserIdAndRead(userDetails.getUserId(), isRead, pageable);
-        return notifications.map(NotificationResponseDto::from);
+    public NotificationPageResponseDto getNotifications(UserDetailsImpl userDetails, Pageable pageable, Boolean isRead) {
+        Page<Notification> notifications;
+        if (isRead == null) { // 모든 알림 조회
+            notifications = notificationRepository.findByUserId(userDetails.getUserId(), pageable);
+        } else { // 읽음/안읽음 필터링
+            notifications = notificationRepository.findByUserIdAndRead(userDetails.getUserId(), isRead, pageable);
+        }
+        Page<NotificationResponseDto> notificationDtoPage= notifications.map(NotificationResponseDto::from);
+        return NotificationPageResponseDto.from(notificationDtoPage);
     }
 
 
@@ -35,12 +42,23 @@ public class NotificationService {
         notification.markAsRead();
     }
 
+    //알림 전체 읽음 처리
+    public void markAsReadAll(UserDetailsImpl userDetails) {
+        notificationRepository.markAllAsReadByUserId(userDetails.getUserId());
+    }
+
 
     //알림 삭제
     public void deleteNotification(UserDetailsImpl userDetails, Long notificationId) {
         Notification notification = findNotificationAndValidateOwner(userDetails.getUserId(), notificationId);
         notificationRepository.delete(notification);
     }
+
+    //알림 전체 삭제
+    public void deleteAllNotifications(UserDetailsImpl userDetails) {
+        notificationRepository.deleteAllByUserId(userDetails.getUserId());
+    }
+
 
 
     //알림 조회 (소유주 확인 포함)
@@ -56,5 +74,7 @@ public class NotificationService {
             throw new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND);
         }
     }
+
+
 
 }

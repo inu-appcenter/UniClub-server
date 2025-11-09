@@ -17,14 +17,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByStudentId(String studentId);
 
-    @Query("SELECT u FROM User u WHERE u.name IN :usernames")
-    List<User> findByUsernames(@Param("usernames") List<String> usernames);
-
-    @Query("SELECT u FROM User u WHERE u.studentId IN :studentIds")
-    List<User> findByStudentIds(@Param("studentIds") List<String> studentIds);
-
-    Optional<User> findByName(String username);
-
     @Query("SELECT u FROM User u WHERE u.deleted = true AND u.deletedAt < :cutoffDate")
     List<User> findByDeletedTrueAndDeletedAtBefore(LocalDateTime cutoffDate);
+
+    @Query("SELECT m.mediaLink FROM User u " +
+            "LEFT JOIN u.profileMedia m " +
+            "WHERE u.userId = :userId")
+    Optional<String> findProfileLinkByUserId(@Param("userId") Long userId);
 }

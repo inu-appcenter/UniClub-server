@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/qna")
@@ -68,8 +70,8 @@ public class QnaController implements QnaApiSpecification {
 
     //답변 등록 및 대댓글
     @PostMapping("/{questionId}/answers")
-    public ResponseEntity<AnswerCreateResponseDto> createAnswer(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long questionId, @RequestParam Long parentsAnswerId, @Valid @RequestBody AnswerCreateRequestDto answerCreateRequestDto){
-        AnswerCreateResponseDto answerCreateResponseDto = qnaService.createAnswer(userDetails, questionId, parentsAnswerId, answerCreateRequestDto);
+    public ResponseEntity<AnswerCreateResponseDto> createAnswer(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long questionId, @RequestParam(required = false) Long parentsAnswerId, @Valid @RequestBody AnswerCreateRequestDto answerCreateRequestDto){
+        AnswerCreateResponseDto answerCreateResponseDto = qnaService.createAnswer(userDetails,questionId, parentsAnswerId, answerCreateRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(answerCreateResponseDto);
     }
 
@@ -86,6 +88,13 @@ public class QnaController implements QnaApiSpecification {
     public ResponseEntity<Void> markQuestionAsAnswered(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long questionId){
         qnaService.markQuestionAsAnswered(userDetails, questionId);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    //Qna페이지 동아리 검색(키워드 없다면 모든 동아리 조회)
+    @GetMapping("/search-clubs")
+    public ResponseEntity<List<QnaClubResponseDto>> getSearchClubs(@RequestParam(required = false) String keyword){
+        List<QnaClubResponseDto> QnaClubResponseDtoList = qnaService.getSearchClubs(keyword);
+        return ResponseEntity.status(HttpStatus.OK).body(QnaClubResponseDtoList);
     }
 
 

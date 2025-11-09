@@ -1,11 +1,11 @@
 package com.uniclub.domain.notification.controller;
 
-import com.uniclub.domain.notification.dto.NotificationResponseDto;
+import com.uniclub.domain.notification.dto.NotificationPageResponseDto;
 import com.uniclub.domain.notification.service.NotificationService;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.swagger.NotificationApiSpecification;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -22,13 +22,13 @@ public class NotificationController implements NotificationApiSpecification {
     private final NotificationService notificationService;
 
     @GetMapping
-    public ResponseEntity<Page<NotificationResponseDto>> getNotifications(
+    public ResponseEntity<NotificationPageResponseDto> getNotifications(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @ParameterObject @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) Boolean isRead
     ) {
-        Page<NotificationResponseDto> notificationResponseDtoPage = notificationService.getNotifications(userDetails, pageable, isRead);
-        return ResponseEntity.status(HttpStatus.OK).body(notificationResponseDtoPage);
+        NotificationPageResponseDto notificationPageResponseDto = notificationService.getNotifications(userDetails, pageable, isRead);
+        return ResponseEntity.status(HttpStatus.OK).body(notificationPageResponseDto);
     }
 
     @PatchMapping("/{notificationId}/read")
@@ -37,9 +37,21 @@ public class NotificationController implements NotificationApiSpecification {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @PatchMapping("/read-all")
+    public ResponseEntity<Void> markAsReadAll(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        notificationService.markAsReadAll(userDetails);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
     @DeleteMapping("/{notificationId}")
     public ResponseEntity<Void> deleteNotification(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long notificationId) {
         notificationService.deleteNotification(userDetails, notificationId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAllNotifications(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        notificationService.deleteAllNotifications(userDetails);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

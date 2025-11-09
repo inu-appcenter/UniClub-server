@@ -3,6 +3,7 @@ package com.uniclub.domain.club.repository;
 import com.uniclub.domain.category.entity.CategoryType;
 import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.main.dto.MainPageClubResponseDto;
+import com.uniclub.domain.qna.dto.QnaClubResponseDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -58,6 +59,21 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
                                                Pageable pageable);
 
 
+    //전체 조회(키워드 공백시)
+    @Query("SELECT new com.uniclub.domain.qna.dto.QnaClubResponseDto(c.clubId, c.name, cat.name) " +
+            "FROM Club c " +
+            "INNER JOIN c.category cat " +
+            "ORDER BY c.name")
+    List<QnaClubResponseDto> searchAllClubsForQna();
+
+    @Query("SELECT new com.uniclub.domain.qna.dto.QnaClubResponseDto(c.clubId, c.name, cat.name) " +
+            "FROM Club c " +
+            "INNER JOIN c.category cat " +
+            "WHERE c.name LIKE %:keyword% " +
+            "ORDER BY c.name")
+    List<QnaClubResponseDto> searchClubsForQna(@Param("keyword") String keyword);
+
+
 
     @Query("""
     SELECT NEW com.uniclub.domain.main.dto.MainPageClubResponseDto(c.clubId, c.name, m.mediaLink, CASE WHEN f.favoriteId IS NOT NULL THEN true ELSE false END)
@@ -69,7 +85,8 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     """)
     List<MainPageClubResponseDto> getMainPageClubs(@Param("userId") Long userId, Pageable pageable);
 
-    String findNameByClubId(Long clubId);
+    @Query("SELECT c.name FROM Club c WHERE c.clubId = :clubId")
+    String findNameByClubId(@Param("clubId") Long clubId);
 
 
     //알림 스케줄링 관련

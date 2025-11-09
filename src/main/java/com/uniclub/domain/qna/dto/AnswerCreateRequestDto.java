@@ -22,13 +22,14 @@ public class AnswerCreateRequestDto {
     @NotNull(message = "익명 여부를 선택해주세요.")
     private boolean anonymous;
 
-    public Answer toEntity(UserDetailsImpl userDetails, Question question, Answer parentAnswer) {
+    public Answer toEntity(UserDetailsImpl userDetails, Question question, Answer parentAnswer, boolean presidentAnswer) {
         return Answer.builder()
                 .content(content)
                 .anonymous(anonymous)
                 .question(question)
                 .user(userDetails.getUser())
                 .parentAnswer(parentAnswer)
+                .presidentAnswer(presidentAnswer)
                 .build();
     }
 }
