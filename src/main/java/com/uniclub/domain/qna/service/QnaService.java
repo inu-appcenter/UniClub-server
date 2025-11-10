@@ -43,7 +43,7 @@ public class QnaService {
     //Qna 페이지 다중 질문 조회
     public Slice<SearchQuestionResponseDto> getSearchQuestions(UserDetailsImpl userDetails, String keyword, Long clubId, boolean answered, boolean onlyMyQuestions, int size) {
         // 존재하는 동아리인지 확인
-        if (!clubRepository.existsById(clubId)){
+        if (clubId != null && !clubRepository.existsById(clubId)){
             throw new CustomException(ErrorCode.CLUB_NOT_FOUND);
         }
 
@@ -51,7 +51,7 @@ public class QnaService {
         Long userId = onlyMyQuestions ? userDetails.getUser().getUserId() : null;
 
         //PageRequest 생성 및 정렬
-        Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Pageable pageable = PageRequest.of(0, size);
 
         Slice<Object[]> resultSlice = questionRepository.searchQuestionsWithAnswerCount(keyword, clubId, answered, userId, pageable);
 
@@ -311,7 +311,7 @@ public class QnaService {
         // 익명인 경우
         else if (answer.isAnonymous()) {
             if (isQuestionAuthor) {
-                return "익명(작성자)";
+                return "작성자";
             } else {
                 return "익명" + anonymousNumber;
             }
