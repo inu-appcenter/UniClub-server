@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Schema(description = "QnA 페이지 조회 응답 DTO")
 @Getter
 public class SearchQuestionResponseDto {
@@ -23,13 +25,17 @@ public class SearchQuestionResponseDto {
     @Schema(description = "답변 개수", example = "3")
     private final Long countAnswer;
 
+    @Schema(description = "질문 수정 시간", example = "2025-08-25T10:30:00")
+    private final LocalDateTime updatedAt;
+
     @Builder
-    public SearchQuestionResponseDto(Long questionId, String nickname, String clubName, String content, Long countAnswer) {
+    public SearchQuestionResponseDto(Long questionId, String nickname, String clubName, String content, Long countAnswer, LocalDateTime updatedAt) {
         this.questionId = questionId;
         this.nickname = nickname;
         this.clubName = clubName;
         this.content = content;
         this.countAnswer = countAnswer;
+        this.updatedAt = updatedAt;
     }
 
     public static SearchQuestionResponseDto from(Question question, Long answerCount) {
@@ -48,6 +54,7 @@ public class SearchQuestionResponseDto {
                 .clubName(question.getClub().getName())
                 .content(question.getContent())
                 .countAnswer(answerCount)
+                .updatedAt(question.getUpdateAt())
                 .build();
     }
 

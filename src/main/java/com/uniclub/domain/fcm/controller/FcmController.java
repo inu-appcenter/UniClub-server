@@ -3,6 +3,7 @@ package com.uniclub.domain.fcm.controller;
 import com.uniclub.domain.fcm.dto.FcmRegisterRequestDto;
 import com.uniclub.domain.fcm.service.FcmTokenService;
 import com.uniclub.global.security.UserDetailsImpl;
+import com.uniclub.global.swagger.FcmApiSpecification;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/fcm")
-public class FcmController {
+public class FcmController implements FcmApiSpecification {
 
     private final FcmTokenService fcmTokenService;
 
