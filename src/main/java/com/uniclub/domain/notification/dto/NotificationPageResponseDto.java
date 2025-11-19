@@ -25,10 +25,10 @@ public class NotificationPageResponseDto {
     private final long totalElements;
 
     @Schema(description = "다음 페이지 여부", example = "1")
-    private final boolean hasNext;
+    private final Boolean hasNext;
 
     @Builder
-    public NotificationPageResponseDto(List<NotificationResponseDto> notifications, int currentPage, int totalPages, long totalElements, boolean hasNext) {
+    public NotificationPageResponseDto(List<NotificationResponseDto> notifications, int currentPage, int totalPages, long totalElements, Boolean hasNext) {
         this.notifications = notifications;
         this.currentPage = currentPage;
         this.totalPages = totalPages;
