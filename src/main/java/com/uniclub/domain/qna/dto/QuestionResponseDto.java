@@ -18,6 +18,9 @@ public class QuestionResponseDto {
     @Schema(description = "질문 작성자 닉네임", example = "라면")
     private final String nickname;
 
+    @Schema(description = "동아리 이름", example = "앱센터")
+    private final String clubName;
+
     @Schema(description = "질문 내용", example = "동아리원 모집은 언제 진행하나요?")
     private final String content;
 
@@ -43,9 +46,10 @@ public class QuestionResponseDto {
     private final List<AnswerResponseDto> answers;
 
     @Builder
-    public QuestionResponseDto(Long questionId, String nickname, String content, boolean anonymous, boolean answered, LocalDateTime updatedAt, List<AnswerResponseDto> answers, boolean owner, String profile, boolean president) {
+    public QuestionResponseDto(Long questionId, String nickname, String clubName, String content, boolean anonymous, boolean answered, LocalDateTime updatedAt, List<AnswerResponseDto> answers, boolean owner, String profile, boolean president) {
         this.questionId = questionId;
         this.nickname = nickname;
+        this.clubName = clubName;
         this.content = content;
         this.anonymous = anonymous;
         this.answered = answered;
@@ -56,7 +60,7 @@ public class QuestionResponseDto {
         this.president = president;
     }
 
-    public static QuestionResponseDto from(Question question, List<AnswerResponseDto> answers, Long userId, String displayProfile,boolean president) {
+    public static QuestionResponseDto from(Question question, List<AnswerResponseDto> answers, boolean owner, String displayProfile,boolean president) {
         String displayName;
         if (question.isAnonymous()) {
             displayName = "익명";
@@ -66,13 +70,11 @@ public class QuestionResponseDto {
             displayName = question.getUser().getNickname();
         }
 
-        boolean owner = question.getUser() != null &&
-                       question.getUser().getUserId().equals(userId);
-
         return QuestionResponseDto.builder()
                 .questionId(question.getQuestionId())
                 .nickname(displayName)
                 .content(question.getContent())
+                .clubName(question.getClub().getName())
                 .anonymous(question.isAnonymous())
                 .answered(question.isAnswered())
                 .updatedAt(question.getUpdateAt())
