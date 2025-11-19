@@ -1,6 +1,7 @@
 package com.uniclub.global.swagger;
 
 import com.uniclub.domain.notification.dto.NotificationPageResponseDto;
+import com.uniclub.domain.notification.dto.NotificationResponseDto;
 import com.uniclub.global.exception.ErrorResponse;
 import com.uniclub.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +27,7 @@ public interface NotificationApiSpecification {
                     responseCode = "200",
                     description = "조회 성공",
                     content = @Content(
-                            schema = @Schema(implementation = NotificationPageResponseDto.class),
+                            schema = @Schema(implementation = NotificationResponseDto.class),
                             examples = @ExampleObject("""
                     {
                       "notifications": [
