@@ -212,7 +212,7 @@ public interface NotificationApiSpecification {
                     )
             )
     })
-    ResponseEntity<Void> deleteAllNotifications(
+    ResponseEntity<Void> deleteAllReadNotifications(
             @AuthenticationPrincipal UserDetailsImpl userDetails
     );
 }
