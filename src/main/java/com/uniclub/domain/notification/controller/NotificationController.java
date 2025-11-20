@@ -1,5 +1,6 @@
 package com.uniclub.domain.notification.controller;
 
+import com.uniclub.domain.notification.dto.NotificationCreateRequestDto;
 import com.uniclub.domain.notification.dto.NotificationPageResponseDto;
 import com.uniclub.domain.notification.service.NotificationService;
 import com.uniclub.global.security.UserDetailsImpl;
@@ -20,6 +21,12 @@ import org.springframework.web.bind.annotation.*;
 public class NotificationController implements NotificationApiSpecification {
 
     private final NotificationService notificationService;
+
+    @PostMapping
+    public ResponseEntity<Void> createNotification(@RequestBody NotificationCreateRequestDto notificationCreateRequestDto){
+        notificationService.createNotification(notificationCreateRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 
     @GetMapping
     public ResponseEntity<NotificationPageResponseDto> getNotifications(
