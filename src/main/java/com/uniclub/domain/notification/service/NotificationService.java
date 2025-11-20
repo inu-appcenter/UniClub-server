@@ -67,11 +67,10 @@ public class NotificationService {
         notificationRepository.delete(notification);
     }
 
-    //알림 전체 삭제
-    public void deleteAllNotifications(UserDetailsImpl userDetails) {
-        notificationRepository.deleteAllByUserId(userDetails.getUserId());
+    //읽은 알림 전체 삭제
+    public void deleteAllReadNotifications(UserDetailsImpl userDetails) {
+        notificationRepository.deleteAllByUserIdAndReadTrue(userDetails.getUserId());
     }
-
 
 
     //알림 조회 (소유주 확인 포함)
