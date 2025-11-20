@@ -57,8 +57,8 @@ public class NotificationController implements NotificationApiSpecification {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteAllNotifications(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        notificationService.deleteAllNotifications(userDetails);
+    public ResponseEntity<Void> deleteAllReadNotifications(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        notificationService.deleteAllReadNotifications(userDetails);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
