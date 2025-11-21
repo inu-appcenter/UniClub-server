@@ -63,7 +63,8 @@ public class QnaService {
                     Long questionAuthorId = question.getUser().getUserId();
                     boolean owner = userDetails.getUserId().equals(questionAuthorId);
                     String profile = getProfile(question, questionAuthorId);
-                    return SearchQuestionResponseDto.from(question, owner, answerCount, profile);
+                    String displayName = question.getDisplayName();
+                    return SearchQuestionResponseDto.from(question, displayName, owner, answerCount, profile);
                 })
                 .collect(Collectors.toList());
 
@@ -122,8 +123,10 @@ public class QnaService {
                 .map(membership -> membership.getRole() == Role.PRESIDENT)
                 .orElse(false);
 
+        // 질문 작성자 표시 이름
+        String displayName = question.getDisplayName();
 
-        return QuestionResponseDto.from(question, answerResponseDtoList, questionOwner, questionerProfile, president);
+        return QuestionResponseDto.from(question, displayName, answerResponseDtoList, questionOwner, questionerProfile, president);
     }
 
 

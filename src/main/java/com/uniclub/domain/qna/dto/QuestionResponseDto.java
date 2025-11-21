@@ -60,16 +60,7 @@ public class QuestionResponseDto {
         this.president = president;
     }
 
-    public static QuestionResponseDto from(Question question, List<AnswerResponseDto> answers, boolean owner, String displayProfile,boolean president) {
-        String displayName;
-        if (question.isAnonymous()) {
-            displayName = "익명";
-        } else if (question.getUser() == null || question.getUser().isDeleted()) {
-            displayName = "탈퇴한 사용자";
-        } else {
-            displayName = question.getUser().getNickname();
-        }
-
+    public static QuestionResponseDto from(Question question, String displayName, List<AnswerResponseDto> answers, boolean owner, String displayProfile, boolean president) {
         return QuestionResponseDto.builder()
                 .questionId(question.getQuestionId())
                 .nickname(displayName)
@@ -83,6 +74,5 @@ public class QuestionResponseDto {
                 .profile(displayProfile)
                 .president(president)
                 .build();
-
     }
 }
