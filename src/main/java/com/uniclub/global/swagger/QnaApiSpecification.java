@@ -26,7 +26,7 @@ public interface QnaApiSpecification {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "검색 성공",
                     content = @Content(
-                            schema = @Schema(implementation = QuestionResponseDto.class),
+                            schema = @Schema(implementation = SearchQuestionResponseDto.class),
                             examples = @ExampleObject("""
                     {
                       "content": [
@@ -89,6 +89,7 @@ public interface QnaApiSpecification {
                     {
                       "questionId": 1,
                       "nickname": "라면",
+                      "clubName": "앱센터",
                       "content": "동아리원 모집은 언제 진행하나요?",
                       "anonymous": false,
                       "answered": true,
