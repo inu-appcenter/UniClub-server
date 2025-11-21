@@ -34,8 +34,11 @@ public class SearchQuestionResponseDto {
     @Schema(description = "프로필 이미지")
     private final String profile;
 
+    @Schema(description = "동아리 아이디")
+    private final Long clubId;
+
     @Builder
-    public SearchQuestionResponseDto(Long questionId, String nickname, String clubName, String content, Long countAnswer, boolean owner, LocalDateTime updatedAt, String profile) {
+    public SearchQuestionResponseDto(Long questionId, String nickname, String clubName, String content, Long countAnswer, boolean owner, LocalDateTime updatedAt, String profile, Long clubId) {
         this.questionId = questionId;
         this.nickname = nickname;
         this.clubName = clubName;
@@ -44,6 +47,7 @@ public class SearchQuestionResponseDto {
         this.countAnswer = countAnswer;
         this.updatedAt = updatedAt;
         this.profile = profile;
+        this.clubId = clubId;
     }
 
     public static SearchQuestionResponseDto from(Question question, String displayName, boolean owner, Long answerCount, String profile) {
@@ -55,6 +59,7 @@ public class SearchQuestionResponseDto {
                 .owner(owner)
                 .countAnswer(answerCount)
                 .profile(profile)
+                .clubId(question.getClub().getClubId())
                 .updatedAt(question.getUpdateAt())
                 .build();
     }
