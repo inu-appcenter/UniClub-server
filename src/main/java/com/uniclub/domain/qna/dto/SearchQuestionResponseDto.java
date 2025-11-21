@@ -46,16 +46,7 @@ public class SearchQuestionResponseDto {
         this.profile = profile;
     }
 
-    public static SearchQuestionResponseDto from(Question question, boolean owner, Long answerCount, String profile) {
-        String displayName;
-        if (question.isAnonymous()) {
-            displayName = "익명";
-        } else if (question.getUser() == null || question.getUser().isDeleted()) {
-            displayName = "탈퇴한 사용자";
-        } else {
-            displayName = question.getUser().getNickname();
-        }
-
+    public static SearchQuestionResponseDto from(Question question, String displayName, boolean owner, Long answerCount, String profile) {
         return SearchQuestionResponseDto.builder()
                 .questionId(question.getQuestionId())
                 .nickname(displayName)

@@ -11,6 +11,7 @@ import com.uniclub.domain.qna.entity.Answer;
 import com.uniclub.domain.qna.entity.Question;
 import com.uniclub.domain.qna.repository.AnswerRepository;
 import com.uniclub.domain.qna.repository.QuestionRepository;
+import com.uniclub.domain.user.entity.User;
 import com.uniclub.domain.user.repository.UserRepository;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
@@ -62,8 +63,9 @@ public class QnaService {
                     Long answerCount = (Long) row[1];
                     Long questionAuthorId = question.getUser().getUserId();
                     boolean owner = userDetails.getUserId().equals(questionAuthorId);
-                    String profile = getProfile(question, questionAuthorId);
-                    return SearchQuestionResponseDto.from(question, owner, answerCount, profile);
+                    String profile = getProfile(question.isAnonymous(), question.getUser());
+                    String displayName = question.getDisplayName();
+                    return SearchQuestionResponseDto.from(question, displayName, owner, answerCount, profile);
                 })
                 .collect(Collectors.toList());
 
@@ -77,53 +79,30 @@ public class QnaService {
         Question question = questionRepository.findByIdWithUser(questionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_NOT_FOUND));
 
+        Long questionAuthorId = question.getUser().getUserId();
+        Long userId = userDetails.getUserId();
+        String displayName = question.getDisplayName();
+
         //questionId로 답변과 User를 fetch join하여 조회 (삭제된 답변은 자식답변이 있는 경우에만 조회)
         List<Answer> answerList = answerRepository.findByQuestionIdWithUser(questionId);
 
-        Long questionAuthorId = question.getUser().getUserId();
-        Long userId = userDetails.getUserId();
         boolean questionOwner = (questionAuthorId != null && userDetails.getUserId().equals(questionAuthorId));
-
+        String questionerProfile = getProfile(question.isAnonymous(), question.getUser());
 
         // 유저 - 익명번호 매핑 map 생성
         Map<Long, Integer> anonymousNumberMap = createAnonymousNumberMap(answerList, questionAuthorId, questionId);
 
-        List<AnswerResponseDto> answerResponseDtoList = new ArrayList<>();
-        for (Answer answer : answerList) {
-            Integer anonymousNumber = null;
-            // 삭제된 유저가 아니고, 익명이고 글 작성자가 아니면 익명번호 부여, 글 작성자라면 anonymousNumber는 null
-            if (answer.isAnonymous() && answer.getUser() != null && !answer.getUser().isDeleted() && !answer.getUser().getUserId().equals(questionAuthorId)) {
-                anonymousNumber = anonymousNumberMap.get(answer.getUser().getUserId());
-            }
-
-            // 익명(작성자), 닉네임, 익명1 등 보여지는 이름
-            String displayName = createDisplayName(answer, anonymousNumber, questionAuthorId);
-            // 댓글 작성자 본인여부
-            boolean owner = answer.getUser() != null && !answer.getUser().isDeleted() &&
-                    answer.getUser().getUserId().equals(userId);
-
-            // 답변자 프로필 사진
-            String answererProfile = null;
-            if (!answer.isAnonymous() && answer.getUser() != null && !answer.getUser().isDeleted()) {
-                Optional<String> answererProfileLink = userRepository.findProfileLinkByUserId(answer.getUser().getUserId());
-                if (answererProfileLink.isPresent()) {
-                    answererProfile = s3Service.getDownloadPresignedUrl(answererProfileLink.get());
-                }
-            }
-
-            answerResponseDtoList.add(AnswerResponseDto.from(answer, displayName, owner, answererProfile));
-        }
-
-        // 질문자 프로필 사진
-        String questionerProfile = getProfile(question, questionAuthorId);
+        // 답변 DTO 리스트 생성
+        List<AnswerResponseDto> answerResponseDtoList = createAnswerResponseDtoList(
+                answerList, anonymousNumberMap, questionAuthorId, userId
+        );
 
         // 동아리 회장 여부 확인
         boolean president = membershipRepository.findByUserIdAndClubId(userId, question.getClub().getClubId())
                 .map(membership -> membership.getRole() == Role.PRESIDENT)
                 .orElse(false);
 
-
-        return QuestionResponseDto.from(question, answerResponseDtoList, questionOwner, questionerProfile, president);
+        return QuestionResponseDto.from(question, displayName, answerResponseDtoList, questionOwner, questionerProfile, president);
     }
 
 
@@ -138,8 +117,6 @@ public class QnaService {
         log.info("질문 등록 완료: {}", question.getQuestionId());
 
         notificationEventProcessor.questionRegistered(question.getQuestionId(), clubId);
-
-
 
         return QuestionCreateResponseDto.from(question);
     }
@@ -327,15 +304,39 @@ public class QnaService {
         }
     }
 
-    private String getProfile(Question question, Long questionAuthorId) {
-        String questionerProfile = null;
-        if (!question.isAnonymous() && !question.getUser().isDeleted()) {
-            Optional<String> questionerProfileLink = userRepository.findProfileLinkByUserId(questionAuthorId);
-            if (questionerProfileLink.isPresent()) {
-                questionerProfile = s3Service.getDownloadPresignedUrl(questionerProfileLink.get());
-            }
+    private String getProfile(boolean isAnonymous, User user) {
+        if (isAnonymous || user == null || user.isDeleted()) {
+            return null;
         }
-        return questionerProfile;
+
+        return userRepository.findProfileLinkByUserId(user.getUserId())
+                .map(s3Service::getDownloadPresignedUrl)
+                .orElse(null);
+    }
+
+    private List<AnswerResponseDto> createAnswerResponseDtoList(
+            List<Answer> answerList,
+            Map<Long, Integer> anonymousNumberMap,
+            Long questionAuthorId,
+            Long userId
+    ) {
+        List<AnswerResponseDto> answerResponseDtoList = new ArrayList<>();
+        for (Answer answer : answerList) {
+            Integer anonymousNumber = null;
+            // 삭제된 유저가 아니고, 익명이고 글 작성자가 아니면 익명번호 부여, 글 작성자라면 anonymousNumber는 null
+            if (answer.isAnonymous() && answer.getUser() != null && !answer.getUser().isDeleted()
+                    && !answer.getUser().getUserId().equals(questionAuthorId)) {
+                anonymousNumber = anonymousNumberMap.get(answer.getUser().getUserId());
+            }
+
+            String displayName = createDisplayName(answer, anonymousNumber, questionAuthorId);
+            boolean owner = answer.getUser() != null && !answer.getUser().isDeleted()
+                    && answer.getUser().getUserId().equals(userId);
+            String answererProfile = getProfile(answer.isAnonymous(), answer.getUser());
+
+            answerResponseDtoList.add(AnswerResponseDto.from(answer, displayName, owner, answererProfile));
+        }
+        return answerResponseDtoList;
     }
 
 }

@@ -71,4 +71,14 @@ public class Question extends BaseTime{
     public void markAsAnswered() {
         this.answered = true;
     }
+
+    public String getDisplayName() {
+        if (this.anonymous) {
+            return "익명";
+        } else if (this.user == null || this.user.isDeleted()) {
+            return "탈퇴한 사용자";
+        } else {
+            return this.user.getNickname();
+        }
+    }
 }
