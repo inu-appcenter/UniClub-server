@@ -101,6 +101,11 @@ public class AuthService {
     public StudentVerificationResponseDto studentVerification(StudentVerificationRequestDto studentVerificationRequestDto) {
         boolean verification = inuAuthRepository.verifySchoolLogin(studentVerificationRequestDto.getStudentId(), studentVerificationRequestDto.getPassword());
         log.info("재학생 인증: 학번={}, 성공여부={}", studentVerificationRequestDto.getStudentId(), verification);
+
+        if (userRepository.existsByStudentId(studentVerificationRequestDto.getStudentId())) { // 이미 가입된 유저가 있는 경우 예외처리
+            throw new CustomException(ErrorCode.DUPLICATE_STUDENT_ID);
+        }
+
         return new StudentVerificationResponseDto(verification);
     }
 

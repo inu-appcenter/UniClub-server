@@ -24,7 +24,7 @@ public class NotificationPageResponseDto {
     @Schema(description = "총 갯수", example = "1")
     private final long totalElements;
 
-    @Schema(description = "다음 페이지 여부", example = "1")
+    @Schema(description = "다음 페이지 여부", example = "true")
     private final Boolean hasNext;
 
     @Builder

@@ -59,8 +59,11 @@ public class QnaService {
         List<SearchQuestionResponseDto> content = resultSlice.getContent().stream()
                 .map(row -> {
                     Question question = (Question) row[0];
-                    Long answerCount = (Long) row[1];   //답변 갯수
-                    return SearchQuestionResponseDto.from(question, answerCount);
+                    Long answerCount = (Long) row[1];
+                    Long questionAuthorId = question.getUser().getUserId();
+                    boolean owner = userDetails.getUserId().equals(questionAuthorId);
+                    String profile = getProfile(question, questionAuthorId);
+                    return SearchQuestionResponseDto.from(question, owner, answerCount, profile);
                 })
                 .collect(Collectors.toList());
 
@@ -79,6 +82,7 @@ public class QnaService {
 
         Long questionAuthorId = question.getUser().getUserId();
         Long userId = userDetails.getUserId();
+        boolean questionOwner = (questionAuthorId != null && userDetails.getUserId().equals(questionAuthorId));
 
 
         // 유저 - 익명번호 매핑 map 생성
@@ -111,21 +115,17 @@ public class QnaService {
         }
 
         // 질문자 프로필 사진
-        String questionerProfile = null;
-        if (!question.isAnonymous() && !question.getUser().isDeleted()) {
-            Optional<String> questionerProfileLink = userRepository.findProfileLinkByUserId(questionAuthorId);
-            if (questionerProfileLink.isPresent()) {
-                questionerProfile = s3Service.getDownloadPresignedUrl(questionerProfileLink.get());
-            }
-        }
+        String questionerProfile = getProfile(question, questionAuthorId);
 
         // 동아리 회장 여부 확인
         boolean president = membershipRepository.findByUserIdAndClubId(userId, question.getClub().getClubId())
                 .map(membership -> membership.getRole() == Role.PRESIDENT)
                 .orElse(false);
 
-        return QuestionResponseDto.from(question, answerResponseDtoList, userId, questionerProfile, president);
+
+        return QuestionResponseDto.from(question, answerResponseDtoList, questionOwner, questionerProfile, president);
     }
+
 
     //질문 등록
     public QuestionCreateResponseDto createQuestion(UserDetailsImpl userDetails, Long clubId, QuestionCreateRequestDto questionCreateRequestDto) {
@@ -327,5 +327,15 @@ public class QnaService {
         }
     }
 
+    private String getProfile(Question question, Long questionAuthorId) {
+        String questionerProfile = null;
+        if (!question.isAnonymous() && !question.getUser().isDeleted()) {
+            Optional<String> questionerProfileLink = userRepository.findProfileLinkByUserId(questionAuthorId);
+            if (questionerProfileLink.isPresent()) {
+                questionerProfile = s3Service.getDownloadPresignedUrl(questionerProfileLink.get());
+            }
+        }
+        return questionerProfile;
+    }
 
 }

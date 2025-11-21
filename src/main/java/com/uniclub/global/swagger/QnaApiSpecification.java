@@ -26,7 +26,7 @@ public interface QnaApiSpecification {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "검색 성공",
                     content = @Content(
-                            schema = @Schema(implementation = PageQuestionResponseDto.class),
+                            schema = @Schema(implementation = QuestionResponseDto.class),
                             examples = @ExampleObject("""
                     {
                       "content": [
@@ -35,16 +35,20 @@ public interface QnaApiSpecification {
                           "nickname": "라면",
                           "clubName": "앱센터",
                           "content": "동아리원 모집은 언제 진행하나요?",
+                          "owner": true,
                           "countAnswer": 3,
-                          "updatedAt": "2025-08-25T10:30:00"
+                          "updatedAt": "2025-08-25T10:30:00",
+                          "profile": "https://uniclubs3.s3.ap-northeast-2.amazonaws.com/uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png"
                         },
                         {
                           "questionId": 2,
                           "nickname": "익명",
                           "clubName": "디자인소모임",
                           "content": "활동비는 얼마인가요?",
+                          "owner": false,
                           "countAnswer": 0,
-                          "updatedAt": "2025-08-24T15:20:00"
+                          "updatedAt": "2025-08-24T15:20:00",
+                          "profile": null
                         }
                       ],
                       "hasNext": true

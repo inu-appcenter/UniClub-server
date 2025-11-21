@@ -21,6 +21,9 @@ public class SearchQuestionResponseDto {
     
     @Schema(description = "질문 내용", example = "동아리원 모집은 언제 진행하나요?")
     private final String content;
+
+    @Schema(description = "본인 질문 여부", example = "true")
+    private final boolean owner;
     
     @Schema(description = "답변 개수", example = "3")
     private final Long countAnswer;
@@ -28,17 +31,22 @@ public class SearchQuestionResponseDto {
     @Schema(description = "질문 수정 시간", example = "2025-08-25T10:30:00")
     private final LocalDateTime updatedAt;
 
+    @Schema(description = "프로필 이미지")
+    private final String profile;
+
     @Builder
-    public SearchQuestionResponseDto(Long questionId, String nickname, String clubName, String content, Long countAnswer, LocalDateTime updatedAt) {
+    public SearchQuestionResponseDto(Long questionId, String nickname, String clubName, String content, Long countAnswer, boolean owner, LocalDateTime updatedAt, String profile) {
         this.questionId = questionId;
         this.nickname = nickname;
         this.clubName = clubName;
         this.content = content;
+        this.owner = owner;
         this.countAnswer = countAnswer;
         this.updatedAt = updatedAt;
+        this.profile = profile;
     }
 
-    public static SearchQuestionResponseDto from(Question question, Long answerCount) {
+    public static SearchQuestionResponseDto from(Question question, boolean owner, Long answerCount, String profile) {
         String displayName;
         if (question.isAnonymous()) {
             displayName = "익명";
@@ -53,7 +61,9 @@ public class SearchQuestionResponseDto {
                 .nickname(displayName)
                 .clubName(question.getClub().getName())
                 .content(question.getContent())
+                .owner(owner)
                 .countAnswer(answerCount)
+                .profile(profile)
                 .updatedAt(question.getUpdateAt())
                 .build();
     }
