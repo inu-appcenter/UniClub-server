@@ -141,8 +141,7 @@ public class QnaService {
         //업데이트
         existingQuestion.update(
                 questionUpdateRequestDto.getContent(),
-                questionUpdateRequestDto.getAnonymous(),
-                questionUpdateRequestDto.getAnswered()
+                questionUpdateRequestDto.getAnonymous()
         );
 
         log.info("질문 수정 완료: {}", existingQuestion.getQuestionId());
