@@ -24,4 +24,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "LEFT JOIN u.profileMedia m " +
             "WHERE u.userId = :userId")
     Optional<String> findProfileLinkByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT u.userId, m.mediaLink FROM User u " +
+            "LEFT JOIN u.profileMedia m " +
+            "WHERE u.userId IN :userIds AND u.deleted = false")
+    List<Object[]> findProfileLinksByUserIds(@Param("userIds") List<Long> userIds);
 }
