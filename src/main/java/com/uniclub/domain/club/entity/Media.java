@@ -45,4 +45,8 @@ public class Media extends BaseTime {
     public void updateMainMedia(Boolean mainMedia) {
         this.mainMedia = mainMedia;
     }
+
+    public void updateMediaLink(String mediaLink) {
+        this.mediaLink = mediaLink;
+    }
 }

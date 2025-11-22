@@ -46,17 +46,8 @@ public class UserService {
             throw new CustomException(ErrorCode.USER_DELETED);
         }
 
-        // 프로필 이미지가 제공된 경우 Media 엔티티로 저장
-        Media profileMedia = null;
-        String profileImageLink = informationModificationRequestDto.getProfileImageLink();
-        if (profileImageLink != null && !profileImageLink.isBlank()) {
-            profileMedia = Media.builder()
-                    .mediaLink(profileImageLink)
-                    .mediaType(MediaType.USER_PROFILE)
-                    .mainMedia(false)
-                    .build();
-            mediaRepository.save(profileMedia);
-        }
+        // 프로필 업데이트
+        Media profileMedia = updateMedia(informationModificationRequestDto, user);
 
         // 전공이 빈칸이나 null로 왔을 때 기존값 유지를 위한 로직
         Major major = null;
@@ -74,7 +65,6 @@ public class UserService {
 
         log.info("사용자 정보 업데이트 성공: 학번={}", user.getStudentId());
     }
-
 
     public void deleteUser(UserDetailsImpl userDetails, UserDeleteRequestDto userDeleteRequestDto) {
 
@@ -229,4 +219,38 @@ public class UserService {
         }
         return request.getRemoteAddr();
     }
+
+    private Media updateMedia(InformationModificationRequestDto informationModificationRequestDto, User user) {
+        String profileImageLink = informationModificationRequestDto.getProfileImageLink();
+        if (profileImageLink == null) {
+            return null;
+        }
+
+        Media existingMedia = user.getProfileMedia();
+
+        // 기존 프로필이 있는 상태에서 빈 문자열이 오면 프로필 삭제
+        if (profileImageLink.isEmpty()) {
+            if (existingMedia != null) {
+                mediaRepository.delete(existingMedia);
+                user.deleteProfileMedia();
+            }
+            return null;
+        }
+
+        // 기존 프로필 업데이트
+        if (existingMedia != null) {
+            existingMedia.updateMediaLink(profileImageLink);
+            return null;
+        }
+
+        // 새 프로필 생성
+        Media newMedia = Media.builder()
+                .mediaLink(profileImageLink)
+                .mediaType(MediaType.USER_PROFILE)
+                .mainMedia(false)
+                .build();
+        mediaRepository.save(newMedia);
+        return newMedia;
+    }
+
 }
