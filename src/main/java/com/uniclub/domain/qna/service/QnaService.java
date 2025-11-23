@@ -40,9 +40,9 @@ public class QnaService {
     private final NotificationEventProcessor notificationEventProcessor;
     private final UserRepository userRepository;
 
-
     //Qna 페이지 다중 질문 조회
-    public Slice<SearchQuestionResponseDto> getSearchQuestions(UserDetailsImpl userDetails, String keyword, Long clubId, boolean answered, boolean onlyMyQuestions, int size) {
+    @Transactional(readOnly = true)
+    public PageQuestionResponseDto<SearchQuestionResponseDto> getSearchQuestions(UserDetailsImpl userDetails, String keyword, Long clubId, boolean answered, boolean onlyMyQuestions, int size) {
         // 존재하는 동아리인지 확인
         if (clubId != null && !clubRepository.existsById(clubId)){
             throw new CustomException(ErrorCode.CLUB_NOT_FOUND);
@@ -54,47 +54,69 @@ public class QnaService {
         //PageRequest 생성 및 정렬
         Pageable pageable = PageRequest.of(0, size);
 
-        Slice<Object[]> resultSlice = questionRepository.searchQuestionsWithAnswerCount(keyword, clubId, answered, userId, pageable);
+        Slice<Object[]> questionSlice = questionRepository.searchQuestionsWithAnswerCount(keyword, clubId, answered, userId, pageable);
+
+        // 익명이 아닌 질문의 User만 추출 후 프로필 조회
+        List<User> users = questionSlice.getContent().stream()
+                .map(row -> (Question) row[0])
+                .filter(question -> shouldFetchProfile(question.isAnonymous(), question.getUser()))
+                .map(Question::getUser)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<User, String> profileMap = buildProfileMap(users);
 
         // DTO 변환
-        List<SearchQuestionResponseDto> content = resultSlice.getContent().stream()
+        List<SearchQuestionResponseDto> content = questionSlice.getContent().stream()
                 .map(row -> {
                     Question question = (Question) row[0];
                     Long answerCount = (Long) row[1];
-                    Long questionAuthorId = question.getUser().getUserId();
+                    Long questionAuthorId = question.getUser() != null ? question.getUser().getUserId() : null;
                     boolean owner = userDetails.getUserId().equals(questionAuthorId);
-                    String profile = getProfile(question.isAnonymous(), question.getUser());
+                    String profile = profileMap.get(question.getUser());
                     String displayName = question.getDisplayName();
                     return SearchQuestionResponseDto.from(question, displayName, owner, answerCount, profile);
                 })
                 .collect(Collectors.toList());
 
-        return new SliceImpl<>(content, pageable, resultSlice.hasNext());
+         Slice<SearchQuestionResponseDto> dtoSlice = new SliceImpl<>(content, pageable, questionSlice.hasNext());
+         return new PageQuestionResponseDto<>(dtoSlice.getContent(), dtoSlice.hasNext());
     }
 
-
     //단일 질문 조회
+    @Transactional(readOnly = true)
     public QuestionResponseDto getQuestion(UserDetailsImpl userDetails, Long questionId) {
         //기존 Quesiton Entity 불러오기
         Question question = questionRepository.findByIdWithUser(questionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_NOT_FOUND));
 
-        Long questionAuthorId = question.getUser().getUserId();
+        Long questionAuthorId = question.getUser() != null ? question.getUser().getUserId() : null;
         Long userId = userDetails.getUserId();
         String displayName = question.getDisplayName();
 
         //questionId로 답변과 User를 fetch join하여 조회 (삭제된 답변은 자식답변이 있는 경우에만 조회)
         List<Answer> answerList = answerRepository.findByQuestionIdWithUser(questionId);
 
+        // 익명이 아닌 질문자 + 답변자들의 User만 추출 후 프로필 조회
+        List<User> users = new ArrayList<>();
+        if (shouldFetchProfile(question.isAnonymous(), question.getUser())) {
+            users.add(question.getUser());
+        }
+        answerList.stream()
+                .filter(answer -> shouldFetchProfile(answer.isAnonymous(), answer.getUser()))
+                .map(Answer::getUser)
+                .distinct()
+                .forEach(users::add);
+        Map<User, String> profileMap = buildProfileMap(users);
+
         boolean questionOwner = (questionAuthorId != null && userDetails.getUserId().equals(questionAuthorId));
-        String questionerProfile = getProfile(question.isAnonymous(), question.getUser());
+        String questionerProfile = profileMap.get(question.getUser());
 
         // 유저 - 익명번호 매핑 map 생성
         Map<Long, Integer> anonymousNumberMap = createAnonymousNumberMap(answerList, questionAuthorId, questionId);
 
         // 답변 DTO 리스트 생성
         List<AnswerResponseDto> answerResponseDtoList = createAnswerResponseDtoList(
-                answerList, anonymousNumberMap, questionAuthorId, userId
+                answerList, anonymousNumberMap, questionAuthorId, userId, profileMap
         );
 
         // 동아리 회장 여부 확인
@@ -303,21 +325,12 @@ public class QnaService {
         }
     }
 
-    private String getProfile(boolean isAnonymous, User user) {
-        if (isAnonymous || user == null || user.isDeleted()) {
-            return null;
-        }
-
-        return userRepository.findProfileLinkByUserId(user.getUserId())
-                .map(s3Service::getDownloadPresignedUrl)
-                .orElse(null);
-    }
-
     private List<AnswerResponseDto> createAnswerResponseDtoList(
             List<Answer> answerList,
             Map<Long, Integer> anonymousNumberMap,
             Long questionAuthorId,
-            Long userId
+            Long userId,
+            Map<User, String> profileMap
     ) {
         List<AnswerResponseDto> answerResponseDtoList = new ArrayList<>();
         for (Answer answer : answerList) {
@@ -331,11 +344,41 @@ public class QnaService {
             String displayName = createDisplayName(answer, anonymousNumber, questionAuthorId);
             boolean owner = answer.getUser() != null && !answer.getUser().isDeleted()
                     && answer.getUser().getUserId().equals(userId);
-            String answererProfile = getProfile(answer.isAnonymous(), answer.getUser());
+            String answererProfile = profileMap.get(answer.getUser());
 
             answerResponseDtoList.add(AnswerResponseDto.from(answer, displayName, owner, answererProfile));
         }
         return answerResponseDtoList;
+    }
+
+    // User 리스트로 여러 프로필 한번에 조회 및 Map 생성
+    private Map<User, String> buildProfileMap(List<User> users) {
+        if (users.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<Long> userIds = users.stream()
+                .map(User::getUserId)
+                .collect(Collectors.toList());
+
+        // userId - profile map 생성, profile 없는 경우 map에 포함 X
+        Map<Long, String> idToProfileMap = userRepository.findProfileLinksByUserIds(userIds).stream()
+                .filter(row -> row[1] != null)
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> s3Service.getDownloadPresignedUrl((String) row[1])
+                ));
+
+        // 호출부의 간편성을 위해 user - profile map 생성
+        return users.stream()
+                .filter(user -> idToProfileMap.containsKey(user.getUserId()))
+                .collect(Collectors.toMap(
+                        user -> user,
+                        user -> idToProfileMap.get(user.getUserId())
+                ));
+    }
+
+    private boolean shouldFetchProfile(boolean isAnonymous, User user) {
+        return !isAnonymous && user != null && !user.isDeleted();
     }
 
 }

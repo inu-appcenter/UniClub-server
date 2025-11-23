@@ -31,8 +31,7 @@ public class QnaController implements QnaApiSpecification {
             @RequestParam(defaultValue = "false") boolean onlyMyQuestions,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Slice<SearchQuestionResponseDto> slice = qnaService.getSearchQuestions(userDetails, keyword, clubId, answered, onlyMyQuestions, size);
-        PageQuestionResponseDto<SearchQuestionResponseDto> searchQuestionResponseDtoList = new PageQuestionResponseDto<>(slice.getContent(), slice.hasNext());
+        PageQuestionResponseDto<SearchQuestionResponseDto> searchQuestionResponseDtoList = qnaService.getSearchQuestions(userDetails, keyword, clubId, answered, onlyMyQuestions, size);
         return ResponseEntity.status(HttpStatus.OK).body(searchQuestionResponseDtoList);
     }
 
