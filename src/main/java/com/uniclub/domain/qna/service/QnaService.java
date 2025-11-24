@@ -72,7 +72,7 @@ public class QnaService {
                     Long answerCount = (Long) row[1];
                     Long questionAuthorId = question.getUser() != null ? question.getUser().getUserId() : null;
                     boolean owner = userDetails.getUserId().equals(questionAuthorId);
-                    String profile = profileMap.get(question.getUser());
+                    String profile = getProfile(question.isAnonymous(), question.getUser(), profileMap);
                     String displayName = question.getDisplayName();
                     return SearchQuestionResponseDto.from(question, displayName, owner, answerCount, profile);
                 })
@@ -109,7 +109,7 @@ public class QnaService {
         Map<User, String> profileMap = buildProfileMap(users);
 
         boolean questionOwner = (questionAuthorId != null && userDetails.getUserId().equals(questionAuthorId));
-        String questionerProfile = profileMap.get(question.getUser());
+        String questionerProfile = getProfile(question.isAnonymous(), question.getUser(), profileMap);
 
         // 유저 - 익명번호 매핑 map 생성
         Map<Long, Integer> anonymousNumberMap = createAnonymousNumberMap(answerList, questionAuthorId, questionId);
@@ -344,7 +344,7 @@ public class QnaService {
             String displayName = createDisplayName(answer, anonymousNumber, questionAuthorId);
             boolean owner = answer.getUser() != null && !answer.getUser().isDeleted()
                     && answer.getUser().getUserId().equals(userId);
-            String answererProfile = profileMap.get(answer.getUser());
+            String answererProfile = getProfile(answer.isAnonymous(), answer.getUser(), profileMap);
 
             answerResponseDtoList.add(AnswerResponseDto.from(answer, displayName, owner, answererProfile));
         }
@@ -373,12 +373,19 @@ public class QnaService {
                 .filter(user -> idToProfileMap.containsKey(user.getUserId()))
                 .collect(Collectors.toMap(
                         user -> user,
-                        user -> idToProfileMap.get(user.getUserId())
+                        user -> idToProfileMap.get(user.getUserId()),
+                        (existing, replacement) -> existing
                 ));
     }
 
     private boolean shouldFetchProfile(boolean isAnonymous, User user) {
         return !isAnonymous && user != null && !user.isDeleted();
+    }
+
+    private String getProfile(boolean isAnonymous, User user, Map<User, String> profileMap) {
+        return shouldFetchProfile(isAnonymous, user)
+                ? profileMap.get(user)
+                : null;
     }
 
 }
