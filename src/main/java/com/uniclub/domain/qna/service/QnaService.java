@@ -258,8 +258,13 @@ public class QnaService {
         return anonymousNumberMap;
     }
 
-    private String createDisplayName(Answer answer, Integer anonymousNumber, Long questionAuthorId) {
+    private String createDisplayName(Answer answer, Integer anonymousNumber, Long questionAuthorId, Club club) {
         boolean isQuestionAuthor = answer.getUser() != null && answer.getUser().getUserId().equals(questionAuthorId);
+
+        // 회장 답변인 경우 - 동아리명 표시
+        if (answer.isPresidentAnswer()) {
+            return club.getName();
+        }
 
         // 탈퇴한 사용자인 경우
         if (answer.getUser() == null || answer.getUser().isDeleted()) {
@@ -267,7 +272,7 @@ public class QnaService {
         }
 
         // 익명인 경우
-        else if (answer.isAnonymous()) {
+        if (answer.isAnonymous()) {
             if (isQuestionAuthor) {
                 return "작성자";
             } else {
@@ -276,13 +281,11 @@ public class QnaService {
         }
 
         // 익명이 아닌 경우(닉네임)
-        else {
-            String displayName = answer.getUser().getNickname();
-            if (isQuestionAuthor) {
-                displayName += "(작성자)";
-            }
-            return displayName;
+        String displayName = answer.getUser().getNickname();
+        if (isQuestionAuthor) {
+            displayName += "(작성자)";
         }
+        return displayName;
     }
 
     private List<AnswerResponseDto> createAnswerResponseDtoList(
@@ -290,7 +293,8 @@ public class QnaService {
             Map<Long, Integer> anonymousNumberMap,
             Long questionAuthorId,
             Long userId,
-            Map<User, String> profileMap
+            Map<User, String> profileMap,
+            Club club
     ) {
         List<AnswerResponseDto> answerResponseDtoList = new ArrayList<>();
         for (Answer answer : answerList) {
@@ -301,7 +305,7 @@ public class QnaService {
                 anonymousNumber = anonymousNumberMap.get(answer.getUser().getUserId());
             }
 
-            String displayName = createDisplayName(answer, anonymousNumber, questionAuthorId);
+            String displayName = createDisplayName(answer, anonymousNumber, questionAuthorId, club);
             boolean owner = answer.getUser() != null && !answer.getUser().isDeleted()
                     && answer.getUser().getUserId().equals(userId);
             String answererProfile = getProfile(answer.isAnonymous(), answer.getUser(), profileMap);
@@ -400,7 +404,7 @@ public class QnaService {
 
         // 답변 리스트
         List<AnswerResponseDto> answerResponseDtoList = createAnswerResponseDtoList(
-                answerList, anonymousNumberMap, questionAuthorId, userId, profileMap
+                answerList, anonymousNumberMap, questionAuthorId, userId, profileMap, question.getClub()
         );
 
         // 동아리 회장 여부
