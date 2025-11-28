@@ -87,18 +87,6 @@ public class QnaService {
                 questionAuthorId);
     }
 
-    private List<User> extractUserNotAnonymousQuestionAnswer(Question question, List<Answer> answerList) {
-        List<User> users = new ArrayList<>();
-        // 질문
-        if (shouldFetchProfile(question.isAnonymous(), question.getUser())) {
-            users.add(question.getUser());
-        }
-        // 답변
-        extractNotAnonymousAnswer(answerList, users);
-        return users;
-    }
-
-
     //질문 등록
     public QuestionCreateResponseDto createQuestion(UserDetailsImpl userDetails, Long clubId, QuestionCreateRequestDto questionCreateRequestDto) {
         // 존재하는 동아리인지 확인
@@ -429,5 +417,18 @@ public class QnaService {
                 .map(membership -> membership.getRole() == Role.PRESIDENT)
                 .orElse(false);
     }
+
+
+    private List<User> extractUserNotAnonymousQuestionAnswer(Question question, List<Answer> answerList) {
+        List<User> users = new ArrayList<>();
+        // 질문
+        if (shouldFetchProfile(question.isAnonymous(), question.getUser())) {
+            users.add(question.getUser());
+        }
+        // 답변
+        extractNotAnonymousAnswer(answerList, users);
+        return users;
+    }
+
 
 }
