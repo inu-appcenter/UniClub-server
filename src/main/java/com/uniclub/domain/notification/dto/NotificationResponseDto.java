@@ -27,7 +27,7 @@ public class NotificationResponseDto {
     @Schema(description = "알림 종류", example = "PERSONAL")
     private final NotificationType notificationType;
 
-    @Schema(description = "연결 해야하는 타켓의 ID")
+    @Schema(description = "연결 해야하는 타겟의 ID")
     private final Long targetId;
 
     @Schema(description = "알림 생성 시간", example = "2025-08-03T14:30:00")

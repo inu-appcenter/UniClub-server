@@ -56,19 +56,26 @@ public class Question extends BaseTime{
         this.club = club;
     }
 
-    public void update(String content, Boolean anonymous, Boolean answered) {
+    public void update(String content, Boolean anonymous) {
         if (content != null) {
             this.content = content;
         }
         if (anonymous != null) {
             this.anonymous = anonymous;
         }
-        if (answered != null) {
-            this.answered = answered;
-        }
     }
 
     public void markAsAnswered() {
         this.answered = true;
+    }
+
+    public String getDisplayName() {
+        if (this.anonymous) {
+            return "익명";
+        } else if (this.user == null || this.user.isDeleted()) {
+            return "탈퇴한 사용자";
+        } else {
+            return this.user.getNickname();
+        }
     }
 }

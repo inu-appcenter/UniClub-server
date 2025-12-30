@@ -31,9 +31,10 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             "FROM Question q " +
             "LEFT JOIN FETCH q.user u " +
             "LEFT JOIN FETCH q.club c " +
+            "LEFT JOIN FETCH u.profileMedia " +
             "WHERE (:keyword IS NULL OR UPPER(q.content) LIKE UPPER(CONCAT('%', :keyword, '%'))) " +
             "AND (:clubId IS NULL OR q.club.clubId = :clubId) " +
-            "AND q.answered = :answered " +
+            "AND (:answered = false OR q.answered = :answered) " +
             "AND (:userId IS NULL OR q.user.userId = :userId) " +
             "AND q.deleted = false " +
             "ORDER BY q.updateAt DESC")

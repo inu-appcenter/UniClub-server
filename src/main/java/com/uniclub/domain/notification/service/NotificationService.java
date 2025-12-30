@@ -1,12 +1,15 @@
 package com.uniclub.domain.notification.service;
 
+import com.uniclub.domain.notification.dto.NotificationCreateRequestDto;
 import com.uniclub.domain.notification.dto.NotificationPageResponseDto;
 import com.uniclub.domain.notification.dto.NotificationResponseDto;
 import com.uniclub.domain.notification.entity.Notification;
+import com.uniclub.domain.notification.entity.NotificationType;
 import com.uniclub.domain.notification.repository.NotificationRepository;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.UserDetailsImpl;
+import com.uniclub.global.util.EnumConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,6 +25,16 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
+    //알림 생성(테스트)
+    public void createNotification(NotificationCreateRequestDto notificationCreateRequestDto) {
+        NotificationType notificationType = null;
+        if (notificationCreateRequestDto.getNotificationType() != null && !notificationCreateRequestDto.getNotificationType().isBlank()){
+            notificationType = EnumConverter.stringToEnum(notificationCreateRequestDto.getNotificationType(), NotificationType.class, ErrorCode.NOTIFICATION_TYPE_NOT_FOUND);
+        }
+        Notification notification = notificationCreateRequestDto.toEntity(notificationType);
+        notificationRepository.save(notification);
+        log.info("Notification created");
+    }
 
     //알림 조회
     public NotificationPageResponseDto getNotifications(UserDetailsImpl userDetails, Pageable pageable, Boolean isRead) {
@@ -54,11 +67,10 @@ public class NotificationService {
         notificationRepository.delete(notification);
     }
 
-    //알림 전체 삭제
-    public void deleteAllNotifications(UserDetailsImpl userDetails) {
-        notificationRepository.deleteAllByUserId(userDetails.getUserId());
+    //읽은 알림 전체 삭제
+    public void deleteAllReadNotifications(UserDetailsImpl userDetails) {
+        notificationRepository.deleteAllByUserIdAndReadTrue(userDetails.getUserId());
     }
-
 
 
     //알림 조회 (소유주 확인 포함)

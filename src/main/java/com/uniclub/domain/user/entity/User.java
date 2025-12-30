@@ -76,4 +76,8 @@ public class User extends BaseTime {
         this.studentId = "d_" + timestamp + "_" + this.studentId;
     }
 
+    public void deleteProfileMedia() {
+        this.profileMedia = null;
+    }
+
 }

@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Tag(name = "QnA API", description = "질문·답변 관련 기능")
 public interface QnaApiSpecification {
 
@@ -24,7 +26,7 @@ public interface QnaApiSpecification {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "검색 성공",
                     content = @Content(
-                            schema = @Schema(implementation = PageQuestionResponseDto.class),
+                            schema = @Schema(implementation = SearchQuestionResponseDto.class),
                             examples = @ExampleObject("""
                     {
                       "content": [
@@ -33,14 +35,20 @@ public interface QnaApiSpecification {
                           "nickname": "라면",
                           "clubName": "앱센터",
                           "content": "동아리원 모집은 언제 진행하나요?",
-                          "countAnswer": 3
+                          "owner": true,
+                          "countAnswer": 3,
+                          "updatedAt": "2025-08-25T10:30:00",
+                          "profile": "https://uniclubs3.s3.ap-northeast-2.amazonaws.com/uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png"
                         },
                         {
                           "questionId": 2,
                           "nickname": "익명",
                           "clubName": "디자인소모임",
                           "content": "활동비는 얼마인가요?",
-                          "countAnswer": 0
+                          "owner": false,
+                          "countAnswer": 0,
+                          "updatedAt": "2025-08-24T15:20:00",
+                          "profile": null
                         }
                       ],
                       "hasNext": true
@@ -81,10 +89,14 @@ public interface QnaApiSpecification {
                     {
                       "questionId": 1,
                       "nickname": "라면",
+                      "clubName": "앱센터",
                       "content": "동아리원 모집은 언제 진행하나요?",
                       "anonymous": false,
                       "answered": true,
                       "updatedAt": "2025-08-25T10:30:00",
+                      "owner": true,
+                      "profile": "https://uniclubs3.s3.ap-northeast-2.amazonaws.com/uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250813T162429Z&X-Amz-SignedHeaders=host&X-Amz-Expires=1200&X-Amz-Credential=AKIAYHJAM5L7YOWJHC4E%2F20250813%2Fap-northeast-2%2Fs3%2Faws4_request&X-Amz-Signature=46a114c0ef5c5921b9ea480b5fd10a197a7dfcafb782e633487fec858de4",
+                      "president": false,
                       "answers": [
                         {
                           "answerId": 1,
@@ -94,7 +106,9 @@ public interface QnaApiSpecification {
                           "deleted": false,
                           "updateTime": "2025-08-25T11:00:00",
                           "parentAnswerId": null,
-                          "owner": false
+                          "owner": false,
+                          "president": true,
+                          "profile": "https://uniclubs3.s3.ap-northeast-2.amazonaws.com/uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250813T162429Z&X-Amz-SignedHeaders=host&X-Amz-Expires=1200&X-Amz-Credential=AKIAYHJAM5L7YOWJHC4E%2F20250813%2Fap-northeast-2%2Fs3%2Faws4_request&X-Amz-Signature=46a114c0ef5c5921b9ea480b5fd10a197a7dfcafb782e633487fec858de4"
                         },
                         {
                           "answerId": 2,
@@ -104,7 +118,9 @@ public interface QnaApiSpecification {
                           "deleted": false,
                           "updateTime": "2025-08-25T11:30:00",
                           "parentAnswerId": null,
-                          "owner": false
+                          "owner": false,
+                          "president": false,
+                          "profile": null
                         },
                         {
                           "answerId": 3,
@@ -114,7 +130,9 @@ public interface QnaApiSpecification {
                           "deleted": false,
                           "updateTime": "2025-08-25T12:00:00",
                           "parentAnswerId": 1,
-                          "owner": true
+                          "owner": true,
+                          "president": false,
+                          "profile": null
                         },
                         {
                           "answerId": 4,
@@ -124,7 +142,9 @@ public interface QnaApiSpecification {
                           "deleted": false,
                           "updateTime": "2025-08-25T12:30:00",
                           "parentAnswerId": 1,
-                          "owner": false
+                          "owner": false,
+                          "president": false,
+                          "profile": null
                         },
                         {
                           "answerId": 5,
@@ -134,11 +154,11 @@ public interface QnaApiSpecification {
                           "deleted": false,
                           "updateTime": "2025-08-25T13:00:00",
                           "parentAnswerId": null,
-                          "owner": false
+                          "owner": false,
+                          "president": false,
+                          "profile": null
                         }
-                      ],
-                      "owner": true,
-                      "president": false
+                      ]
                     }
                     """
                             )
@@ -170,8 +190,7 @@ public interface QnaApiSpecification {
                             schema = @Schema(implementation = QuestionCreateResponseDto.class),
                             examples = @ExampleObject("""
                     {
-                      "questionId": 123,
-                      "message": "질문이 등록되었습니다."
+                      "questionId": 123
                     }
                     """
                             )
@@ -301,8 +320,7 @@ public interface QnaApiSpecification {
                             schema = @Schema(implementation = AnswerCreateResponseDto.class),
                             examples = @ExampleObject("""
                     {
-                      "answerId": 456,
-                      "message": "답변이 등록되었습니다."
+                      "answerId": 456
                     }
                     """
                             )
@@ -436,5 +454,37 @@ public interface QnaApiSpecification {
     ResponseEntity<Void> markQuestionAsAnswered(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long questionId
+    );
+
+    @Operation(summary = "QnA 페이지 동아리 검색", description = "QnA 페이지에서 동아리 검색. 키워드가 없으면 모든 동아리 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "검색 성공",
+                    content = @Content(
+                            schema = @Schema(implementation = QnaClubResponseDto.class),
+                            examples = @ExampleObject("""
+                    [
+                      {
+                        "clubId": 1,
+                        "clubName": "앱센터",
+                        "categoryType": "IT_TECH"
+                      },
+                      {
+                        "clubId": 2,
+                        "clubName": "디자인소모임",
+                        "categoryType": "ART_CULTURE"
+                      },
+                      {
+                        "clubId": 3,
+                        "clubName": "농구동아리",
+                        "categoryType": "SPORTS"
+                      }
+                    ]
+                    """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<List<QnaClubResponseDto>> getSearchClubs(
+            @RequestParam(required = false) String keyword
     );
 }
