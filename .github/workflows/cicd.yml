@@ -24,8 +24,6 @@ jobs:
           cat > ./src/main/resources/firebase/uniclub_firebase_admin_key.json << 'EOF'
           ${{ secrets.FIREBASE_ADMIN_KEY }}
           EOF
-          
-          
 
       #Set Java
       - name: Set Java JDK 21
