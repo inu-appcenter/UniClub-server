@@ -82,7 +82,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
-              cd /home/serverking/uniclub-dev
+              cd /home/serverking/uniclub
               chmod +x ./uniclub-dev-api.sh
               ./uniclub-dev-api.sh
             else
