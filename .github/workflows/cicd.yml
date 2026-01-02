@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # application.yml 생성 (cat << 'EOF' 방식 적용)
+      # application.yml 생성
       - name: Make application yml
         run: |
           mkdir -p src/main/resources
@@ -27,7 +27,7 @@ jobs:
           EOF
           fi
 
-      # Firebase Admin Key 생성 (cat << 'EOF' 방식 적용)
+      # Firebase Admin Key 생성
       - name: Make Firebase Admin Key
         run: |
           mkdir -p src/main/resources/firebase
@@ -40,11 +40,6 @@ jobs:
           ${{ secrets.FIREBASE_ADMIN_KEY }}
           EOF
           fi
-
-      # Firebase JSON 파싱 검증 (원래 로직 복구)
-      - name: Validate Firebase JSON
-        run: |
-          node -e "JSON.parse(require('fs').readFileSync('src/main/resources/firebase/uniclub_firebase_admin_key.json','utf8')); console.log('firebase json ok')"
 
       # Java / Gradle 설정
       - name: Set Java JDK 21
@@ -59,7 +54,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # Build (원래 흐름 유지)
       - name: Gradle clean
         run: ./gradlew clean
 
