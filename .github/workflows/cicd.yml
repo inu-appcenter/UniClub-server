@@ -16,22 +16,27 @@ jobs:
       # application.yml 생성
       - name: Make application yml
         run: |
-          mkdir -p ./src/main/resources
+          mkdir -p src/main/resources
           if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
-            echo "${{ secrets.APPLICATION_DEV_YML }}" > ./src/main/resources/application.yml
+            printf "%s" "${{ secrets.APPLICATION_DEV_YML }}" > src/main/resources/application.yml
           else
-            echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
+            printf "%s" "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
           fi
 
       # Firebase Admin Key 생성
       - name: Make Firebase Admin Key
         run: |
-          mkdir -p ./src/main/resources/firebase
+          mkdir -p src/main/resources/firebase
           if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
-            echo "${{ secrets.FIREBASE_DEV_ADMIN_KEY }}" > ./src/main/resources/firebase/uniclub_firebase_admin_key.json
+            printf "%s" "${{ secrets.FIREBASE_DEV_ADMIN_KEY }}" > src/main/resources/firebase/uniclub_firebase_admin_key.json
           else
-            echo "${{ secrets.FIREBASE_ADMIN_KEY }}" > ./src/main/resources/firebase/uniclub_firebase_admin_key.json
+            printf "%s" "${{ secrets.FIREBASE_ADMIN_KEY }}" > src/main/resources/firebase/uniclub_firebase_admin_key.json
           fi
+
+      # Firebase JSON 유효성 검사 (파싱만, 출력 없음)
+      - name: Validate Firebase JSON
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('src/main/resources/firebase/uniclub_firebase_admin_key.json','utf8')); console.log('firebase json ok')"
 
       # Java / Gradle 설정
       - name: Set Java JDK 21
@@ -81,12 +86,11 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
+            cd /home/serverking/uniclub
             if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
-              cd /home/serverking/uniclub
               chmod +x ./uniclub-dev-api.sh
               ./uniclub-dev-api.sh
             else
-              cd /home/serverking/uniclub
               chmod +x ./uniclub-api.sh
               ./uniclub-api.sh
             fi
