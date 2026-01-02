@@ -13,37 +13,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # application.yml 분기
+      # application.yml 생성
       - name: Make application yml
         run: |
           mkdir -p ./src/main/resources
-
           if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
-            cat > ./src/main/resources/application.yml << 'EOF'
-            ${{ secrets.APPLICATION_DEV_YML }}
-            EOF
+            printf "%s" "${{ secrets.APPLICATION_DEV_YML }}" > ./src/main/resources/application.yml
           else
-            cat > ./src/main/resources/application.yml << 'EOF'
-            ${{ secrets.APPLICATION_YML }}
-            EOF
+            printf "%s" "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
           fi
 
-      # Firebase Admin Key 분기
+      # Firebase Admin Key 생성
       - name: Make Firebase Admin Key
         run: |
           mkdir -p ./src/main/resources/firebase
-
           if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
-            cat > ./src/main/resources/firebase/uniclub_firebase_admin_key.json << 'EOF'
-            ${{ secrets.FIREBASE_DEV_ADMIN_KEY }}
-            EOF
+            printf "%s" "${{ secrets.FIREBASE_DEV_ADMIN_KEY }}" > ./src/main/resources/firebase/uniclub_firebase_admin_key.json
           else
-            cat > ./src/main/resources/firebase/uniclub_firebase_admin_key.json << 'EOF'
-            ${{ secrets.FIREBASE_ADMIN_KEY }}
-            EOF
+            printf "%s" "${{ secrets.FIREBASE_ADMIN_KEY }}" > ./src/main/resources/firebase/uniclub_firebase_admin_key.json
           fi
 
-      # Java / Gradle
+      # Java / Gradle 설정
       - name: Set Java JDK 21
         uses: actions/setup-java@v4
         with:
@@ -56,13 +46,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: cache clean
+      # Build
+      - name: Gradle clean
         run: ./gradlew clean
 
-      - name: Run build with Gradle Wrapper
+      - name: Build (skip test)
         run: ./gradlew build -x test
 
-      # Docker Build & Push
+      # Docker Image Build & Push
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -83,7 +74,7 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPONAME }}:${{ github.ref == 'refs/heads/dev' && 'dev' || 'latest' }}
 
       # Deploy
-      - name: Deploy remote ssh commands
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
