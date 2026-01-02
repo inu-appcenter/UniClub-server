@@ -13,36 +13,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # application.yml 생성
+      # application.yml 생성 (cat << 'EOF' 방식 적용)
       - name: Make application yml
         run: |
           mkdir -p src/main/resources
           if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
-            printf "%s" "${{ secrets.APPLICATION_DEV_YML }}" > src/main/resources/application.yml
+            cat > src/main/resources/application.yml << 'EOF'
+          ${{ secrets.APPLICATION_DEV_YML }}
+          EOF
           else
-            printf "%s" "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
+            cat > src/main/resources/application.yml << 'EOF'
+          ${{ secrets.APPLICATION_YML }}
+          EOF
           fi
 
-      # Firebase Admin Key 생성
+      # Firebase Admin Key 생성 (cat << 'EOF' 방식 적용)
       - name: Make Firebase Admin Key
         run: |
           mkdir -p src/main/resources/firebase
           if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
-            printf "%s" "${{ secrets.FIREBASE_DEV_ADMIN_KEY }}" > src/main/resources/firebase/uniclub_firebase_admin_key.json
+            cat > src/main/resources/firebase/uniclub_firebase_admin_key.json << 'EOF'
+          ${{ secrets.FIREBASE_DEV_ADMIN_KEY }}
+          EOF
           else
-            printf "%s" "${{ secrets.FIREBASE_ADMIN_KEY }}" > src/main/resources/firebase/uniclub_firebase_admin_key.json
+            cat > src/main/resources/firebase/uniclub_firebase_admin_key.json << 'EOF'
+          ${{ secrets.FIREBASE_ADMIN_KEY }}
+          EOF
           fi
 
-      # 🔍 Firebase JSON 실제 내용 확인 (민감정보 안전)
-      - name: Inspect firebase json (safe)
-        run: |
-          wc -l src/main/resources/firebase/uniclub_firebase_admin_key.json
-          echo "----- FIRST 15 LINES -----"
-          sed -n '1,15p' src/main/resources/firebase/uniclub_firebase_admin_key.json | cat -A
-          echo "----- LAST LINE -----"
-          sed -n '$p' src/main/resources/firebase/uniclub_firebase_admin_key.json | cat -A
-
-      # Firebase JSON 파싱 검증
+      # Firebase JSON 파싱 검증 (원래 로직 복구)
       - name: Validate Firebase JSON
         run: |
           node -e "JSON.parse(require('fs').readFileSync('src/main/resources/firebase/uniclub_firebase_admin_key.json','utf8')); console.log('firebase json ok')"
@@ -60,7 +59,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # Build
+      # Build (원래 흐름 유지)
       - name: Gradle clean
         run: ./gradlew clean
 
