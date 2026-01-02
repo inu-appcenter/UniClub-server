@@ -18,9 +18,9 @@ jobs:
         run: |
           mkdir -p ./src/main/resources
           if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
-            printf "%s" "${{ secrets.APPLICATION_DEV_YML }}" > ./src/main/resources/application.yml
+            echo "${{ secrets.APPLICATION_DEV_YML }}" > ./src/main/resources/application.yml
           else
-            printf "%s" "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
+            echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
           fi
 
       # Firebase Admin Key 생성
@@ -28,9 +28,9 @@ jobs:
         run: |
           mkdir -p ./src/main/resources/firebase
           if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
-            printf "%s" "${{ secrets.FIREBASE_DEV_ADMIN_KEY }}" > ./src/main/resources/firebase/uniclub_firebase_admin_key.json
+            echo "${{ secrets.FIREBASE_DEV_ADMIN_KEY }}" > ./src/main/resources/firebase/uniclub_firebase_admin_key.json
           else
-            printf "%s" "${{ secrets.FIREBASE_ADMIN_KEY }}" > ./src/main/resources/firebase/uniclub_firebase_admin_key.json
+            echo "${{ secrets.FIREBASE_ADMIN_KEY }}" > ./src/main/resources/firebase/uniclub_firebase_admin_key.json
           fi
 
       # Java / Gradle 설정
