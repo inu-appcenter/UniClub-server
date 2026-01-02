@@ -30,6 +30,14 @@ public class FcmConfig {
     @PostConstruct
     public void initialize() {
         try {
+            log.info("Firebase 초기화 시작 - file_path: {}, project_id: {}", firebaseResource.getPath(), projectId);
+            log.info("Firebase 파일 존재 여부: {}", firebaseResource.exists());
+
+            if (!firebaseResource.exists()) {
+                log.error("Firebase 키 파일을 찾을 수 없습니다: {}", firebaseResource.getPath());
+                throw new CustomException(ErrorCode.FIREBASE_INITIALIZATION_FAILED);
+            }
+
             InputStream serviceAccount = firebaseResource.getInputStream();
 
             FirebaseOptions options = new FirebaseOptions.Builder()
@@ -43,6 +51,7 @@ public class FcmConfig {
             }
 
         } catch (IOException e) {
+            log.error("Firebase 초기화 중 IOException 발생: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.FIREBASE_INITIALIZATION_FAILED);
         }
     }
