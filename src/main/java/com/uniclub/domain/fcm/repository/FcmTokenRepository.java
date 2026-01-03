@@ -17,6 +17,14 @@ public interface FcmTokenRepository extends JpaRepository<FcmToken, Long> {
 
     Optional<FcmToken> findByToken(String fcmToken);
 
+    @Modifying
+    @Query(value =
+            "INSERT INTO fcm_token (token, user_id, created_at, update_at, deleted, deleted_at) " +
+            "VALUES (:token, :userId, NOW(), NOW(), 0, NULL) " +
+            "ON DUPLICATE KEY UPDATE user_id = :userId, update_at = NOW()",
+            nativeQuery = true)
+    void upsertFcmToken(String token, Long userId);
+
     void deleteByToken(String token);
 
     List<FcmToken> userId(Long userId);
