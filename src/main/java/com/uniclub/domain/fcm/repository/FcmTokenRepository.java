@@ -25,6 +25,8 @@ public interface FcmTokenRepository extends JpaRepository<FcmToken, Long> {
             nativeQuery = true)
     void upsertFcmToken(String token, Long userId);
 
+    @Modifying
+    @Query("DELETE FROM FcmToken f WHERE f.token = :token")
     void deleteByToken(String token);
 
     List<FcmToken> userId(Long userId);
