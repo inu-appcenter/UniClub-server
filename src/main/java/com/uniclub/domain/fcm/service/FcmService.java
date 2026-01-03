@@ -4,6 +4,7 @@ import com.google.firebase.messaging.*;
 import com.uniclub.domain.fcm.dto.FcmMessageDto;
 import com.uniclub.domain.fcm.dto.FcmResponseDto;
 import com.uniclub.domain.fcm.repository.FcmTokenRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -77,14 +78,7 @@ public class FcmService {
 
         // 유효하지 않은 토큰 삭제
         if (!invalidTokens.isEmpty()) {
-            try {
-                for (String invalidToken : invalidTokens) {
-                    fcmTokenRepository.deleteByToken(invalidToken);
-                }
-                log.info("유효하지 않은 FCM 토큰 삭제 완료: {}개", invalidTokens.size());
-            } catch (Exception e) {
-                log.error("FCM 토큰 삭제 중 오류 발생", e);
-            }
+            deleteInvalidTokensSync(invalidTokens);
         }
 
         log.info("FCM 전송 완료 - 성공: {}건, 실패: {}건", successCount, failureCount);
@@ -95,6 +89,14 @@ public class FcmService {
                         .failureCount(failureCount)
                         .build()
         );
+    }
+
+    @Transactional
+    public void deleteInvalidTokensSync(List<String> tokens) {
+        for (String token : tokens) {
+            fcmTokenRepository.deleteByToken(token);
+        }
+        log.info("유효하지 않은 FCM 토큰 삭제 완료: {}개", tokens.size());
     }
 
     //유효하지 않은 토큰인지 확인
