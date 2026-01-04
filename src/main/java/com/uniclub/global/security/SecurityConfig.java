@@ -61,7 +61,8 @@ public class SecurityConfig {
 
         //허용할 도메인
         configuration.setAllowedOrigins(Arrays.asList(
-                "https://uniclub-server.inuappcenter.kr"
+                "https://uniclub-server.inuappcenter.kr",
+                "https://uniclub-dev-server.inuappcenter.kr"
         ));
 
         //모든 경로에 적용
