@@ -20,15 +20,11 @@ public class FcmTokenService {
 
     //Fcm 토큰 저장
     public void registerFcmToken(UserDetailsImpl userDetails, FcmRegisterRequestDto fcmRegisterRequestDto) {
-        //기존에 존재하는 토큰이면 삭제 (같은 기기의 다른 사용자인 경우 고려)
-        fcmTokenRepository.deleteByToken(fcmRegisterRequestDto.getFcmToken());
 
-        //새로 저장
-        FcmToken fcmToken = FcmToken.builder()
-                .token(fcmRegisterRequestDto.getFcmToken())
-                .userId(userDetails.getUserId())
-                .build();
-        fcmTokenRepository.save(fcmToken);
+        String token = fcmRegisterRequestDto.getFcmToken();
+        Long userId = userDetails.getUserId();
+
+        fcmTokenRepository.upsertFcmToken(token, userId);
 
         log.info("FCM 토큰 등록 완료: userId={}", userDetails.getUserId());
     }

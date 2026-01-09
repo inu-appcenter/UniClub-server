@@ -117,7 +117,7 @@ public class NotificationEventProcessor {
             processNotification(List.of(questionerId), title, message, NotificationType.QNA, questionId);
 
         } catch (Exception e) {
-            log.warn("답변 등록 푸시 알림 전송 중 오류: questionId={}, answerId={}", questionId, answerId);
+            log.warn("답변 등록 푸시 알림 전송 중 오류: questionId={}, answerId={}, {}", questionId, answerId, e.getMessage());
         }
     }
 
