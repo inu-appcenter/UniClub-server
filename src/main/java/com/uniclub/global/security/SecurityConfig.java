@@ -3,6 +3,7 @@ package com.uniclub.global.security;
 import com.uniclub.global.security.exception.JwtAccessDeniedHandler;
 import com.uniclub.global.security.exception.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +28,9 @@ public class SecurityConfig {
     private final JwtTokenFilter jwtTokenFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+
+    @Value("${swagger.server-url}")
+    private String serverUrl;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -60,9 +64,7 @@ public class SecurityConfig {
         configuration.setMaxAge(3600L);
 
         //허용할 도메인
-        configuration.setAllowedOrigins(Arrays.asList(
-                "https://uniclub-server.inuappcenter.kr"
-        ));
+        configuration.setAllowedOrigins(Arrays.asList(serverUrl));
 
         //모든 경로에 적용
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

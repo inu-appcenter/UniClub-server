@@ -15,12 +15,15 @@ import java.util.Arrays;
 @Configuration
 public class SwaggerConfig {
 
+    @Value("${swagger.server-url}")
+    private String serverUrl;
+
     @Bean
     public OpenAPI openAPI() {
 
         return new OpenAPI()
                 .servers(Arrays.asList(
-                        new Server().url("https://uniclub-server.inuappcenter.kr")
+                        new Server().url(serverUrl)
                 ))
                 .components(new Components()
                         // JWT 보안 스키마 추가
