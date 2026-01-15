@@ -1,6 +1,5 @@
 package com.uniclub.domain.user.entity;
 
-import com.uniclub.domain.club.entity.Media;
 import com.uniclub.global.util.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -34,9 +33,8 @@ public class User extends BaseTime {
     @Column(nullable = false)
     private Major major;    //전공
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_media_id")
-    private Media profileMedia;  // 프로필 이미지
+    @Column(name = "profile", columnDefinition = "TEXT")
+    private String profile;  // 프로필 이미지 S3 key
 
     @ColumnDefault("true")
     @Column(nullable = false)
@@ -50,7 +48,7 @@ public class User extends BaseTime {
         this.nickname = nickname;
     }
 
-    public void updateInfo(String name, Major major, String nickname, Media profileMedia) {
+    public void updateInfo(String name, Major major, String nickname, String profile) {
         if (name != null && !name.isBlank()) {
             this.name = name;
         }
@@ -60,8 +58,9 @@ public class User extends BaseTime {
         if (nickname != null && !nickname.isBlank()) {
             this.nickname = nickname;
         }
-        if (profileMedia != null) {
-            this.profileMedia = profileMedia;
+        if (profile != null) {
+            // 빈 문자열이면 프로필 삭제 (null로 설정)
+            this.profile = profile.isEmpty() ? null : profile;
         }
     }
 
@@ -75,9 +74,5 @@ public class User extends BaseTime {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
         this.studentId = "d_" + timestamp + "_" + this.studentId;
     }
-
-    public void deleteProfileMedia() {
-        this.profileMedia = null;
-    }
-
+    
 }
