@@ -314,24 +314,33 @@ public class QnaService {
         return answerResponseDtoList;
     }
 
-    //
     private Map<User, String> buildProfileMap(List<User> users) {
         if (users.isEmpty()) {
             return Collections.emptyMap();
         }
-        List<Long> userIds = users.stream()
+
+        List<Long> userIds = extractUserIds(users);
+        Map<Long, String> idToProfileMap = fetchIdToProfileMap(userIds);
+
+        return toUserProfileMap(users, idToProfileMap);
+    }
+
+    private List<Long> extractUserIds(List<User> users) {
+        return users.stream()
                 .map(User::getUserId)
                 .collect(Collectors.toList());
+    }
 
-        // userId - profile map 생성, profile 없는 경우 map에 포함 X
-        Map<Long, String> idToProfileMap = userRepository.findProfileLinksByUserIds(userIds).stream()
+    private Map<Long, String> fetchIdToProfileMap(List<Long> userIds) {
+        return userRepository.findProfileLinksByUserIds(userIds).stream()
                 .filter(row -> row[1] != null)
                 .collect(Collectors.toMap(
                         row -> (Long) row[0],
                         row -> s3Service.getDownloadPresignedUrl((String) row[1])
                 ));
+    }
 
-        // 호출부의 간편성을 위해 user - profile map 생성
+    private Map<User, String> toUserProfileMap(List<User> users, Map<Long, String> idToProfileMap) {
         return users.stream()
                 .filter(user -> idToProfileMap.containsKey(user.getUserId()))
                 .collect(Collectors.toMap(
@@ -365,18 +374,22 @@ public class QnaService {
 
     private Slice<SearchQuestionResponseDto> createSearchQuestionResponseDtos(UserDetailsImpl userDetails, Slice<Object[]> questionSlice, Map<User, String> profileMap, Pageable pageable) {
         List<SearchQuestionResponseDto> content = questionSlice.getContent().stream()
-                .map(row -> {
-                    Question question = (Question) row[0];
-                    Long answerCount = (Long) row[1];
-                    Long questionAuthorId = question.getUser() != null ? question.getUser().getUserId() : null;
-                    boolean owner = userDetails.getUserId().equals(questionAuthorId);
-                    String profile = getProfile(question.isAnonymous(), question.getUser(), profileMap);
-                    String displayName = question.getDisplayName();
-                    return SearchQuestionResponseDto.from(question, displayName, owner, answerCount, profile);
-                })
+                .map(row -> toSearchQuestionResponseDto(row, userDetails.getUserId(), profileMap))
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(content, pageable, questionSlice.hasNext());
+    }
+
+    private SearchQuestionResponseDto toSearchQuestionResponseDto(Object[] row, Long currentUserId, Map<User, String> profileMap) {
+        Question question = (Question) row[0];
+        Long answerCount = (Long) row[1];
+        Long questionAuthorId = question.getUser() != null ? question.getUser().getUserId() : null;
+
+        boolean owner = currentUserId.equals(questionAuthorId);
+        String profile = getProfile(question.isAnonymous(), question.getUser(), profileMap);
+        String displayName = question.getDisplayName();
+
+        return SearchQuestionResponseDto.from(question, displayName, owner, answerCount, profile);
     }
 
     private void extractNotAnonymousAnswer(List<Answer> answerList, List<User> users) {
