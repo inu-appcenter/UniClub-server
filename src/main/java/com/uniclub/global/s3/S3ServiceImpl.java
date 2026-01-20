@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -28,6 +30,7 @@ import java.util.*;
 public class S3ServiceImpl implements S3Service {
 
     private final S3Presigner s3Presigner;
+    private final S3Client s3Client;
     private final MembershipRepository membershipRepository;
 
     @Value("${aws.s3.bucket}")
@@ -199,6 +202,22 @@ public class S3ServiceImpl implements S3Service {
         }
 
         return true;
+    }
+
+    @Override
+    public void deleteFile(String s3Key) {
+        try {
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(s3Key)
+                    .build();
+
+            s3Client.deleteObject(deleteObjectRequest);
+            log.info("S3 파일 삭제 성공: bucket={}, key={}", bucketName, s3Key);
+        } catch (Exception e) {
+            log.error("S3 파일 삭제 실패: bucket={}, key={}, error={}", bucketName, s3Key, e.getMessage(), e);
+            throw new CustomException(ErrorCode.S3_CONNECTION_ERROR);
+        }
     }
 
 
