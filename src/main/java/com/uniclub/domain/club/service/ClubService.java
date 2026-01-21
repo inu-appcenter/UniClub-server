@@ -63,15 +63,7 @@ public class ClubService {
 
     //좋아요 토글링
     public ToggleFavoriteResponseDto toggleFavorite(Long clubId, UserDetailsImpl userDetails) {
-        // 존재하는 동아리인지 확인
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
-
-        // 삭제된 동아리인지 확인
-        if (club.isDeleted()){
-            throw new CustomException(ErrorCode.CLUB_DELETED);
-        }
-
+        Club club = findActiveClub(clubId);
         User user = userDetails.getUser();
 
         // 관심 동아리인지 확인
@@ -110,15 +102,7 @@ public class ClubService {
     //동아리 소개글 작성
     public void saveClubPromotion(UserDetailsImpl userDetails, Long clubId, ClubPromotionRegisterRequestDto promotionRegisterRequestDto) {
         log.info("동아리 소개글 작성 시작: clubId={}, userId={}", clubId, userDetails.getUserId());
-        Club existingClub = clubRepository.findById(clubId) //실제 존재하는 동아리인지 확인
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
-                );
-
-        // 삭제된 동아리인지 확인
-        if (existingClub.isDeleted()){
-            throw new CustomException(ErrorCode.CLUB_DELETED);
-        }
+        Club existingClub = findActiveClub(clubId);
 
         //해당 동아리의 회장인지 확인
         Role userRole = checkRole(userDetails.getUserId(), clubId);
@@ -151,14 +135,7 @@ public class ClubService {
     //동아리 미디어 파일 업로드
     public void uploadClubMedia(UserDetailsImpl userDetails, Long clubId, List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
         log.info("동아리 미디어 업로드 시작: clubId={}, userId={}", clubId, userDetails.getUserId());
-        // 존재하는 동아리인지 확인
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
-
-        // 삭제된 동아리인지 확인
-        if (club.isDeleted()){
-            throw new CustomException(ErrorCode.CLUB_DELETED);
-        }
+        Club club = findActiveClub(clubId);
 
         //해당 동아리의 운영진인지 확인
         Role userRole = checkRole(userDetails.getUserId(), clubId);
@@ -193,16 +170,7 @@ public class ClubService {
     //동아리 소개글 불러오기
     @Transactional(readOnly = true)
     public ClubPromotionResponseDto getClubPromotion(UserDetailsImpl userDetails, Long clubId) {
-        Club club = clubRepository.findById(clubId) //실제 존재하는 동아리인지 확인
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
-                );
-
-        // 삭제된 동아리인지 확인
-        if (club.isDeleted()){
-            throw new CustomException(ErrorCode.CLUB_DELETED);
-        }
-
+        Club club = findActiveClub(clubId);
 
         List<Media> mediaList = mediaRepository.findByClubId(clubId);
         boolean favorite = favoriteRepository.existsByUserIdAndClubId(userDetails.getUserId(), clubId);
@@ -218,15 +186,7 @@ public class ClubService {
     //(개발자 전용) 동아리 삭제
     public void deleteClub(Long clubId) {
         log.info("동아리 삭제 시작: clubId={}", clubId);
-        Club club = clubRepository.findById(clubId).orElseThrow(
-                () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
-        );
-
-        // 삭제된 동아리인지 확인
-        if (club.isDeleted()){
-            throw new CustomException(ErrorCode.CLUB_DELETED);
-        }
-
+        Club club = findActiveClub(clubId);
         club.softDelete();
         log.info("동아리 삭제 성공: clubId={}", clubId);
     }
@@ -321,5 +281,12 @@ public class ClubService {
         }
     }
 
-
+    private Club findActiveClub(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+        if (club.isDeleted()) {
+            throw new CustomException(ErrorCode.CLUB_DELETED);
+        }
+        return club;
+    }
 }
