@@ -41,67 +41,23 @@ public class ClubService {
     private final MediaRepository mediaRepository;
     private final S3Service s3Service;
 
-    //동아리 목록 조회
     @Transactional(readOnly = true)
-    public Slice<ClubResponseDto> getClubs(
-            Long userId, String category, String sortBy, String cursorName, int size) {
+    public Slice<ClubResponseDto> getClubs(Long userId, String category, String sortBy, String cursorName, int size) {
 
-        // String -> Enum 타입 변경, 카테고리 null인 경우 전체 동아리 조회
-        CategoryType categoryName = (category == null) ? null : EnumConverter.stringToEnum(category, CategoryType.class, ErrorCode.CATEGORY_NOT_FOUND);
-        Pageable pageable = PageRequest.of(0, size + 1);
-        // 정렬 기준 별 동아리 목록 조회
-        Slice<Club> clubs = switch (sortBy) {
-            case "name" -> clubRepository.findClubsByCursorOrderByName(categoryName, cursorName, pageable);
-            case "like" -> clubRepository.findClubsByCursorOrderByFavorite(userId, categoryName, cursorName, pageable);
-            case "status" -> clubRepository.findClubsByCursorOrderByStatus(categoryName, cursorName, pageable);
+        CategoryType categoryType = (category == null) ? null :
+                EnumConverter.stringToEnum(category, CategoryType.class, ErrorCode.CATEGORY_NOT_FOUND);
 
-            // 유효하지 않은 정렬 기준 예외처리
-            default -> throw new CustomException(ErrorCode.INVALID_SORT_CONDITION);
-        };
-        boolean hasNext = clubs.hasNext();
+        List<Club> clubs = findClubsSorted(userId, categoryType, sortBy, cursorName, size);
 
-        // 동아리 목록 추출 및 페이지 사이즈와 리스트 요소 개수 일치하도록 조정
-        List<Club> clubList = new ArrayList<>(clubs.getContent());
-        if (hasNext){
-            clubList.removeLast();
+        boolean hasNext = clubs.size() > size;
+        if (hasNext) {
+            clubs = clubs.subList(0, size);
         }
 
-        // 유저가 관심 등록한 동아리 목록
-        Set<Long> favoriteSet = new HashSet<>(
-                favoriteRepository.findClubIdsByUserId(userId)
-        );
+        Set<Long> favoriteClubIds = new HashSet<>(favoriteRepository.findClubIdsByUserId(userId));
+        Map<Long, String> profileMap = buildProfileMap(clubs);
 
-        // 동아리 ID 목록 추출
-        List<Long> clubIds = new ArrayList<>();
-        for (Club club : clubList) {
-            clubIds.add(club.getClubId());
-        }
-
-        // 한 번의 쿼리로 동아리들의 프로필 이미지 조회
-        List<Media> clubProfileMedias = mediaRepository.findClubProfilesByClubIds(clubIds);
-
-        // clubId를 키로 하는 Map 생성
-        Map<Long, Media> clubProfileMap = new HashMap<>();
-        for (Media media : clubProfileMedias) {
-            clubProfileMap.put(media.getClub().getClubId(), media);
-        }
-
-        // 추출된 동아리 목록에서 관심등록 여부 확인 후 DTO 리스트 생성
-        List<ClubResponseDto> clubResponseDtoList = new ArrayList<>();
-        for (Club club : clubList) {
-            boolean isFavorite = favoriteSet.contains(club.getClubId());
-
-            // Map에서 프로필 이미지 조회
-            Media clubProfileMedia = clubProfileMap.get(club.getClubId());
-            String clubProfileUrl = "";
-            if (clubProfileMedia != null) {
-                clubProfileUrl = s3Service.getDownloadPresignedUrl(clubProfileMedia.getMediaLink());
-            }
-
-            ClubResponseDto clubResponseDto = ClubResponseDto.from(club, isFavorite, clubProfileUrl);
-            clubResponseDtoList.add(clubResponseDto);
-        }
-        return new SliceImpl<>(clubResponseDtoList, pageable, hasNext);
+        return toClubResponseSlice(clubs, favoriteClubIds, profileMap, hasNext, size);
     }
 
 
@@ -234,54 +190,6 @@ public class ClubService {
     }
 
 
-    private void validateMediaType(List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
-        //각 Type들 개수 세기
-        Map<String, Long> mediaTypeCount = clubMediaUploadRequestDtoList.stream()
-                .collect(Collectors.groupingBy(
-                        ClubMediaUploadRequestDto::getMediaType,
-                        Collectors.counting()
-                ));
-
-        // 단일 허용 MediaType들 검증
-        //CLUB_PROFILE
-        if (mediaTypeCount.getOrDefault(MediaType.CLUB_PROFILE, 0L) > 1) {
-            throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
-        }
-
-        //CLUB_BACKGROUND
-        if (mediaTypeCount.getOrDefault(MediaType.CLUB_BACKGROUND, 0L) > 1) {
-            throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
-        }
-        log.info("중복 미디어 타입 검증 성공");
-    }
-
-
-    private void deleteExistingUniqueMediaType(Long clubId, List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
-        //새로 업로드 되는 것 확인
-        Set<String> newMediaTypes = clubMediaUploadRequestDtoList.stream()
-                .map(ClubMediaUploadRequestDto::getMediaType)
-                .collect(Collectors.toSet());
-
-        //CLUB_PROFILE이 새로 업로드될 예정이면 기존 파일 삭제
-        if (newMediaTypes.contains(MediaType.CLUB_PROFILE)) {
-            mediaRepository.deleteByClubIdAndMediaType(clubId, MediaType.CLUB_PROFILE);
-            log.info("기존 동아리 프로필 이미지 삭제: clubId={}", clubId);
-        }
-
-        //CLUB_BACKGROUND가 새로 업로드될 예정이면 기존 파일 삭제
-        if (newMediaTypes.contains(MediaType.CLUB_BACKGROUND)) {
-            mediaRepository.deleteByClubIdAndMediaType(clubId, MediaType.CLUB_BACKGROUND);
-            log.info("기존 동아리 배경 이미지 삭제: clubId={}", clubId);
-        }
-    }
-
-
-    // URL에서 파일명만 추출하는 헬퍼 메서드
-    private String extractFileName(String mediaLink) {
-        return mediaLink.substring(mediaLink.lastIndexOf('/') + 1);
-    }
-
-
     //동아리 소개글 불러오기
     @Transactional(readOnly = true)
     public ClubPromotionResponseDto getClubPromotion(UserDetailsImpl userDetails, Long clubId) {
@@ -332,7 +240,86 @@ public class ClubService {
                 .orElse(Role.GUEST);
     }
 
+    private List<Club> findClubsSorted(Long userId, CategoryType categoryType, String sortBy, String cursorName, int size) {
+        Pageable pageable = PageRequest.of(0, size + 1);
+        return switch (sortBy) {
+            case "name" -> clubRepository.findClubsByCursorOrderByName(categoryType, cursorName, pageable);
+            case "like" -> clubRepository.findClubsByCursorOrderByFavorite(userId, categoryType, cursorName, pageable);
+            case "status" -> clubRepository.findClubsByCursorOrderByStatus(categoryType, cursorName, pageable);
+            default -> throw new CustomException(ErrorCode.INVALID_SORT_CONDITION);
+        };
+    }
 
+    private Map<Long, String> buildProfileMap(List<Club> clubs) {
+        List<Long> clubIds = clubs.stream()
+                .map(Club::getClubId)
+                .collect(Collectors.toList());
+
+        return mediaRepository.findClubProfilesByClubIds(clubIds).stream()
+                .collect(Collectors.toMap(
+                        media -> media.getClub().getClubId(),
+                        media -> s3Service.getDownloadPresignedUrl(media.getMediaLink())
+                ));
+    }
+
+    private Slice<ClubResponseDto> toClubResponseSlice(
+            List<Club> clubs, Set<Long> favoriteClubIds, Map<Long, String> profileMap, boolean hasNext, int size) {
+
+        List<ClubResponseDto> dtos = clubs.stream()
+                .map(club -> ClubResponseDto.from(
+                        club,
+                        favoriteClubIds.contains(club.getClubId()),
+                        profileMap.getOrDefault(club.getClubId(), "")))
+                .collect(Collectors.toList());
+
+        return new SliceImpl<>(dtos, PageRequest.of(0, size), hasNext);
+    }
+
+    // URL에서 파일명만 추출하는 헬퍼 메서드
+    private String extractFileName(String mediaLink) {
+        return mediaLink.substring(mediaLink.lastIndexOf('/') + 1);
+    }
+
+
+    private void validateMediaType(List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
+        //각 Type들 개수 세기
+        Map<String, Long> mediaTypeCount = clubMediaUploadRequestDtoList.stream()
+                .collect(Collectors.groupingBy(
+                        ClubMediaUploadRequestDto::getMediaType,
+                        Collectors.counting()
+                ));
+
+        // 단일 허용 MediaType들 검증
+        //CLUB_PROFILE
+        if (mediaTypeCount.getOrDefault(MediaType.CLUB_PROFILE, 0L) > 1) {
+            throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
+        }
+
+        //CLUB_BACKGROUND
+        if (mediaTypeCount.getOrDefault(MediaType.CLUB_BACKGROUND, 0L) > 1) {
+            throw new CustomException(ErrorCode.DUPLICATE_MEDIA_TYPE);
+        }
+        log.info("중복 미디어 타입 검증 성공");
+    }
+
+    private void deleteExistingUniqueMediaType(Long clubId, List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
+        //새로 업로드 되는 것 확인
+        Set<String> newMediaTypes = clubMediaUploadRequestDtoList.stream()
+                .map(ClubMediaUploadRequestDto::getMediaType)
+                .collect(Collectors.toSet());
+
+        //CLUB_PROFILE이 새로 업로드될 예정이면 기존 파일 삭제
+        if (newMediaTypes.contains(MediaType.CLUB_PROFILE)) {
+            mediaRepository.deleteByClubIdAndMediaType(clubId, MediaType.CLUB_PROFILE);
+            log.info("기존 동아리 프로필 이미지 삭제: clubId={}", clubId);
+        }
+
+        //CLUB_BACKGROUND가 새로 업로드될 예정이면 기존 파일 삭제
+        if (newMediaTypes.contains(MediaType.CLUB_BACKGROUND)) {
+            mediaRepository.deleteByClubIdAndMediaType(clubId, MediaType.CLUB_BACKGROUND);
+            log.info("기존 동아리 배경 이미지 삭제: clubId={}", clubId);
+        }
+    }
 
 
 }
