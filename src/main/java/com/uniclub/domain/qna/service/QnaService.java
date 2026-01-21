@@ -46,6 +46,7 @@ public class QnaService {
     //Qna 페이지 다중 질문 조회
     @Transactional(readOnly = true)
     public PageQuestionResponseDto<SearchQuestionResponseDto> getSearchQuestions(UserDetailsImpl userDetails, String keyword, Long clubId, boolean answered, boolean onlyMyQuestions, int size) {
+
         // 존재하는 동아리인지 확인
         if (clubId != null && !clubRepository.existsById(clubId)){
             throw new CustomException(ErrorCode.CLUB_NOT_FOUND);
@@ -61,6 +62,7 @@ public class QnaService {
 
         // 익명은 프로필 이미지가 안보이도록 Dto slice 생성
         Slice<SearchQuestionResponseDto> dtoSlice = createSearchQuestionResponseDtos(userDetails, questionSlice, profileMap, pageable);
+        log.info("질문 리스트 조회 완료");
         return new PageQuestionResponseDto<>(dtoSlice.getContent(), dtoSlice.hasNext());
     }
 
@@ -78,7 +80,9 @@ public class QnaService {
 
         Map<Long, Integer> anonymousOrderMap = getAnonymousOrderMap(questionId);
 
-        return buildQuestionResponseDto(userDetails, question, answerList, profileMap, anonymousOrderMap);
+        QuestionResponseDto questionResponseDto = buildQuestionResponseDto(userDetails, question, answerList, profileMap, anonymousOrderMap);
+        log.info("질문 조회 완료: questionId = {}", questionId);
+        return questionResponseDto;
     }
 
     //질문 등록
@@ -163,6 +167,7 @@ public class QnaService {
         if (answerCreateRequestDto.isAnonymous()) {
             assignAnonymousOrderIfNeeded(question, userDetails.getUser(), presidentAnswer);
         }
+
 
         // 푸시 알림 전송 및 알림 엔티티 저장
         notificationEventProcessor.answerRegisterd(questionId, answer.getAnswerId(), question.getContent(), question.getUser().getUserId());

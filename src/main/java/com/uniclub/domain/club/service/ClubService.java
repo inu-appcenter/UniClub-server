@@ -43,12 +43,13 @@ public class ClubService {
 
     @Transactional(readOnly = true)
     public Slice<ClubResponseDto> getClubs(Long userId, String category, String sortBy, String cursorName, int size) {
-
+        log.info("동아리 조회 시작: userId = {}", userId);
         CategoryType categoryType = (category == null) ? null :
                 EnumConverter.stringToEnum(category, CategoryType.class, ErrorCode.CATEGORY_NOT_FOUND);
 
         List<Club> clubs = findClubsSorted(userId, categoryType, sortBy, cursorName, size);
 
+        // 보내는 데이터의 개수를 사이즈(10)에 맞추기 위한 로직
         boolean hasNext = clubs.size() > size;
         if (hasNext) {
             clubs = clubs.subList(0, size);
@@ -57,7 +58,9 @@ public class ClubService {
         Set<Long> favoriteClubIds = new HashSet<>(favoriteRepository.findClubIdsByUserId(userId));
         Map<Long, String> profileMap = buildProfileMap(clubs);
 
-        return toClubResponseSlice(clubs, favoriteClubIds, profileMap, hasNext, size);
+        Slice<ClubResponseDto> clubResponseDtos = toClubResponseSlice(clubs, favoriteClubIds, profileMap, hasNext, size);
+        log.info("동아리 조회 완료: userId = {}", userId);
+        return clubResponseDtos;
     }
 
 
@@ -170,6 +173,7 @@ public class ClubService {
     //동아리 소개글 불러오기
     @Transactional(readOnly = true)
     public ClubPromotionResponseDto getClubPromotion(UserDetailsImpl userDetails, Long clubId) {
+        log.info("동아리 홍보페이지 조회 시작: userId = {}, clubId = {}", userDetails.getUserId(), clubId);
         Club club = findActiveClub(clubId);
 
         List<Media> mediaList = mediaRepository.findByClubId(clubId);
@@ -179,7 +183,10 @@ public class ClubService {
             String presignedUrl = s3Service.getDownloadPresignedUrl(media.getMediaLink());
             mediaResList.add(DescriptionMediaDto.from(media, presignedUrl));
         }
-        return ClubPromotionResponseDto.from(checkRole(userDetails.getUserId(), clubId), club, favorite, mediaResList);
+
+        ClubPromotionResponseDto clubPromotionResponseDto = ClubPromotionResponseDto.from(checkRole(userDetails.getUserId(), clubId), club, favorite, mediaResList);
+        log.info("동아리 홍보페이지 조회 완료: userId = {}, clubId = {}", userDetails.getUserId(), clubId);
+        return clubPromotionResponseDto;
     }
 
 
