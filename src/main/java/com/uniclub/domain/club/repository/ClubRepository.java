@@ -28,6 +28,7 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
 
     // 이름순 + 카테고리
     @Query("SELECT c FROM Club c " +
+            "JOIN FETCH c.category " +
             "WHERE (:categoryName IS NULL OR c.category.name = :categoryName) " +
             "AND (:cursorName IS NULL OR c.name > :cursorName) " +
             "AND c.deleted = false " +
@@ -38,6 +39,7 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
 
     // 좋아요순 + 카테고리
     @Query("SELECT c FROM Club c " +
+            "JOIN FETCH c.category " +
             "LEFT JOIN Favorite f ON f.club = c AND f.user.userId = :userId " +
             "WHERE (:categoryName IS NULL OR c.category.name = :categoryName) " +
             "AND (:cursorName IS NULL OR c.name > :cursorName) " +
@@ -50,6 +52,7 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
 
     // 모집중순 + 카테고리
     @Query("SELECT c FROM Club c " +
+            "JOIN FETCH c.category " +
             "WHERE (:categoryName IS NULL OR c.category.name = :categoryName) " +
             "AND (:cursorName IS NULL OR c.name > :cursorName) " +
             "AND c.deleted = false " +
