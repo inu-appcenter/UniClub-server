@@ -22,10 +22,11 @@ public class QuestionCreateRequestDto {
     @NotNull(message = "익명 여부를 선택해주세요.")
     private boolean anonymous;
 
-    public Question toQuestionEntity(User user, Club club) {
+    public Question toQuestionEntity(User user, Club club, boolean presidentQuestion) {
         return Question.builder()
                 .content(content)
                 .anonymous(anonymous)
+                .presidentQuestion(presidentQuestion)
                 .user(user)
                 .club(club)
                 .build();

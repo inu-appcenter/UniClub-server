@@ -4,6 +4,7 @@ import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.entity.MemberShip;
 import com.uniclub.domain.club.entity.Role;
 import com.uniclub.domain.club.repository.ClubRepository;
+import com.uniclub.domain.club.repository.MediaRepository;
 import com.uniclub.domain.club.repository.MembershipRepository;
 import com.uniclub.domain.notification.service.NotificationEventProcessor;
 import com.uniclub.domain.qna.dto.*;
@@ -42,6 +43,7 @@ public class QnaService {
     private final S3Service s3Service;
     private final NotificationEventProcessor notificationEventProcessor;
     private final UserRepository userRepository;
+    private final MediaRepository mediaRepository;
 
     //Qna 페이지 다중 질문 조회
     @Transactional(readOnly = true)
@@ -57,11 +59,16 @@ public class QnaService {
         Pageable pageable = PageRequest.of(0, size);
         Slice<Object[]> questionSlice = questionRepository.searchQuestionsWithAnswerCount(keyword, clubId, answered, userId, pageable);
 
-        // 익명이 아닌 유저의 프로필 로드
-        Map<User, String> profileMap = buildProfileMap(extractUserNotAnonymousQuestion(questionSlice));
+        // 익명이 아닌 유저의 프로필 조회
+        List<Long> userIds = extractUserNotAnonymousQuestion(questionSlice);
+        Map<Long, String> userProfileMap = buildUserProfileMap(userIds);
+
+        // 동아리 프로필 조회 (회장이 작성한 질문용)
+        List<Long> clubIds = extractClubIdsFromQuestions(questionSlice);
+        Map<Long, String> clubProfileMap = buildClubProfileMap(clubIds);
 
         // 익명은 프로필 이미지가 안보이도록 Dto slice 생성
-        Slice<SearchQuestionResponseDto> dtoSlice = createSearchQuestionResponseDtos(userDetails, questionSlice, profileMap, pageable);
+        Slice<SearchQuestionResponseDto> dtoSlice = createSearchQuestionResponseDtos(userDetails, questionSlice, userProfileMap, clubProfileMap, pageable);
         log.info("질문 리스트 조회 완료");
         return new PageQuestionResponseDto<>(dtoSlice.getContent(), dtoSlice.hasNext());
     }
@@ -75,12 +82,17 @@ public class QnaService {
 
         List<Answer> answerList = answerRepository.findByQuestionIdWithUser(questionId);
 
-        Map<User, String> profileMap = buildProfileMap(
-                extractUserNotAnonymousQuestionAnswer(question, answerList));
+        // 익명이 아닌 유저 프로필 조회
+        List<Long> userIds = extractUserNotAnonymousQuestionAnswer(question, answerList);
+        Map<Long, String> userProfileMap = buildUserProfileMap(userIds);
+
+        // 동아리 프로필 조회 (회장이 작성한 질문/답변용)
+        List<Long> clubIds = extractClubIdsFromQuestionsAnswers(question, answerList);
+        Map<Long, String> clubProfileMap = buildClubProfileMap(clubIds);
 
         Map<Long, Integer> anonymousOrderMap = getAnonymousOrderMap(questionId);
 
-        QuestionResponseDto questionResponseDto = buildQuestionResponseDto(userDetails, question, answerList, profileMap, anonymousOrderMap);
+        QuestionResponseDto questionResponseDto = buildQuestionResponseDto(userDetails, question, answerList, userProfileMap, clubProfileMap, anonymousOrderMap);
         log.info("질문 조회 완료: questionId = {}", questionId);
         return questionResponseDto;
     }
@@ -91,7 +103,10 @@ public class QnaService {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
 
-        Question question = questionCreateRequestDto.toQuestionEntity(userDetails.getUser(), club);
+        // 회장 여부 확인
+        boolean presidentQuestion = membershipRepository.hasRole(userDetails.getUserId(), clubId, Role.PRESIDENT);
+
+        Question question = questionCreateRequestDto.toQuestionEntity(userDetails.getUser(), club, presidentQuestion);
         questionRepository.save(question);
         log.info("질문 등록 완료: {}", question.getQuestionId());
 
@@ -243,13 +258,21 @@ public class QnaService {
     }
 
     private void assignAnonymousOrderIfNeeded(Question question, User user, boolean isPresident) {
-        Long questionAuthorId = question.getUser() != null ? question.getUser().getUserId() : null;
 
-        // 질문 작성자나 회장은 익명 번호 부여 안함
-        if (user.getUserId().equals(questionAuthorId) || isPresident) {
+        Long questionAuthorId = question.getUser() != null ? question.getUser().getUserId() : null;
+        boolean isQuestionAuthor = user.getUserId().equals(questionAuthorId);
+
+        // 회장은 익명 번호 부여 안함
+        if (isPresident) {
             return;
         }
 
+        // 질문 익명 + 작성자 익명 답변 → 익명 번호 부여 안함 ("작성자"로 표시)
+        if (isQuestionAuthor && question.isAnonymous()) {
+            return;
+        }
+
+        // 질문 실명 + 작성자 익명 답변 → 익명 번호 부여 ("익명{번호}"로 표시)
         Long questionId = question.getQuestionId();
         Long userId = user.getUserId();
 
@@ -270,7 +293,11 @@ public class QnaService {
     // 닉네임 판단 관련
     // =============================================
 
-    private String resolveQuestionDisplayName(Question question) {
+    private String getQuestionNickname(Question question) {
+        // 회장이 작성한 질문이면 동아리명 반환
+        if (question.isPresidentQuestion()) {
+            return question.getClub().getName();
+        }
         if (question.isAnonymous()) {
             return "익명";
         }
@@ -280,8 +307,8 @@ public class QnaService {
         return question.getUser().getNickname();
     }
 
-    private String resolveDisplayName(Answer answer, Long questionAuthorId, Club club,
-                                       Map<Long, Integer> anonymousOrderMap) {
+    private String getAnswerNickname(Answer answer, Long questionAuthorId, Club club,
+                                      Map<Long, Integer> anonymousOrderMap, boolean questionAnonymous) {
         if (answer.isPresidentAnswer()) {
             return club.getName();
         }
@@ -289,22 +316,29 @@ public class QnaService {
             return "탈퇴한 사용자";
         }
         if (answer.isAnonymous()) {
-            return resolveAnonymousDisplayName(answer, questionAuthorId, anonymousOrderMap);
+            return getAnonymousAnswerNickname(answer, questionAuthorId, anonymousOrderMap, questionAnonymous);
         }
-        return resolveRealDisplayName(answer, questionAuthorId);
+        return getRealNameAnswerNickname(answer, questionAuthorId, questionAnonymous);
     }
 
-    private String resolveAnonymousDisplayName(Answer answer, Long questionAuthorId,
-                                                Map<Long, Integer> anonymousOrderMap) {
-        if (isQuestionAuthor(answer.getUser(), questionAuthorId)) {
+    private String getAnonymousAnswerNickname(Answer answer, Long questionAuthorId,
+                                               Map<Long, Integer> anonymousOrderMap, boolean questionAnonymous) {
+        // Case 1: 질문 익명 + 작성자 익명 답변 → "작성자"
+        if (isQuestionAuthor(answer.getUser(), questionAuthorId) && questionAnonymous) {
             return "작성자";
         }
+        // Case 4: 질문 실명 + 작성자 익명 답변 → "익명{번호}" (다른 사람처럼)
         Integer order = anonymousOrderMap.get(answer.getUser().getUserId());
         return "익명" + order;
     }
 
-    private String resolveRealDisplayName(Answer answer, Long questionAuthorId) {
+    private String getRealNameAnswerNickname(Answer answer, Long questionAuthorId, boolean questionAnonymous) {
         String nickname = answer.getUser().getNickname();
+        // Case 2: 질문 익명 + 작성자 실명 답변 → "{닉네임}" (작성자 표시 안함)
+        if (isQuestionAuthor(answer.getUser(), questionAuthorId) && questionAnonymous) {
+            return nickname;
+        }
+        // Case 3: 질문 실명 + 작성자 실명 답변 → "{닉네임}(작성자)"
         if (isQuestionAuthor(answer.getUser(), questionAuthorId)) {
             return nickname + "(작성자)";
         }
@@ -338,24 +372,23 @@ public class QnaService {
     // 프로필 관련
     // =============================================
 
-    private Map<User, String> buildProfileMap(List<User> users) {
-        if (users.isEmpty()) {
+    private Map<Long, String> buildUserProfileMap(List<Long> userIds) {
+        if (userIds.isEmpty()) {
             return Collections.emptyMap();
         }
 
-        List<Long> userIds = extractUserIds(users);
-        Map<Long, String> idToProfileMap = fetchIdToProfileMap(userIds);
-
-        return toUserProfileMap(users, idToProfileMap);
+        return fetchIdToUserProfileMap(userIds);
     }
 
-    private List<Long> extractUserIds(List<User> users) {
-        return users.stream()
-                .map(User::getUserId)
-                .collect(Collectors.toList());
+    private Map<Long, String> buildClubProfileMap(List<Long> clubIds) {
+        if (clubIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        return fetchIdToClubProfileMap(clubIds);
     }
 
-    private Map<Long, String> fetchIdToProfileMap(List<Long> userIds) {
+    private Map<Long, String> fetchIdToUserProfileMap(List<Long> userIds) {
         return userRepository.findProfileLinksByUserIds(userIds).stream()
                 .filter(row -> row[1] != null)
                 .collect(Collectors.toMap(
@@ -364,15 +397,15 @@ public class QnaService {
                 ));
     }
 
-    private Map<User, String> toUserProfileMap(List<User> users, Map<Long, String> idToProfileMap) {
-        return users.stream()
-                .filter(user -> idToProfileMap.containsKey(user.getUserId()))
+    private Map<Long, String> fetchIdToClubProfileMap(List<Long> clubIds) {
+        return mediaRepository.findClubProfilesByClubIds(clubIds).stream()
+                .filter(media -> media.getMediaLink() != null)
                 .collect(Collectors.toMap(
-                        user -> user,
-                        user -> idToProfileMap.get(user.getUserId()),
-                        (existing, replacement) -> existing
+                        media -> media.getClub().getClubId(),
+                        media -> s3Service.getDownloadPresignedUrl(media.getMediaLink())
                 ));
     }
+
 
     private boolean shouldFetchProfile(boolean isAnonymous, User user) {
         return !isAnonymous && user != null && !user.isDeleted();
@@ -380,39 +413,85 @@ public class QnaService {
 
     // 쿼리로 조회한 질문/댓글 리스트에 한 유저가 남긴 익명, 비익명 글이 둘 다 있다면 익명 글에도 프로필 이미지 조회가 됨.
     // map에서 프로필 이미지를 꺼낼 때도 질문/댓글의 익명 여부를 한 번 더 확인함으로 익명 글에는 프로필 이미지 조회가 안됨을 보장함.
-    private String getProfile(boolean isAnonymous, User user, Map<User, String> profileMap) {
+    private String getProfile(boolean isAnonymous, User user, Map<Long, String> profileMap) {
         return shouldFetchProfile(isAnonymous, user)
-                ? profileMap.get(user)
+                ? profileMap.get(user.getUserId())
                 : null;
     }
 
-    // 익명이 아닌 유저들(프로필 이미지 전송이 필요한) 리스트 생성
-    private List<User> extractUserNotAnonymousQuestion(Slice<Object[]> questionSlice) {
+    // 질문 프로필: 회장이면 동아리 프로필, 아니면 사용자 프로필
+    private String getQuestionProfile(Question question, Map<Long, String> userProfileMap, Map<Long, String> clubProfileMap) {
+        if (question.isPresidentQuestion()) {
+            return clubProfileMap.get(question.getClub().getClubId());
+        }
+        return getProfile(question.isAnonymous(), question.getUser(), userProfileMap);
+    }
+
+    // 답변 프로필: 회장이면 동아리 프로필, 아니면 사용자 프로필
+    private String getAnswerProfile(Answer answer, Map<Long, String> userProfileMap, Map<Long, String> clubProfileMap) {
+        if (answer.isPresidentAnswer()) {
+            return clubProfileMap.get(answer.getQuestion().getClub().getClubId());
+        }
+        return getProfile(answer.isAnonymous(), answer.getUser(), userProfileMap);
+    }
+
+    // 익명이 아닌 유저들(프로필 이미지 전송이 필요한) ID 리스트 생성
+    private List<Long> extractUserNotAnonymousQuestion(Slice<Object[]> questionSlice) {
         return questionSlice.getContent().stream()
                 .map(row -> (Question) row[0])
                 .filter(question -> shouldFetchProfile(question.isAnonymous(), question.getUser()))
-                .map(Question::getUser)
+                .map(question -> question.getUser().getUserId())
                 .distinct()
                 .collect(Collectors.toList());
     }
 
-    private List<User> extractUserNotAnonymousQuestionAnswer(Question question, List<Answer> answerList) {
-        List<User> users = new ArrayList<>();
+    private List<Long> extractUserNotAnonymousQuestionAnswer(Question question, List<Answer> answerList) {
+        List<Long> userIds = new ArrayList<>();
         // 질문
         if (shouldFetchProfile(question.isAnonymous(), question.getUser())) {
-            users.add(question.getUser());
+            userIds.add(question.getUser().getUserId());
         }
         // 답변
-        extractNotAnonymousAnswer(answerList, users);
-        return users;
+        extractNotAnonymousAnswer(answerList, userIds);
+        return userIds;
     }
 
-    private void extractNotAnonymousAnswer(List<Answer> answerList, List<User> users) {
+    private void extractNotAnonymousAnswer(List<Answer> answerList, List<Long> userIds) {
         answerList.stream()
                 .filter(answer -> shouldFetchProfile(answer.isAnonymous(), answer.getUser()))
-                .map(Answer::getUser)
+                .map(answer -> answer.getUser().getUserId())
                 .distinct()
-                .forEach(users::add);
+                .forEach(userIds::add);
+    }
+
+    // 회장이 작성한 질문/답변의 동아리 ID 추출
+    private List<Long> extractClubIdsFromQuestionsAnswers(Question question, List<Answer> answerList) {
+        List<Long> clubIds = new ArrayList<>();
+        // 회장이 작성한 질문
+        if (question.isPresidentQuestion()) {
+            clubIds.add(question.getClub().getClubId());
+        }
+        // 회장이 작성한 답변
+        extractClubIdsFromPresidentAnswers(answerList, clubIds);
+        return clubIds.stream().distinct().collect(Collectors.toList());
+    }
+
+    private void extractClubIdsFromPresidentAnswers(List<Answer> answerList, List<Long> clubIds) {
+        answerList.stream()
+                .filter(Answer::isPresidentAnswer)
+                .map(answer -> answer.getQuestion().getClub().getClubId())
+                .distinct()
+                .forEach(clubIds::add);
+    }
+
+    // 질문 리스트에서 회장이 작성한 질문의 동아리 ID 추출
+    private List<Long> extractClubIdsFromQuestions(Slice<Object[]> questionSlice) {
+        return questionSlice.getContent().stream()
+                .map(row -> (Question) row[0])
+                .filter(Question::isPresidentQuestion)
+                .map(question -> question.getClub().getClubId())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     // =============================================
@@ -423,19 +502,20 @@ public class QnaService {
             UserDetailsImpl userDetails,
             Question question,
             List<Answer> answerList,
-            Map<User, String> profileMap,
+            Map<Long, String> userProfileMap,
+            Map<Long, String> clubProfileMap,
             Map<Long, Integer> anonymousOrderMap
     ) {
         Long userId = userDetails.getUserId();
         Long questionAuthorId = question.getUser() != null ? question.getUser().getUserId() : null;
 
         boolean questionOwner = userId.equals(questionAuthorId);
-        String questionerProfile = getProfile(question.isAnonymous(), question.getUser(), profileMap);
+        String questionerProfile = getQuestionProfile(question, userProfileMap, clubProfileMap);
         boolean president = checkIsPresident(userId, question.getClub().getClubId());
-        String displayName = resolveQuestionDisplayName(question);
+        String displayName = getQuestionNickname(question);
 
         List<AnswerResponseDto> answerResponseDtoList = createAnswerResponseDtoList(
-                answerList, anonymousOrderMap, questionAuthorId, userId, profileMap, question.getClub());
+                answerList, anonymousOrderMap, questionAuthorId, userId, userProfileMap, clubProfileMap, question.getClub(), question.isAnonymous());
 
         return QuestionResponseDto.from(question, displayName, answerResponseDtoList, questionOwner,
                 questionerProfile, president);
@@ -446,47 +526,50 @@ public class QnaService {
             Map<Long, Integer> anonymousOrderMap,
             Long questionAuthorId,
             Long currentUserId,
-            Map<User, String> profileMap,
-            Club club
+            Map<Long, String> userProfileMap,
+            Map<Long, String> clubProfileMap,
+            Club club,
+            boolean questionAnonymous
     ) {
         return answerList.stream()
                 .map(answer -> toAnswerResponseDto(answer, questionAuthorId, currentUserId,
-                        club, anonymousOrderMap, profileMap))
+                        club, anonymousOrderMap, userProfileMap, clubProfileMap, questionAnonymous))
                 .collect(Collectors.toList());
     }
 
     private AnswerResponseDto toAnswerResponseDto(
             Answer answer, Long questionAuthorId, Long currentUserId,
-            Club club, Map<Long, Integer> anonymousOrderMap, Map<User, String> profileMap) {
+            Club club, Map<Long, Integer> anonymousOrderMap, Map<Long, String> userProfileMap,
+            Map<Long, String> clubProfileMap, boolean questionAnonymous) {
 
-        String displayName = resolveDisplayName(answer, questionAuthorId, club, anonymousOrderMap);
+        String displayName = getAnswerNickname(answer, questionAuthorId, club, anonymousOrderMap, questionAnonymous);
         boolean owner = isOwner(answer.getUser(), currentUserId);
-        String profile = getProfile(answer.isAnonymous(), answer.getUser(), profileMap);
+        String profile = getAnswerProfile(answer, userProfileMap, clubProfileMap);
 
         return AnswerResponseDto.from(answer, displayName, owner, profile);
     }
 
     private Slice<SearchQuestionResponseDto> createSearchQuestionResponseDtos(
             UserDetailsImpl userDetails, Slice<Object[]> questionSlice,
-            Map<User, String> profileMap, Pageable pageable) {
+            Map<Long, String> userProfileMap, Map<Long, String> clubProfileMap, Pageable pageable) {
 
         List<SearchQuestionResponseDto> content = questionSlice.getContent().stream()
-                .map(row -> toSearchQuestionResponseDto(row, userDetails.getUserId(), profileMap))
+                .map(row -> toSearchQuestionResponseDto(row, userDetails.getUserId(), userProfileMap, clubProfileMap))
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(content, pageable, questionSlice.hasNext());
     }
 
     private SearchQuestionResponseDto toSearchQuestionResponseDto(
-            Object[] row, Long currentUserId, Map<User, String> profileMap) {
+            Object[] row, Long currentUserId, Map<Long, String> userProfileMap, Map<Long, String> clubProfileMap) {
 
         Question question = (Question) row[0];
         Long answerCount = (Long) row[1];
         Long questionAuthorId = question.getUser() != null ? question.getUser().getUserId() : null;
 
         boolean owner = currentUserId.equals(questionAuthorId);
-        String profile = getProfile(question.isAnonymous(), question.getUser(), profileMap);
-        String displayName = resolveQuestionDisplayName(question);
+        String profile = getQuestionProfile(question, userProfileMap, clubProfileMap);
+        String displayName = getQuestionNickname(question);
 
         return SearchQuestionResponseDto.from(question, displayName, owner, answerCount, profile);
     }
