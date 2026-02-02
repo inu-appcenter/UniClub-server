@@ -1,5 +1,6 @@
 package com.uniclub.domain.user.entity;
 
+import com.uniclub.domain.club.entity.Media;
 import com.uniclub.global.util.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -33,8 +34,9 @@ public class User extends BaseTime {
     @Column(nullable = false)
     private Major major;    //전공
 
-    @Column(name = "profile", columnDefinition = "TEXT")
-    private String profile;  // 프로필 이미지 S3 key
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_media_id")
+    private Media profileMedia;  // 프로필 이미지 Media 엔티티
 
     @ColumnDefault("true")
     @Column(nullable = false)
@@ -48,7 +50,7 @@ public class User extends BaseTime {
         this.nickname = nickname;
     }
 
-    public void updateInfo(String name, Major major, String nickname, String profile) {
+    public void updateInfo(String name, Major major, String nickname) {
         if (name != null && !name.isBlank()) {
             this.name = name;
         }
@@ -58,10 +60,14 @@ public class User extends BaseTime {
         if (nickname != null && !nickname.isBlank()) {
             this.nickname = nickname;
         }
-        if (profile != null) {
-            // 빈 문자열이면 프로필 삭제 (null로 설정)
-            this.profile = profile.isEmpty() ? null : profile;
-        }
+    }
+
+    public void updateProfileMedia(Media media) {
+        this.profileMedia = media;
+    }
+
+    public void removeProfileMedia() {
+        this.profileMedia = null;
     }
 
     public void toggleNotification() {
