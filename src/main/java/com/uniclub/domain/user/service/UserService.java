@@ -3,7 +3,6 @@ package com.uniclub.domain.user.service;
 import com.uniclub.domain.auth.repository.INUAuthRepository;
 import com.uniclub.domain.club.entity.*;
 import com.uniclub.domain.club.repository.ClubRepository;
-import com.uniclub.domain.club.repository.MediaRepository;
 import com.uniclub.domain.club.repository.MembershipRepository;
 import com.uniclub.domain.terms.dto.RegisterTermsRequestDto;
 import com.uniclub.domain.terms.entity.Terms;
@@ -31,7 +30,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final MembershipRepository membershipRepository;
-    private final MediaRepository mediaRepository;
     private final INUAuthRepository inuAuthRepository;
     private final TermsRepository termsRepository;
     private final S3Service s3Service;
@@ -46,9 +44,6 @@ public class UserService {
             throw new CustomException(ErrorCode.USER_DELETED);
         }
 
-        // 프로필 업데이트
-        Media profileMedia = updateMedia(informationModificationRequestDto, user);
-
         // 전공이 빈칸이나 null로 왔을 때 기존값 유지를 위한 로직
         Major major = null;
         if (informationModificationRequestDto.getMajor() != null && !informationModificationRequestDto.getMajor().isBlank()){
@@ -60,8 +55,7 @@ public class UserService {
         user.updateInfo(informationModificationRequestDto.getName(),
                 major,
                 informationModificationRequestDto.getNickname(),
-                profileMedia);
-
+                informationModificationRequestDto.getProfileImageLink());
 
         log.info("사용자 정보 업데이트 성공: 학번={}", user.getStudentId());
     }
@@ -120,8 +114,8 @@ public class UserService {
 
         // 프로필 이미지가 있으면 presigned URL 생성
         String profileImageUrl = "";
-        if (user.getProfileMedia() != null) {
-           profileImageUrl = s3Service.getDownloadPresignedUrl(user.getProfileMedia().getMediaLink());
+        if (user.getProfile() != null) {
+           profileImageUrl = s3Service.getDownloadPresignedUrl(user.getProfile());
         }
 
         log.info("마이페이지 조회 완료: 학번={}", user.getStudentId());
@@ -219,38 +213,4 @@ public class UserService {
         }
         return request.getRemoteAddr();
     }
-
-    private Media updateMedia(InformationModificationRequestDto informationModificationRequestDto, User user) {
-        String profileImageLink = informationModificationRequestDto.getProfileImageLink();
-        if (profileImageLink == null) {
-            return null;
-        }
-
-        Media existingMedia = user.getProfileMedia();
-
-        // 기존 프로필이 있는 상태에서 빈 문자열이 오면 프로필 삭제
-        if (profileImageLink.isEmpty()) {
-            if (existingMedia != null) {
-                mediaRepository.delete(existingMedia);
-                user.deleteProfileMedia();
-            }
-            return null;
-        }
-
-        // 기존 프로필 업데이트
-        if (existingMedia != null) {
-            existingMedia.updateMediaLink(profileImageLink);
-            return null;
-        }
-
-        // 새 프로필 생성
-        Media newMedia = Media.builder()
-                .mediaLink(profileImageLink)
-                .mediaType(MediaType.USER_PROFILE)
-                .mainMedia(false)
-                .build();
-        mediaRepository.save(newMedia);
-        return newMedia;
-    }
-
 }

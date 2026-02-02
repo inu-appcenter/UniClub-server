@@ -29,8 +29,4 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
            "(a.deleted = true AND EXISTS (SELECT 1 FROM Answer child WHERE child.parentAnswer.answerId = a.answerId AND child.deleted = false))) " +
            "ORDER BY a.createdAt ASC, a.answerId ASC")
     List<Answer> findByQuestionIdWithUser(Long questionId);
-
-    //해당 질문의 최대 anonymousOrder 조회
-    @Query("SELECT MAX(a.anonymousOrder) FROM Answer a WHERE a.question.questionId = :questionId")
-    Integer findMaxAnonymousOrderByQuestionId(Long questionId);
 }

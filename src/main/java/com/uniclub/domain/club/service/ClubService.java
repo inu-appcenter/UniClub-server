@@ -41,81 +41,32 @@ public class ClubService {
     private final MediaRepository mediaRepository;
     private final S3Service s3Service;
 
-    //동아리 목록 조회
     @Transactional(readOnly = true)
-    public Slice<ClubResponseDto> getClubs(
-            Long userId, String category, String sortBy, String cursorName, int size) {
+    public Slice<ClubResponseDto> getClubs(Long userId, String category, String sortBy, String cursorName, int size) {
+        log.info("동아리 조회 시작: userId = {}", userId);
+        CategoryType categoryType = (category == null) ? null :
+                EnumConverter.stringToEnum(category, CategoryType.class, ErrorCode.CATEGORY_NOT_FOUND);
 
-        // String -> Enum 타입 변경, 카테고리 null인 경우 전체 동아리 조회
-        CategoryType categoryName = (category == null) ? null : EnumConverter.stringToEnum(category, CategoryType.class, ErrorCode.CATEGORY_NOT_FOUND);
-        Pageable pageable = PageRequest.of(0, size + 1);
-        // 정렬 기준 별 동아리 목록 조회
-        Slice<Club> clubs = switch (sortBy) {
-            case "name" -> clubRepository.findClubsByCursorOrderByName(categoryName, cursorName, pageable);
-            case "like" -> clubRepository.findClubsByCursorOrderByFavorite(userId, categoryName, cursorName, pageable);
-            case "status" -> clubRepository.findClubsByCursorOrderByStatus(categoryName, cursorName, pageable);
+        List<Club> clubs = findClubsSorted(userId, categoryType, sortBy, cursorName, size);
 
-            // 유효하지 않은 정렬 기준 예외처리
-            default -> throw new CustomException(ErrorCode.INVALID_SORT_CONDITION);
-        };
-        boolean hasNext = clubs.hasNext();
-
-        // 동아리 목록 추출 및 페이지 사이즈와 리스트 요소 개수 일치하도록 조정
-        List<Club> clubList = new ArrayList<>(clubs.getContent());
-        if (hasNext){
-            clubList.removeLast();
+        // 보내는 데이터의 개수를 사이즈(10)에 맞추기 위한 로직
+        boolean hasNext = clubs.size() > size;
+        if (hasNext) {
+            clubs = clubs.subList(0, size);
         }
 
-        // 유저가 관심 등록한 동아리 목록
-        Set<Long> favoriteSet = new HashSet<>(
-                favoriteRepository.findClubIdsByUserId(userId)
-        );
+        Set<Long> favoriteClubIds = new HashSet<>(favoriteRepository.findClubIdsByUserId(userId));
+        Map<Long, String> profileMap = buildProfileMap(clubs);
 
-        // 동아리 ID 목록 추출
-        List<Long> clubIds = new ArrayList<>();
-        for (Club club : clubList) {
-            clubIds.add(club.getClubId());
-        }
-
-        // 한 번의 쿼리로 동아리들의 프로필 이미지 조회
-        List<Media> clubProfileMedias = mediaRepository.findClubProfilesByClubIds(clubIds);
-
-        // clubId를 키로 하는 Map 생성
-        Map<Long, Media> clubProfileMap = new HashMap<>();
-        for (Media media : clubProfileMedias) {
-            clubProfileMap.put(media.getClub().getClubId(), media);
-        }
-
-        // 추출된 동아리 목록에서 관심등록 여부 확인 후 DTO 리스트 생성
-        List<ClubResponseDto> clubResponseDtoList = new ArrayList<>();
-        for (Club club : clubList) {
-            boolean isFavorite = favoriteSet.contains(club.getClubId());
-
-            // Map에서 프로필 이미지 조회
-            Media clubProfileMedia = clubProfileMap.get(club.getClubId());
-            String clubProfileUrl = "";
-            if (clubProfileMedia != null) {
-                clubProfileUrl = s3Service.getDownloadPresignedUrl(clubProfileMedia.getMediaLink());
-            }
-
-            ClubResponseDto clubResponseDto = ClubResponseDto.from(club, isFavorite, clubProfileUrl);
-            clubResponseDtoList.add(clubResponseDto);
-        }
-        return new SliceImpl<>(clubResponseDtoList, pageable, hasNext);
+        Slice<ClubResponseDto> clubResponseDtos = toClubResponseSlice(clubs, favoriteClubIds, profileMap, hasNext, size);
+        log.info("동아리 조회 완료: userId = {}", userId);
+        return clubResponseDtos;
     }
 
 
     //좋아요 토글링
     public ToggleFavoriteResponseDto toggleFavorite(Long clubId, UserDetailsImpl userDetails) {
-        // 존재하는 동아리인지 확인
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
-
-        // 삭제된 동아리인지 확인
-        if (club.isDeleted()){
-            throw new CustomException(ErrorCode.CLUB_DELETED);
-        }
-
+        Club club = findActiveClub(clubId);
         User user = userDetails.getUser();
 
         // 관심 동아리인지 확인
@@ -154,15 +105,7 @@ public class ClubService {
     //동아리 소개글 작성
     public void saveClubPromotion(UserDetailsImpl userDetails, Long clubId, ClubPromotionRegisterRequestDto promotionRegisterRequestDto) {
         log.info("동아리 소개글 작성 시작: clubId={}, userId={}", clubId, userDetails.getUserId());
-        Club existingClub = clubRepository.findById(clubId) //실제 존재하는 동아리인지 확인
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
-                );
-
-        // 삭제된 동아리인지 확인
-        if (existingClub.isDeleted()){
-            throw new CustomException(ErrorCode.CLUB_DELETED);
-        }
+        Club existingClub = findActiveClub(clubId);
 
         //해당 동아리의 회장인지 확인
         Role userRole = checkRole(userDetails.getUserId(), clubId);
@@ -195,14 +138,7 @@ public class ClubService {
     //동아리 미디어 파일 업로드
     public void uploadClubMedia(UserDetailsImpl userDetails, Long clubId, List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
         log.info("동아리 미디어 업로드 시작: clubId={}, userId={}", clubId, userDetails.getUserId());
-        // 존재하는 동아리인지 확인
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
-
-        // 삭제된 동아리인지 확인
-        if (club.isDeleted()){
-            throw new CustomException(ErrorCode.CLUB_DELETED);
-        }
+        Club club = findActiveClub(clubId);
 
         //해당 동아리의 운영진인지 확인
         Role userRole = checkRole(userDetails.getUserId(), clubId);
@@ -234,6 +170,84 @@ public class ClubService {
     }
 
 
+    //동아리 소개글 불러오기
+    @Transactional(readOnly = true)
+    public ClubPromotionResponseDto getClubPromotion(UserDetailsImpl userDetails, Long clubId) {
+        log.info("동아리 홍보페이지 조회 시작: userId = {}, clubId = {}", userDetails.getUserId(), clubId);
+        Club club = findActiveClub(clubId);
+
+        List<Media> mediaList = mediaRepository.findByClubId(clubId);
+        boolean favorite = favoriteRepository.existsByUserIdAndClubId(userDetails.getUserId(), clubId);
+        List<DescriptionMediaDto> mediaResList = new ArrayList<>();
+        for (Media media : mediaList) {
+            String presignedUrl = s3Service.getDownloadPresignedUrl(media.getMediaLink());
+            mediaResList.add(DescriptionMediaDto.from(media, presignedUrl));
+        }
+
+        ClubPromotionResponseDto clubPromotionResponseDto = ClubPromotionResponseDto.from(checkRole(userDetails.getUserId(), clubId), club, favorite, mediaResList);
+        log.info("동아리 홍보페이지 조회 완료: userId = {}, clubId = {}", userDetails.getUserId(), clubId);
+        return clubPromotionResponseDto;
+    }
+
+
+    //(개발자 전용) 동아리 삭제
+    public void deleteClub(Long clubId) {
+        log.info("동아리 삭제 시작: clubId={}", clubId);
+        Club club = findActiveClub(clubId);
+        club.softDelete();
+        log.info("동아리 삭제 성공: clubId={}", clubId);
+    }
+
+
+    //특정 동아리 유저 권한 확인 (정보 없으면 GUEST로 반환)
+    @Transactional(readOnly = true)
+    public Role checkRole(Long userId, Long clubId) {
+        return membershipRepository.findByUserIdAndClubId(userId, clubId)
+                .map(MemberShip::getRole)
+                .orElse(Role.GUEST);
+    }
+
+    private List<Club> findClubsSorted(Long userId, CategoryType categoryType, String sortBy, String cursorName, int size) {
+        Pageable pageable = PageRequest.of(0, size + 1);
+        return switch (sortBy) {
+            case "name" -> clubRepository.findClubsByCursorOrderByName(categoryType, cursorName, pageable);
+            case "like" -> clubRepository.findClubsByCursorOrderByFavorite(userId, categoryType, cursorName, pageable);
+            case "status" -> clubRepository.findClubsByCursorOrderByStatus(categoryType, cursorName, pageable);
+            default -> throw new CustomException(ErrorCode.INVALID_SORT_CONDITION);
+        };
+    }
+
+    private Map<Long, String> buildProfileMap(List<Club> clubs) {
+        List<Long> clubIds = clubs.stream()
+                .map(Club::getClubId)
+                .collect(Collectors.toList());
+
+        return mediaRepository.findClubProfilesByClubIds(clubIds).stream()
+                .collect(Collectors.toMap(
+                        media -> media.getClub().getClubId(),
+                        media -> s3Service.getDownloadPresignedUrl(media.getMediaLink())
+                ));
+    }
+
+    private Slice<ClubResponseDto> toClubResponseSlice(
+            List<Club> clubs, Set<Long> favoriteClubIds, Map<Long, String> profileMap, boolean hasNext, int size) {
+
+        List<ClubResponseDto> dtos = clubs.stream()
+                .map(club -> ClubResponseDto.from(
+                        club,
+                        favoriteClubIds.contains(club.getClubId()),
+                        profileMap.getOrDefault(club.getClubId(), "")))
+                .collect(Collectors.toList());
+
+        return new SliceImpl<>(dtos, PageRequest.of(0, size), hasNext);
+    }
+
+    // URL에서 파일명만 추출하는 헬퍼 메서드
+    private String extractFileName(String mediaLink) {
+        return mediaLink.substring(mediaLink.lastIndexOf('/') + 1);
+    }
+
+
     private void validateMediaType(List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
         //각 Type들 개수 세기
         Map<String, Long> mediaTypeCount = clubMediaUploadRequestDtoList.stream()
@@ -255,7 +269,6 @@ public class ClubService {
         log.info("중복 미디어 타입 검증 성공");
     }
 
-
     private void deleteExistingUniqueMediaType(Long clubId, List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
         //새로 업로드 되는 것 확인
         Set<String> newMediaTypes = clubMediaUploadRequestDtoList.stream()
@@ -275,64 +288,12 @@ public class ClubService {
         }
     }
 
-
-    // URL에서 파일명만 추출하는 헬퍼 메서드
-    private String extractFileName(String mediaLink) {
-        return mediaLink.substring(mediaLink.lastIndexOf('/') + 1);
-    }
-
-
-    //동아리 소개글 불러오기
-    @Transactional(readOnly = true)
-    public ClubPromotionResponseDto getClubPromotion(UserDetailsImpl userDetails, Long clubId) {
-        Club club = clubRepository.findById(clubId) //실제 존재하는 동아리인지 확인
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
-                );
-
-        // 삭제된 동아리인지 확인
-        if (club.isDeleted()){
+    private Club findActiveClub(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+        if (club.isDeleted()) {
             throw new CustomException(ErrorCode.CLUB_DELETED);
         }
-
-
-        List<Media> mediaList = mediaRepository.findByClubId(clubId);
-        boolean favorite = favoriteRepository.existsByUserIdAndClubId(userDetails.getUserId(), clubId);
-        List<DescriptionMediaDto> mediaResList = new ArrayList<>();
-        for (Media media : mediaList) {
-            String presignedUrl = s3Service.getDownloadPresignedUrl(media.getMediaLink());
-            mediaResList.add(DescriptionMediaDto.from(media, presignedUrl));
-        }
-        return ClubPromotionResponseDto.from(checkRole(userDetails.getUserId(), clubId), club, favorite, mediaResList);
+        return club;
     }
-
-
-    //(개발자 전용) 동아리 삭제
-    public void deleteClub(Long clubId) {
-        log.info("동아리 삭제 시작: clubId={}", clubId);
-        Club club = clubRepository.findById(clubId).orElseThrow(
-                () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
-        );
-
-        // 삭제된 동아리인지 확인
-        if (club.isDeleted()){
-            throw new CustomException(ErrorCode.CLUB_DELETED);
-        }
-
-        club.softDelete();
-        log.info("동아리 삭제 성공: clubId={}", clubId);
-    }
-
-
-    //특정 동아리 유저 권한 확인 (정보 없으면 GUEST로 반환)
-    @Transactional(readOnly = true)
-    public Role checkRole(Long userId, Long clubId) {
-        return membershipRepository.findByUserIdAndClubId(userId, clubId)
-                .map(MemberShip::getRole)
-                .orElse(Role.GUEST);
-    }
-
-
-
-
 }

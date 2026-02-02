@@ -36,6 +36,9 @@ public class Question extends BaseTime{
     @Column(nullable = false)
     private boolean publicQuestion;
 
+    @Column(nullable = false)
+    private boolean presidentQuestion;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     @OnDelete(action = OnDeleteAction.SET_NULL)
@@ -47,11 +50,12 @@ public class Question extends BaseTime{
     private Club club;
 
     @Builder
-    public Question(String content, boolean anonymous, boolean answered, boolean publicQuestion, User user, Club club) {
+    public Question(String content, boolean anonymous, boolean answered, boolean publicQuestion, boolean presidentQuestion, User user, Club club) {
         this.content = content;
         this.anonymous = anonymous;
         this.answered = answered;
         this.publicQuestion = publicQuestion;
+        this.presidentQuestion = presidentQuestion;
         this.user = user;
         this.club = club;
     }
@@ -67,15 +71,5 @@ public class Question extends BaseTime{
 
     public void markAsAnswered() {
         this.answered = true;
-    }
-
-    public String getDisplayName() {
-        if (this.anonymous) {
-            return "익명";
-        } else if (this.user == null || this.user.isDeleted()) {
-            return "탈퇴한 사용자";
-        } else {
-            return this.user.getNickname();
-        }
     }
 }
