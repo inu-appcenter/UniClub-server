@@ -42,15 +42,15 @@ public class UserDeleteScheduler {
 
         //S3 이미지 삭제
         for (User user : usersToDelete) {
-            Media profileMedia = user.getProfileMedia();
-            if (profileMedia != null && profileMedia.getMediaLink() != null) {
+            String profileMedia = user.getProfile();
+            if (profileMedia != null) {
                 try {
-                    s3Service.deleteFile(profileMedia.getMediaLink());
+                    s3Service.deleteFile(profileMedia);
                     s3DeletedCount++;
-                    log.info("S3 프로필 이미지 삭제 성공: userId={}, studentId={}, mediaLink={}", user.getUserId(), user.getStudentId(), profileMedia.getMediaLink());
+                    log.info("S3 프로필 이미지 삭제 성공: userId={}, studentId={}, profile={}", user.getUserId(), user.getStudentId(), profileMedia);
                 } catch (Exception e) {
                     s3FailedCount++;
-                    log.error("S3 프로필 이미지 삭제 실패 (계속 진행): userId={}, studentId={}, mediaLink={}, error={}", user.getUserId(), user.getStudentId(), profileMedia.getMediaLink(), e.getMessage());
+                    log.error("S3 프로필 이미지 삭제 실패 (계속 진행): userId={}, studentId={}, profile={}, error={}", user.getUserId(), user.getStudentId(), profileMedia, e.getMessage());
                 }
             }
         }
@@ -64,18 +64,6 @@ public class UserDeleteScheduler {
         notificationRepository.deleteByUserIds(userIds);
         log.info("유저 알림 삭제 완료: {}개 유저", userIds.size());
 
-        //Media 엔티티 삭제
-        for (User user : usersToDelete) {
-            Media profileMedia = user.getProfileMedia();
-            if (profileMedia != null) {
-                try {
-                    mediaRepository.delete(profileMedia);
-                    log.debug("Media 엔티티 삭제: mediaId={}", profileMedia.getMediaId());
-                } catch (Exception e) {
-                    log.error("Media 엔티티 삭제 실패: userId={}, mediaId={}, error={}", user.getUserId(), profileMedia.getMediaId(), e.getMessage());
-                }
-            }
-        }
 
         //User 물리 삭제
         userRepository.deleteAll(usersToDelete);
