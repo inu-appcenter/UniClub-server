@@ -23,7 +23,6 @@ public class UserDeleteScheduler {
 
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
-    private final MediaRepository mediaRepository;
     private final S3Service s3Service;
 
     @Scheduled(cron = "0 0 2 * * *")
