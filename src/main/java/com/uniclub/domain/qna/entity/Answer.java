@@ -27,9 +27,6 @@ public class Answer extends BaseTime {
     @Column(nullable = false)
     private boolean anonymous;
 
-    @Column
-    private Integer anonymousOrder;
-
     @Column(nullable = false)
     private boolean presidentAnswer;
 
@@ -48,19 +45,12 @@ public class Answer extends BaseTime {
     private Answer parentAnswer;
 
     @Builder
-    public Answer(String content, boolean anonymous, Integer anonymousOrder, Question question, User user, Answer parentAnswer, boolean presidentAnswer) {
+    public Answer(String content, boolean anonymous, Question question, User user, Answer parentAnswer, boolean presidentAnswer) {
         this.content = content;
         this.anonymous = anonymous;
-        this.anonymousOrder = anonymousOrder;
         this.question = question;
         this.user = user;
         this.parentAnswer = parentAnswer;
         this.presidentAnswer = presidentAnswer;
-    }
-
-    public void assignAnonymousOrderIfNull(Integer order) {
-        if (this.anonymousOrder == null) {
-            this.anonymousOrder = order;
-        }
     }
 }

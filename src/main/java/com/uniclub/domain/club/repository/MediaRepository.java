@@ -22,7 +22,7 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
     @Query("SELECT m FROM Media m WHERE m.mediaType = :mediaType")
     List<Media> findByMediaType(MediaType mediaType);
 
-    @Query("SELECT m FROM Media m WHERE m.club.clubId IN :clubIds AND m.mediaType = 'CLUB_PROFILE'")
+    @Query("SELECT m FROM Media m JOIN FETCH m.club WHERE m.club.clubId IN :clubIds AND m.mediaType = 'CLUB_PROFILE'")
     List<Media> findClubProfilesByClubIds(List<Long> clubIds);
 
     @Modifying

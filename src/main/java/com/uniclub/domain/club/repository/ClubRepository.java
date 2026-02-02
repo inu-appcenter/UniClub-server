@@ -28,35 +28,38 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
 
     // 이름순 + 카테고리
     @Query("SELECT c FROM Club c " +
+            "JOIN FETCH c.category " +
             "WHERE (:categoryName IS NULL OR c.category.name = :categoryName) " +
             "AND (:cursorName IS NULL OR c.name > :cursorName) " +
             "AND c.deleted = false " +
             "ORDER BY c.name ASC")
-    Slice<Club> findClubsByCursorOrderByName(@Param("categoryName") CategoryType categoryName,
-                                             @Param("cursorName") String cursorName,
-                                             Pageable pageable);
+    List<Club> findClubsByCursorOrderByName(@Param("categoryName") CategoryType categoryName,
+                                            @Param("cursorName") String cursorName,
+                                            Pageable pageable);
 
     // 좋아요순 + 카테고리
     @Query("SELECT c FROM Club c " +
+            "JOIN FETCH c.category " +
             "LEFT JOIN Favorite f ON f.club = c AND f.user.userId = :userId " +
             "WHERE (:categoryName IS NULL OR c.category.name = :categoryName) " +
             "AND (:cursorName IS NULL OR c.name > :cursorName) " +
             "AND c.deleted = false " +
             "ORDER BY CASE WHEN f.favoriteId IS NOT NULL THEN 0 ELSE 1 END, c.name ASC")
-    Slice<Club> findClubsByCursorOrderByFavorite(@Param("userId") Long userId,
-                                                 @Param("categoryName") CategoryType categoryName,
-                                                 @Param("cursorName") String cursorName,
-                                                 Pageable pageable);
+    List<Club> findClubsByCursorOrderByFavorite(@Param("userId") Long userId,
+                                                @Param("categoryName") CategoryType categoryName,
+                                                @Param("cursorName") String cursorName,
+                                                Pageable pageable);
 
     // 모집중순 + 카테고리
     @Query("SELECT c FROM Club c " +
+            "JOIN FETCH c.category " +
             "WHERE (:categoryName IS NULL OR c.category.name = :categoryName) " +
             "AND (:cursorName IS NULL OR c.name > :cursorName) " +
             "AND c.deleted = false " +
             "ORDER BY CASE WHEN c.status = 'ACTIVE' THEN 0 ELSE 1 END, c.name ASC")
-    Slice<Club> findClubsByCursorOrderByStatus(@Param("categoryName") CategoryType categoryName,
-                                               @Param("cursorName") String cursorName,
-                                               Pageable pageable);
+    List<Club> findClubsByCursorOrderByStatus(@Param("categoryName") CategoryType categoryName,
+                                              @Param("cursorName") String cursorName,
+                                              Pageable pageable);
 
 
     //전체 조회(키워드 공백시)
