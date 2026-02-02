@@ -17,4 +17,6 @@ public interface S3Service {
     String getDownloadPresignedUrl(String s3Key);
 
     void deleteFile(String s3Key);
+
+    void deleteFiles(List<String> s3Keys);
 }
