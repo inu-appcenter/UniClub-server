@@ -15,4 +15,6 @@ public interface S3Service {
     S3PresignedResponseDto getUserProfilePresignedUrl(UserDetailsImpl userDetails, S3PresignedRequestDto s3PresignedRequestDto);
 
     String getDownloadPresignedUrl(String s3Key);
+
+    void deleteFile(String s3Key);
 }
