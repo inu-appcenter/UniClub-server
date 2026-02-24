@@ -3,6 +3,7 @@ package com.uniclub.domain.user.service;
 import com.uniclub.domain.auth.repository.INUAuthRepository;
 import com.uniclub.domain.club.entity.*;
 import com.uniclub.domain.club.repository.ClubRepository;
+import com.uniclub.domain.club.repository.MediaRepository;
 import com.uniclub.domain.club.repository.MembershipRepository;
 import com.uniclub.domain.terms.dto.RegisterTermsRequestDto;
 import com.uniclub.domain.terms.entity.Terms;
@@ -30,6 +31,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final MembershipRepository membershipRepository;
+    private final MediaRepository mediaRepository;
     private final INUAuthRepository inuAuthRepository;
     private final TermsRepository termsRepository;
     private final S3Service s3Service;
@@ -51,11 +53,13 @@ public class UserService {
             major = EnumConverter.stringToEnum(informationModificationRequestDto.getMajor(), Major.class, ErrorCode.MAJOR_NOT_FOUND);
         }
 
+        // 프로필 업데이트
+        updateMedia(informationModificationRequestDto.getProfileImageLink(), user);
+
         // 영속성 컨택스트 이용(더티체킹)
         user.updateInfo(informationModificationRequestDto.getName(),
                 major,
-                informationModificationRequestDto.getNickname(),
-                informationModificationRequestDto.getProfileImageLink());
+                informationModificationRequestDto.getNickname());
 
         log.info("사용자 정보 업데이트 성공: 학번={}", user.getStudentId());
     }
@@ -78,6 +82,13 @@ public class UserService {
             throw new CustomException(ErrorCode.PASSWORD_NOT_MATCHED);
         }
 
+        // 프로필 Media soft delete
+        if (user.getProfileMedia() != null) {
+            user.getProfileMedia().softDelete();
+            log.info("User 삭제로 인한 프로필 Media soft delete: userId={}, mediaId={}",
+                user.getUserId(), user.getProfileMedia().getMediaId());
+        }
+
         user.softDelete();
         log.info("사용자 삭제 완료: 학번={}", user.getStudentId());
     }
@@ -93,13 +104,26 @@ public class UserService {
 
         Role role = EnumConverter.stringToEnum(userRoleRequestDto.getRole(), Role.class, ErrorCode.ROLE_NOT_FOUND);
 
-        membershipRepository.save(
-                MemberShip.builder()
-                        .user(user)
-                        .club(club)
-                        .role(role)
-                        .build()
-        );
+        if (role == Role.PRESIDENT) {
+            membershipRepository.findByClubIdAndRole(club.getClubId(), Role.PRESIDENT)
+                    .ifPresent(existingPresident -> {
+                        existingPresident.changeRole(Role.MEMBER);
+                        log.info("기존 회장 강등 완료: clubId={}, userId={}", club.getClubId(), existingPresident.getUser().getUserId());
+                    });
+        }
+
+        membershipRepository.findByUserIdAndClubId(user.getUserId(), club.getClubId())
+                .ifPresentOrElse(
+                        membership -> membership.changeRole(role),
+                        () -> membershipRepository.save(
+                                MemberShip.builder()
+                                        .user(user)
+                                        .club(club)
+                                        .role(role)
+                                        .build()
+                        )
+                );
+
         log.info("사용자 권한 부여 완료: 학번={}, 권한={}", user.getStudentId(), role);
     }
 
@@ -114,8 +138,8 @@ public class UserService {
 
         // 프로필 이미지가 있으면 presigned URL 생성
         String profileImageUrl = "";
-        if (user.getProfile() != null) {
-           profileImageUrl = s3Service.getDownloadPresignedUrl(user.getProfile());
+        if (user.getProfileMedia() != null) {
+           profileImageUrl = s3Service.getDownloadPresignedUrl(user.getProfileMedia().getMediaLink());
         }
 
         log.info("마이페이지 조회 완료: 학번={}", user.getStudentId());
@@ -212,5 +236,29 @@ public class UserService {
             }
         }
         return request.getRemoteAddr();
+    }
+
+    private void updateMedia(String profileImageLink, User user) {
+        if (profileImageLink == null) return;
+
+        // 기존 Media soft delete
+        if (user.getProfileMedia() != null) {
+            user.getProfileMedia().softDelete();
+        }
+
+        if (profileImageLink.isEmpty()) {
+            user.removeProfileMedia();
+        } else {
+            Media newMedia = Media.builder()
+                    .mediaLink(profileImageLink)
+                    .mediaType(MediaType.USER_PROFILE)
+                    .mainMedia(false)
+                    .club(null)
+                    .build();
+            mediaRepository.save(newMedia);
+            user.updateProfileMedia(newMedia);
+            log.info("새 프로필 Media 생성: userId={}, mediaId={}, link={}",
+                    user.getUserId(), newMedia.getMediaId(), profileImageLink);
+        }
     }
 }

@@ -6,8 +6,10 @@ import com.uniclub.domain.club.entity.MediaType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -28,4 +30,7 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
     @Modifying
     @Query("DELETE FROM Media m WHERE m.club.clubId = :clubId AND m.mediaType = :mediaType")
     void deleteByClubIdAndMediaType(Long clubId,MediaType mediaType);
+
+    @Query("SELECT m FROM Media m WHERE m.deleted = true AND m.deletedAt < :cutoffDate")
+    List<Media> findDeletedMediaBeforeDate(@Param("cutoffDate") LocalDateTime cutoffDate);
 }

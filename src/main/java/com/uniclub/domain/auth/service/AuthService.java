@@ -30,7 +30,8 @@ public class AuthService {
     public void createUser(RegisterRequestDto registerRequestDto) {
         log.info("회원가입 시작: 학번={}", registerRequestDto.getStudentId());
 
-        if (!registerRequestDto.isStudentVerification()) {   //재학생 인증 확인
+        boolean studentVerification = inuAuthRepository.verifySchoolLogin(registerRequestDto.getStudentId(), registerRequestDto.getPassword());
+        if (!studentVerification) {
             throw new CustomException(ErrorCode.STUDENT_VERIFICATION_REQUIRED);
         }
 
@@ -42,7 +43,6 @@ public class AuthService {
             throw new CustomException(ErrorCode.DUPLICATE_STUDENT_ID);
         }
 
-        // String -> major 변환
         Major major = EnumConverter.stringToEnum(registerRequestDto.getMajor(), Major.class, ErrorCode.MAJOR_NOT_FOUND);
 
         User user = User.builder()
@@ -63,7 +63,7 @@ public class AuthService {
         boolean verification = inuAuthRepository.verifySchoolLogin(loginRequestDto.getStudentId(), loginRequestDto.getPassword());
 
         if (!verification) {
-            throw new CustomException(ErrorCode.BAD_CREDENTIALS);
+            throw new CustomException(ErrorCode.STUDENT_VERIFICATION_REQUIRED);
         }
 
         //유저 정보 조회

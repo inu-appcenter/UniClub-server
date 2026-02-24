@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -83,7 +85,9 @@ public class S3ServiceImpl implements S3Service {
         String filename = s3PresignedRequestDto.getFilename();
         
         // 이미지 파일만 허용 (비디오 제외)
-        validateProfileImageExtension(filename);
+        if (!validateProfileImageExtension(filename)){
+            throw new CustomException(ErrorCode.INVALID_FILE_TYPE);
+        }
         
         String presignedUrl = getUploadPresignedUrl(filename);
         
@@ -97,7 +101,9 @@ public class S3ServiceImpl implements S3Service {
         String fileExtension = extractFileExtension(key);
 
         // 파일 확장자 검증
-        validateFileExtension(fileExtension);
+        if (!validateFileExtension(fileExtension)){
+            throw new CustomException(ErrorCode.INVALID_FILE_TYPE);
+        }
 
         String uniqueKey = generateUniqueKey(key);
 
@@ -216,6 +222,27 @@ public class S3ServiceImpl implements S3Service {
             log.info("S3 파일 삭제 성공: bucket={}, key={}", bucketName, s3Key);
         } catch (Exception e) {
             log.error("S3 파일 삭제 실패: bucket={}, key={}, error={}", bucketName, s3Key, e.getMessage(), e);
+            throw new CustomException(ErrorCode.S3_CONNECTION_ERROR);
+        }
+    }
+
+    @Override
+    public void deleteFiles(List<String> s3Keys) {
+        try {
+            List<ObjectIdentifier> objectIdentifiers = s3Keys.stream()
+                    .map(key -> ObjectIdentifier.builder().key(key).build())
+                    .toList();
+
+            DeleteObjectsRequest deleteObjectsRequest = DeleteObjectsRequest.builder()
+                    .bucket(bucketName)
+                    .delete(builder -> builder.objects(objectIdentifiers))
+                    .build();
+
+            s3Client.deleteObjects(deleteObjectsRequest);
+            log.info("S3 파일 배치 삭제 성공: bucket={}, count={}", bucketName, s3Keys.size());
+        } catch (Exception e) {
+            log.error("S3 파일 배치 삭제 실패: bucket={}, count={}, error={}",
+                bucketName, s3Keys.size(), e.getMessage(), e);
             throw new CustomException(ErrorCode.S3_CONNECTION_ERROR);
         }
     }
