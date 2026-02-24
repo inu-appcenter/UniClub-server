@@ -104,13 +104,26 @@ public class UserService {
 
         Role role = EnumConverter.stringToEnum(userRoleRequestDto.getRole(), Role.class, ErrorCode.ROLE_NOT_FOUND);
 
-        membershipRepository.save(
-                MemberShip.builder()
-                        .user(user)
-                        .club(club)
-                        .role(role)
-                        .build()
-        );
+        if (role == Role.PRESIDENT) {
+            membershipRepository.findByClubIdAndRole(club.getClubId(), Role.PRESIDENT)
+                    .ifPresent(existingPresident -> {
+                        existingPresident.changeRole(Role.MEMBER);
+                        log.info("기존 회장 강등 완료: clubId={}, userId={}", club.getClubId(), existingPresident.getUser().getUserId());
+                    });
+        }
+
+        membershipRepository.findByUserIdAndClubId(user.getUserId(), club.getClubId())
+                .ifPresentOrElse(
+                        membership -> membership.changeRole(role),
+                        () -> membershipRepository.save(
+                                MemberShip.builder()
+                                        .user(user)
+                                        .club(club)
+                                        .role(role)
+                                        .build()
+                        )
+                );
+
         log.info("사용자 권한 부여 완료: 학번={}, 권한={}", user.getStudentId(), role);
     }
 

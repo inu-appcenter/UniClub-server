@@ -40,4 +40,8 @@ public class MemberShip extends BaseTime {
         this.user = user;
         this.club = club;
     }
+
+    public void changeRole(Role role) {
+        this.role = role;
+    }
 }

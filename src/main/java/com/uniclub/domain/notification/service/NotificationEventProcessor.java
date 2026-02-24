@@ -223,7 +223,7 @@ public class NotificationEventProcessor {
     //동아리 회장 조회
     private Long getClubPresidentId(Long clubId) {
         return membershipRepository.findUserIdByClubIdAndRole(clubId, Role.PRESIDENT)
-                .orElseThrow(null);
+                .orElse(null);
     }
 
     //질문 내용 자르기

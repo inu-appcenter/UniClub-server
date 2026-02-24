@@ -1,7 +1,5 @@
 package com.uniclub.domain.auth.dto;
 
-import com.uniclub.domain.user.entity.Major;
-import com.uniclub.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,10 +15,13 @@ public class RegisterRequestDto {
     @NotBlank(message = "학번을 입력해주세요.")
     private String studentId;
 
+    @Schema(description = "비밀번호", example = "qwer123!")
+    @NotBlank(message = "비밀번호를 입력해주세요.")
+    private String password;
+
     @Schema(description = "사용자 이름", example = "홍길동")
     @NotBlank(message = "이름을 입력해주세요.")
     private String name;
-
 
     @Schema(description = "사용자 전공", example = "COMPUTER_ENGINEERING")
     @NotBlank(message = "전공을 입력해주세요.")
@@ -37,8 +38,4 @@ public class RegisterRequestDto {
     @Schema(description = "마케팅 및 광고 활용 동의", example = "false")
     @NotNull(message = "마케팅 및 광고 활용 동의 여부를 입력하세요.")
     private boolean marketingAdvertisement;
-
-    @Schema(description = "재학생 인증 여부", example = "true")
-    @NotNull(message = "재학생 인증을 진행하세요.")
-    private boolean studentVerification;
 }
