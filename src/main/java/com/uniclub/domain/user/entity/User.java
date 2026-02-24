@@ -10,6 +10,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -71,8 +72,7 @@ public class User extends BaseTime {
     @Override
     public void softDelete() {
         super.softDelete();
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
-        this.studentId = "d_" + timestamp + "_" + this.studentId;
+        this.studentId = "d_" + UUID.randomUUID() + "_" + this.studentId;
     }
     
 }
