@@ -21,4 +21,7 @@ public interface MembershipRepository extends JpaRepository<MemberShip, Long> {
             "AND m.club.clubId = :clubId " +
             "AND m.role = :role")
     boolean hasRole(Long userId, Long clubId, Role role);
+
+    @Query("SELECT m FROM MemberShip m WHERE m.club.clubId = :clubId AND m.role = :role")
+    Optional<MemberShip> findByClubIdAndRole(Long clubId, Role role);
 }
