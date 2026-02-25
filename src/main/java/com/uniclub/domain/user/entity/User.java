@@ -28,7 +28,7 @@ public class User extends BaseTime {
     @Column(nullable = false)
     private String nickname;  // 회원가입창에서 입력 X, 디폴트는 이름
 
-    @Column(nullable = false, length = 30, unique = true)
+    @Column(nullable = false, length = 70, unique = true)
     private String studentId;   //학번
 
     @Enumerated(EnumType.STRING)
