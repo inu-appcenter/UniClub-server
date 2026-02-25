@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Tag(name = "인증 API", description = "회원가입·로그인 관련 기능")
 public interface AuthApiSpecification {
 
-    @Operation(summary = "회원가입", description = "신규 회원 가입 (닉네임 포함)")
+    @Operation(summary = "회원가입", description = "신규 회원 가입(개인정보 약관, 마케팅 이용 동의 포함)")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "회원가입 성공"),
             @ApiResponse(
@@ -48,7 +49,7 @@ public interface AuthApiSpecification {
                     )
             )
     })
-    ResponseEntity<Void> createUser(@Valid @RequestBody RegisterRequestDto request);
+    ResponseEntity<Void> createUser(@Valid @RequestBody RegisterRequestDto request, HttpServletRequest servletRequest);
 
 
     @Operation(summary = "로그인", description = "로그인 및 토큰 발급")

@@ -5,9 +5,6 @@ import com.uniclub.domain.club.entity.*;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.club.repository.MediaRepository;
 import com.uniclub.domain.club.repository.MembershipRepository;
-import com.uniclub.domain.terms.dto.RegisterTermsRequestDto;
-import com.uniclub.domain.terms.entity.Terms;
-import com.uniclub.domain.terms.repository.TermsRepository;
 import com.uniclub.domain.user.dto.*;
 import com.uniclub.domain.user.entity.Major;
 import com.uniclub.domain.user.entity.User;
@@ -17,7 +14,6 @@ import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.s3.S3Service;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.util.EnumConverter;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,7 +29,6 @@ public class UserService {
     private final MembershipRepository membershipRepository;
     private final MediaRepository mediaRepository;
     private final INUAuthRepository inuAuthRepository;
-    private final TermsRepository termsRepository;
     private final S3Service s3Service;
 
     public void updateUser(UserDetailsImpl userDetails, InformationModificationRequestDto informationModificationRequestDto) {
@@ -187,57 +182,6 @@ public class UserService {
          }
     }
 
-    public void registerTerms(RegisterTermsRequestDto registerTermsRequestDto, HttpServletRequest request) {
-        User user = userRepository.findByStudentId(registerTermsRequestDto.getStudentId())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        if (user.isDeleted()) {
-            throw new CustomException(ErrorCode.USER_DELETED);
-        }
-
-        String ipAddress = getClientIpAddress(request);
-        String userAgent = request.getHeader("User-Agent");
-        
-        if (userAgent == null) {
-            userAgent = "Unknown";
-        }
-
-        Terms terms = Terms.builder()
-                .personalInfoCollectionAgreement(registerTermsRequestDto.isPersonalInfoCollectionAgreement())
-                .marketingAdvertisement(registerTermsRequestDto.isMarketingAdvertisement())
-                .version("1.0")
-                .ipAddress(ipAddress)
-                .userAgent(userAgent)
-                .user(user)
-                .build();
-
-        termsRepository.save(terms);
-        log.info("약관 동의 저장 완료: 학번={}, IP={}", user.getStudentId(), ipAddress);
-    }
-
-    private String getClientIpAddress(HttpServletRequest request) {
-        String[] headerNames = {
-            "X-Forwarded-For",
-            "X-Real-IP", 
-            "Proxy-Client-IP",
-            "WL-Proxy-Client-IP",
-            "HTTP_CLIENT_IP",
-            "HTTP_X_FORWARDED_FOR"
-        };
-
-        // 프록시를 거쳐서 들어오는 경우 진짜 클라이언트 IP 주소를 찾음
-        for (String headerName : headerNames) {
-            String ip = request.getHeader(headerName);
-            if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
-                if (ip.contains(",")) {
-                    ip = ip.split(",")[0].trim();
-                }
-                return ip;
-            }
-        }
-        return request.getRemoteAddr();
-    }
-
     private void updateMedia(String profileImageLink, User user) {
         if (profileImageLink == null) return;
 
@@ -261,4 +205,5 @@ public class UserService {
                     user.getUserId(), newMedia.getMediaId(), profileImageLink);
         }
     }
+
 }

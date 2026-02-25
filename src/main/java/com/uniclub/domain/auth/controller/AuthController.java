@@ -4,6 +4,7 @@ import com.uniclub.domain.auth.dto.*;
 import com.uniclub.domain.auth.service.AuthService;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.swagger.AuthApiSpecification;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +25,9 @@ public class AuthController implements AuthApiSpecification {
 
 
     @PostMapping("/register")
-    public ResponseEntity<Void> createUser(@Valid @RequestBody RegisterRequestDto request) {
-        authService.createUser(request);
+    public ResponseEntity<Void> createUser(@Valid @RequestBody RegisterRequestDto request,
+                                           HttpServletRequest servletRequest) {
+        authService.createUser(request, servletRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
