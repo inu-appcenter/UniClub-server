@@ -2,6 +2,8 @@ package com.uniclub.domain.auth.service;
 
 import com.uniclub.domain.auth.dto.*;
 import com.uniclub.domain.auth.repository.INUAuthRepository;
+import com.uniclub.domain.terms.entity.Terms;
+import com.uniclub.domain.terms.repository.TermsRepository;
 import com.uniclub.domain.user.entity.Major;
 import com.uniclub.domain.user.entity.User;
 import com.uniclub.domain.user.repository.UserRepository;
@@ -10,6 +12,7 @@ import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.security.JwtTokenProvider;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.util.EnumConverter;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,8 +29,9 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final INUAuthRepository inuAuthRepository;
+    private final TermsRepository termsRepository;
 
-    public void createUser(RegisterRequestDto registerRequestDto) {
+    public void createUser(RegisterRequestDto registerRequestDto, HttpServletRequest request) {
         log.info("회원가입 시작: 학번={}", registerRequestDto.getStudentId());
 
         if (!registerRequestDto.isStudentVerification()) {   //재학생 인증 확인
@@ -53,7 +57,50 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
+        saveTerms(registerRequestDto, user, request);
         log.info("회원가입 성공: 학번={}, 이름={}", registerRequestDto.getStudentId(), registerRequestDto.getName());
+    }
+
+    private void saveTerms(RegisterRequestDto dto, User user, HttpServletRequest request) {
+        String ipAddress = getClientIpAddress(request);
+        String userAgent = request.getHeader("User-Agent");
+        if (userAgent == null) {
+            userAgent = "Unknown";
+        }
+
+        Terms terms = Terms.builder()
+                .personalInfoCollectionAgreement(dto.isPersonalInfoCollectionAgreement())
+                .marketingAdvertisement(dto.isMarketingAdvertisement())
+                .version("1.0")
+                .ipAddress(ipAddress)
+                .userAgent(userAgent)
+                .user(user)
+                .build();
+
+        termsRepository.save(terms);
+        log.info("약관 동의 저장 완료: 학번={}, IP={}", user.getStudentId(), ipAddress);
+    }
+
+    private String getClientIpAddress(HttpServletRequest request) {
+        String[] headerNames = {
+            "X-Forwarded-For",
+            "X-Real-IP",
+            "Proxy-Client-IP",
+            "WL-Proxy-Client-IP",
+            "HTTP_CLIENT_IP",
+            "HTTP_X_FORWARDED_FOR"
+        };
+
+        for (String headerName : headerNames) {
+            String ip = request.getHeader(headerName);
+            if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+                if (ip.contains(",")) {
+                    ip = ip.split(",")[0].trim();
+                }
+                return ip;
+            }
+        }
+        return request.getRemoteAddr();
     }
 
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {

@@ -10,6 +10,7 @@
 
     import java.time.LocalDateTime;
     import java.time.format.DateTimeFormatter;
+    import java.util.UUID;
 
     @Entity
     @Getter
@@ -107,8 +108,7 @@
         @Override
         public void softDelete() {
             super.softDelete();
-            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
-            this.name = "d_" + timestamp + "_" + this.name;
+            this.name = "d_" + UUID.randomUUID() + "_" + this.name;
         }
 
     }
