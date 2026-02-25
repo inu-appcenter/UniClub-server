@@ -61,48 +61,6 @@ public class AuthService {
         log.info("회원가입 성공: 학번={}, 이름={}", registerRequestDto.getStudentId(), registerRequestDto.getName());
     }
 
-    private void saveTerms(RegisterRequestDto dto, User user, HttpServletRequest request) {
-        String ipAddress = getClientIpAddress(request);
-        String userAgent = request.getHeader("User-Agent");
-        if (userAgent == null) {
-            userAgent = "Unknown";
-        }
-
-        Terms terms = Terms.builder()
-                .personalInfoCollectionAgreement(dto.isPersonalInfoCollectionAgreement())
-                .marketingAdvertisement(dto.isMarketingAdvertisement())
-                .version("1.0")
-                .ipAddress(ipAddress)
-                .userAgent(userAgent)
-                .user(user)
-                .build();
-
-        termsRepository.save(terms);
-        log.info("약관 동의 저장 완료: 학번={}, IP={}", user.getStudentId(), ipAddress);
-    }
-
-    private String getClientIpAddress(HttpServletRequest request) {
-        String[] headerNames = {
-            "X-Forwarded-For",
-            "X-Real-IP",
-            "Proxy-Client-IP",
-            "WL-Proxy-Client-IP",
-            "HTTP_CLIENT_IP",
-            "HTTP_X_FORWARDED_FOR"
-        };
-
-        for (String headerName : headerNames) {
-            String ip = request.getHeader(headerName);
-            if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
-                if (ip.contains(",")) {
-                    ip = ip.split(",")[0].trim();
-                }
-                return ip;
-            }
-        }
-        return request.getRemoteAddr();
-    }
-
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
         log.info("로그인 시작: 학번={}", loginRequestDto.getStudentId());
 
@@ -156,5 +114,46 @@ public class AuthService {
         return new StudentVerificationResponseDto(verification);
     }
 
+    private void saveTerms(RegisterRequestDto dto, User user, HttpServletRequest request) {
+        String ipAddress = getClientIpAddress(request);
+        String userAgent = request.getHeader("User-Agent");
+        if (userAgent == null) {
+            userAgent = "Unknown";
+        }
+
+        Terms terms = Terms.builder()
+                .personalInfoCollectionAgreement(dto.isPersonalInfoCollectionAgreement())
+                .marketingAdvertisement(dto.isMarketingAdvertisement())
+                .version("1.0")
+                .ipAddress(ipAddress)
+                .userAgent(userAgent)
+                .user(user)
+                .build();
+
+        termsRepository.save(terms);
+        log.info("약관 동의 저장 완료: 학번={}, IP={}", user.getStudentId(), ipAddress);
+    }
+
+    private String getClientIpAddress(HttpServletRequest request) {
+        String[] headerNames = {
+                "X-Forwarded-For",
+                "X-Real-IP",
+                "Proxy-Client-IP",
+                "WL-Proxy-Client-IP",
+                "HTTP_CLIENT_IP",
+                "HTTP_X_FORWARDED_FOR"
+        };
+
+        for (String headerName : headerNames) {
+            String ip = request.getHeader(headerName);
+            if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+                if (ip.contains(",")) {
+                    ip = ip.split(",")[0].trim();
+                }
+                return ip;
+            }
+        }
+        return request.getRemoteAddr();
+    }
 
 }

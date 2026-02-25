@@ -20,9 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.deleted = true AND u.deletedAt < :cutoffDate")
     List<User> findByDeletedTrueAndDeletedAtBefore(LocalDateTime cutoffDate);
 
-    @Query("SELECT u.profile FROM User u WHERE u.userId = :userId")
-    Optional<String> findProfileLinkByUserId(@Param("userId") Long userId);
-
-    @Query("SELECT u.userId, u.profile FROM User u WHERE u.userId IN :userIds AND u.deleted = false")
+    @Query("SELECT u.userId, m.mediaLink FROM User u LEFT JOIN u.profileMedia m " +
+           "WHERE u.userId IN :userIds AND u.deleted = false AND (m IS NULL OR m.deleted = false)")
     List<Object[]> findProfileLinksByUserIds(@Param("userIds") List<Long> userIds);
 }
