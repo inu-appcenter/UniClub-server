@@ -81,7 +81,7 @@ public class JwtTokenProvider {
 
         //객체 생성 (UserDetailsImpl 객체로 생성)
         String studentId = claims.getSubject();
-        User user = userRepository.findByStudentId(studentId).orElseThrow(() -> new UsernameNotFoundException(studentId));
+        User user = userRepository.findByStudentId(studentId).orElseThrow(() -> new JwtAuthException(ErrorCode.JWT_NOT_VALID));
         UserDetailsImpl userDetails = new UserDetailsImpl(user, authorities);
 
         return new UsernamePasswordAuthenticationToken(userDetails, token, authorities);
