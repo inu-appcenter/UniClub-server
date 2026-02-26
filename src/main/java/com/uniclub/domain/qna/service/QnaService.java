@@ -185,11 +185,14 @@ public class QnaService {
 
 
         // 푸시 알림 전송 및 알림 엔티티 저장 (질문 작성자가 탈퇴한 경우 알림 생략)
-        if (question.getUser() != null) {
+        if (question.getUser() != null && !question.getUser().isDeleted()) {
             notificationEventProcessor.answerRegisterd(questionId, answer.getAnswerId(), question.getContent(), question.getUser().getUserId());
         }
-        if (parentsAnswer != null) {   // 대댓글 알림
-            notificationEventProcessor.replyRegistered(questionId, parentsAnswerId, question.getContent());
+        if (parentsAnswer != null) {   // 대댓글 알림 (부모 답변 작성자가 탈퇴한 경우 알림 생략)
+            User parentAnswerUser = parentsAnswer.getUser();
+            if (parentAnswerUser != null && !parentAnswerUser.isDeleted()) {
+                notificationEventProcessor.replyRegistered(questionId, parentsAnswerId, question.getContent());
+            }
         }
 
         return AnswerCreateResponseDto.from(answer);
