@@ -62,7 +62,7 @@ public class AnswerResponseDto {
         return AnswerResponseDto.builder()
                 .answerId(answer.getAnswerId())
                 .nickname(deleted ? "(삭제)" : displayName)
-                .content(deleted ? "삭제된 답글입니다." : answer.getContent())
+                .content(deleted ? "삭제된 답변입니다." : answer.getContent())
                 .anonymous(answer.isAnonymous())
                 .deleted(deleted)
                 .updateTime(answer.getUpdateAt())

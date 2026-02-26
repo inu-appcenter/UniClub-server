@@ -303,11 +303,11 @@ public class QnaService {
         if (question.isPresidentQuestion()) {
             return question.getClub().getName();
         }
-        if (question.isAnonymous()) {
-            return "익명";
-        }
         if (isDeletedUser(question.getUser())) {
             return "탈퇴한 사용자";
+        }
+        if (question.isAnonymous()) {
+            return "익명";
         }
         return question.getUser().getNickname();
     }
