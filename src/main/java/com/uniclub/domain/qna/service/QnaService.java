@@ -184,8 +184,10 @@ public class QnaService {
         }
 
 
-        // 푸시 알림 전송 및 알림 엔티티 저장
-        notificationEventProcessor.answerRegisterd(questionId, answer.getAnswerId(), question.getContent(), question.getUser().getUserId());
+        // 푸시 알림 전송 및 알림 엔티티 저장 (질문 작성자가 탈퇴한 경우 알림 생략)
+        if (question.getUser() != null) {
+            notificationEventProcessor.answerRegisterd(questionId, answer.getAnswerId(), question.getContent(), question.getUser().getUserId());
+        }
         if (parentsAnswer != null) {   // 대댓글 알림
             notificationEventProcessor.replyRegistered(questionId, parentsAnswerId, question.getContent());
         }
