@@ -58,17 +58,18 @@ public class AnswerResponseDto {
 
     public static AnswerResponseDto from(Answer answer, String displayName, boolean owner, String profile) {
 
+        boolean deleted = answer.isDeleted();
         return AnswerResponseDto.builder()
                 .answerId(answer.getAnswerId())
-                .nickname(displayName)
-                .content(answer.getContent())
+                .nickname(deleted ? "(삭제)" : displayName)
+                .content(deleted ? "삭제된 답글입니다." : answer.getContent())
                 .anonymous(answer.isAnonymous())
-                .deleted(answer.isDeleted())
+                .deleted(deleted)
                 .updateTime(answer.getUpdateAt())
                 .parentAnswerId(answer.getParentAnswer() != null ? answer.getParentAnswer().getAnswerId() : null)
                 .owner(owner)
                 .president(answer.isPresidentAnswer())
-                .profile(profile)
+                .profile(deleted ? null : profile)
                 .build();
     }
 }
