@@ -133,10 +133,7 @@ public class QnaService {
         }
 
         //업데이트
-        existingQuestion.update(
-                questionUpdateRequestDto.getContent(),
-                questionUpdateRequestDto.getAnonymous()
-        );
+        existingQuestion.update(questionUpdateRequestDto.getContent());
 
         log.info("질문 수정 완료: {}", existingQuestion.getQuestionId());
     }
@@ -184,10 +181,15 @@ public class QnaService {
         }
 
 
-        // 푸시 알림 전송 및 알림 엔티티 저장
-        notificationEventProcessor.answerRegisterd(questionId, answer.getAnswerId(), question.getContent(), question.getUser().getUserId());
-        if (parentsAnswer != null) {   // 대댓글 알림
-            notificationEventProcessor.replyRegistered(questionId, parentsAnswerId, question.getContent());
+        // 푸시 알림 전송 및 알림 엔티티 저장 (질문 작성자가 탈퇴한 경우 알림 생략)
+        if (question.getUser() != null && !question.getUser().isDeleted()) {
+            notificationEventProcessor.answerRegisterd(questionId, answer.getAnswerId(), question.getContent(), question.getUser().getUserId());
+        }
+        if (parentsAnswer != null) {   // 대댓글 알림 (부모 답변 작성자가 탈퇴한 경우 알림 생략)
+            User parentAnswerUser = parentsAnswer.getUser();
+            if (parentAnswerUser != null && !parentAnswerUser.isDeleted()) {
+                notificationEventProcessor.replyRegistered(questionId, parentsAnswerId, question.getContent());
+            }
         }
 
         return AnswerCreateResponseDto.from(answer);
@@ -298,11 +300,11 @@ public class QnaService {
         if (question.isPresidentQuestion()) {
             return question.getClub().getName();
         }
-        if (question.isAnonymous()) {
-            return "익명";
-        }
         if (isDeletedUser(question.getUser())) {
             return "탈퇴한 사용자";
+        }
+        if (question.isAnonymous()) {
+            return "익명";
         }
         return question.getUser().getNickname();
     }

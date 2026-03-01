@@ -16,7 +16,7 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     @Query("SELECT f.club.clubId FROM Favorite f WHERE f.user.userId = :userId")
     List<Long> findClubIdsByUserId(Long userId);
 
-    @Query("SELECT f.user.userId FROM Favorite f WHERE f.club.clubId = :clubId")
+    @Query("SELECT f.user.userId FROM Favorite f WHERE f.club.clubId = :clubId AND f.user.deleted = false")
     List<Long> findUserIdsByClubId(Long clubId);
 
     @Query("""

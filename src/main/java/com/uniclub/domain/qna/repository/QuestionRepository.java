@@ -13,14 +13,14 @@ import java.util.Optional;
 public interface QuestionRepository extends JpaRepository<Question, Long> {
     //Question Entity와 메핑된 User 조회
     @Query("SELECT q FROM Question q " +
-            "JOIN FETCH q.user " +
+            "LEFT JOIN FETCH q.user " +
             "WHERE q.questionId = :questionId " +
             "AND q.deleted = false")
     Optional<Question> findByIdWithUser(Long questionId);
 
     //Question Entity와 메핑된 User 조회
     @Query("SELECT q FROM Question q " +
-            "JOIN FETCH q.user " +
+            "LEFT JOIN FETCH q.user " +
             "JOIN FETCH q.club " +
             "WHERE q.questionId = :questionId " +
             "AND q.deleted = false")
