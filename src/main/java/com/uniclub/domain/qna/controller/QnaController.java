@@ -2,11 +2,12 @@ package com.uniclub.domain.qna.controller;
 
 import com.uniclub.domain.qna.dto.*;
 import com.uniclub.domain.qna.service.QnaService;
+import com.uniclub.domain.report.dto.ReportCreateRequestDto;
+import com.uniclub.domain.report.service.ReportService;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.swagger.QnaApiSpecification;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,8 +19,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/qna")
 public class QnaController implements QnaApiSpecification {
-    private final QnaService qnaService;
 
+    private final QnaService qnaService;
+    private final ReportService reportService;
 
     //QnA 페이지 search
     @GetMapping("/search")
@@ -96,13 +98,12 @@ public class QnaController implements QnaApiSpecification {
         return ResponseEntity.status(HttpStatus.OK).body(QnaClubResponseDtoList);
     }
 
-
-    /*
     //신고
     @PostMapping("/reports")
-    public ResponseEntity<> reportsQna(){
-
+    public ResponseEntity<Void> createReport(@AuthenticationPrincipal UserDetailsImpl userDetails, @Valid @RequestBody ReportCreateRequestDto reportCreateRequestDto) {
+        reportService.createReport(userDetails.getUserId(), reportCreateRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-     */
+
 }
