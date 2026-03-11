@@ -1,6 +1,5 @@
 package com.uniclub.domain.main.controller;
 
-import com.uniclub.domain.club.dto.ClubMediaUploadRequestDto;
 import com.uniclub.domain.main.dto.MainMediaUploadRequestDto;
 import com.uniclub.domain.main.dto.MainPageClubResponseDto;
 import com.uniclub.domain.main.dto.MainPageMediaResponseDto;
@@ -35,8 +34,15 @@ public class MainController implements MainApiSpecification {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<Void> uploadClubMedia(@RequestBody List<MainMediaUploadRequestDto> mainMediaUploadRequestDtoList) {
+    public ResponseEntity<Void> uploadClubMedia(@Valid @RequestBody List<MainMediaUploadRequestDto> mainMediaUploadRequestDtoList) {
         mainService.uploadMainMedia(mainMediaUploadRequestDtoList);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    /*
+    @DeleteMapping("/banner")
+    public ResponseEntity<Void> deleteMainPageMedia(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+    }
+    */
 }

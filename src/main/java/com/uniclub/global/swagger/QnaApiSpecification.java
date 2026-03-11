@@ -1,6 +1,7 @@
 package com.uniclub.global.swagger;
 
 import com.uniclub.domain.qna.dto.*;
+import com.uniclub.domain.report.dto.ReportCreateRequestDto;
 import com.uniclub.global.exception.ErrorResponse;
 import com.uniclub.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -95,7 +96,7 @@ public interface QnaApiSpecification {
                       "answered": true,
                       "updatedAt": "2025-08-25T10:30:00",
                       "owner": true,
-                      "profile": "https://uniclubs3.s3.ap-northeast-2.amazonaws.com/uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250813T162429Z&X-Amz-SignedHeaders=host&X-Amz-Expires=1200&X-Amz-Credential=AKIAYHJAM5L7YOWJHC4E%2F20250813%2Fap-northeast-2%2Fs3%2Faws4_request&X-Amz-Signature=46a114c0ef5c5921b9ea480b5fd10a197a7dfcafb782e633487fec858de4",
+                      "profile": "https://uniclubs3.s3.ap-northeast-2.amazonaws.com/uploads/...",
                       "president": false,
                       "answers": [
                         {
@@ -108,55 +109,7 @@ public interface QnaApiSpecification {
                           "parentAnswerId": null,
                           "owner": false,
                           "president": true,
-                          "profile": "https://uniclubs3.s3.ap-northeast-2.amazonaws.com/uploads/2025-08-13/840d2146-c793-4ee6-83be-acb4c817c87e.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250813T162429Z&X-Amz-SignedHeaders=host&X-Amz-Expires=1200&X-Amz-Credential=AKIAYHJAM5L7YOWJHC4E%2F20250813%2Fap-northeast-2%2Fs3%2Faws4_request&X-Amz-Signature=46a114c0ef5c5921b9ea480b5fd10a197a7dfcafb782e633487fec858de4"
-                        },
-                        {
-                          "answerId": 2,
-                          "nickname": "익명1",
-                          "content": "저도 궁금했어요!",
-                          "anonymous": true,
-                          "deleted": false,
-                          "updateTime": "2025-08-25T11:30:00",
-                          "parentAnswerId": null,
-                          "owner": false,
-                          "president": false,
-                          "profile": null
-                        },
-                        {
-                          "answerId": 3,
-                          "nickname": "익명(작성자)",
-                          "content": "감사합니다!",
-                          "anonymous": true,
-                          "deleted": false,
-                          "updateTime": "2025-08-25T12:00:00",
-                          "parentAnswerId": 1,
-                          "owner": true,
-                          "president": false,
-                          "profile": null
-                        },
-                        {
-                          "answerId": 4,
-                          "nickname": "탈퇴한 사용자",
-                          "content": "도움이 되었네요.",
-                          "anonymous": true,
-                          "deleted": false,
-                          "updateTime": "2025-08-25T12:30:00",
-                          "parentAnswerId": 1,
-                          "owner": false,
-                          "president": false,
-                          "profile": null
-                        },
-                        {
-                          "answerId": 5,
-                          "nickname": "익명2",
-                          "content": "추가 질문이 있어요.",
-                          "anonymous": true,
-                          "deleted": false,
-                          "updateTime": "2025-08-25T13:00:00",
-                          "parentAnswerId": null,
-                          "owner": false,
-                          "president": false,
-                          "profile": null
+                          "profile": "https://uniclubs3.s3.ap-northeast-2.amazonaws.com/uploads/..."
                         }
                       ]
                     }
@@ -245,19 +198,6 @@ public interface QnaApiSpecification {
                             )
                     )
             ),
-            @ApiResponse(responseCode = "404", description = "질문 찾기 실패",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject("""
-                    {
-                      "code": 404,
-                      "name": "QUESTION_NOT_FOUND",
-                      "message": "질문을 찾을 수 없습니다."
-                    }
-                    """
-                            )
-                    )
-            ),
             @ApiResponse(responseCode = "403", description = "권한 없음",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
@@ -266,6 +206,19 @@ public interface QnaApiSpecification {
                       "code": 403,
                       "name": "INSUFFICIENT_PERMISSION",
                       "message": "사용 권한이 없습니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "질문 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "QUESTION_NOT_FOUND",
+                      "message": "질문을 찾을 수 없습니다."
                     }
                     """
                             )
@@ -281,19 +234,6 @@ public interface QnaApiSpecification {
     @Operation(summary = "질문 삭제", description = "본인이 작성한 질문 삭제")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "질문 찾기 실패",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject("""
-                    {
-                      "code": 404,
-                      "name": "QUESTION_NOT_FOUND",
-                      "message": "질문을 찾을 수 없습니다."
-                    }
-                    """
-                            )
-                    )
-            ),
             @ApiResponse(responseCode = "403", description = "권한 없음",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
@@ -302,6 +242,19 @@ public interface QnaApiSpecification {
                       "code": 403,
                       "name": "INSUFFICIENT_PERMISSION",
                       "message": "사용 권한이 없습니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "질문 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "QUESTION_NOT_FOUND",
+                      "message": "질문을 찾을 수 없습니다."
                     }
                     """
                             )
@@ -389,19 +342,6 @@ public interface QnaApiSpecification {
                             )
                     )
             ),
-            @ApiResponse(responseCode = "404", description = "답변 찾기 실패",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject("""
-                    {
-                      "code": 404,
-                      "name": "ANSWER_NOT_FOUND",
-                      "message": "답변을 찾을 수 없습니다."
-                    }
-                    """
-                            )
-                    )
-            ),
             @ApiResponse(responseCode = "403", description = "권한 없음",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
@@ -410,6 +350,19 @@ public interface QnaApiSpecification {
                       "code": 403,
                       "name": "INSUFFICIENT_PERMISSION",
                       "message": "사용 권한이 없습니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "답변 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "ANSWER_NOT_FOUND",
+                      "message": "답변을 찾을 수 없습니다."
                     }
                     """
                             )
@@ -424,19 +377,6 @@ public interface QnaApiSpecification {
     @Operation(summary = "질문 답변 완료 표시", description = "동아리 회장이 질문을 답변 완료로 표시")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "답변 완료 표시 성공"),
-            @ApiResponse(responseCode = "404", description = "질문 찾기 실패",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject("""
-                    {
-                      "code": 404,
-                      "name": "QUESTION_NOT_FOUND",
-                      "message": "질문을 찾을 수 없습니다."
-                    }
-                    """
-                            )
-                    )
-            ),
             @ApiResponse(responseCode = "403", description = "권한 없음 (회장이 아님)",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponse.class),
@@ -445,6 +385,19 @@ public interface QnaApiSpecification {
                       "code": 403,
                       "name": "INSUFFICIENT_PERMISSION",
                       "message": "사용 권한이 없습니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "질문 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "QUESTION_NOT_FOUND",
+                      "message": "질문을 찾을 수 없습니다."
                     }
                     """
                             )
@@ -486,5 +439,40 @@ public interface QnaApiSpecification {
     })
     ResponseEntity<List<QnaClubResponseDto>> getSearchClubs(
             @RequestParam(required = false) String keyword
+    );
+
+    @Operation(summary = "질문/답변 신고", description = "질문 또는 답변을 신고. targetType에 QUESTION 또는 ANSWER 입력")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "신고 접수 성공"),
+            @ApiResponse(responseCode = "400", description = "유효하지 않은 입력",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 400,
+                      "name": "INVALID_INPUT_VALUE",
+                      "message": "잘못된 입력입니다."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "신고 대상 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "QUESTION_NOT_FOUND",
+                      "message": "질문을 찾을 수 없습니다."
+                    }
+                    """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<Void> createReport(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Valid @RequestBody ReportCreateRequestDto reportCreateRequestDto
     );
 }
