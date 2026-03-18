@@ -1,5 +1,7 @@
 package com.uniclub.domain.qna.service;
 
+import com.uniclub.domain.block.repository.BlockRepository;
+import com.uniclub.domain.block.service.BlockService;
 import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.entity.MemberShip;
 import com.uniclub.domain.club.entity.Role;
@@ -35,6 +37,9 @@ import java.util.stream.Collectors;
 @Transactional
 public class QnaService {
 
+    // 빈 blockedIds를 JPQL NOT IN에 안전하게 넘기기 위한 센티넬 (실제 userId는 양수이므로 절대 매칭 안됨)
+    private static final List<Long> EMPTY_BLOCKED_IDS_SENTINEL = List.of(-1L);
+
     private final ClubRepository clubRepository;
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
@@ -44,6 +49,7 @@ public class QnaService {
     private final NotificationEventProcessor notificationEventProcessor;
     private final UserRepository userRepository;
     private final MediaRepository mediaRepository;
+    private final BlockRepository blockRepository;
 
     //Qna 페이지 다중 질문 조회
     @Transactional(readOnly = true)
@@ -54,10 +60,11 @@ public class QnaService {
             throw new CustomException(ErrorCode.CLUB_NOT_FOUND);
         }
         Long userId = onlyMyQuestions ? userDetails.getUser().getUserId() : null;
+        List<Long> blockedIds = resolveBlockedIds(userDetails.getUserId());
 
         // 질문 리스트와 답변 개수를 함께 조회
         Pageable pageable = PageRequest.of(0, size);
-        Slice<Object[]> questionSlice = questionRepository.searchQuestionsWithAnswerCount(keyword, clubId, answered, userId, pageable);
+        Slice<Object[]> questionSlice = questionRepository.searchQuestionsWithAnswerCount(keyword, clubId, answered, userId, blockedIds, pageable);
 
         // 익명이 아닌 유저의 프로필 조회
         List<Long> userIds = extractUserNotAnonymousQuestion(questionSlice);
@@ -80,7 +87,8 @@ public class QnaService {
         Question question = questionRepository.findByIdWithUserAndClub(questionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_NOT_FOUND));
 
-        List<Answer> answerList = answerRepository.findByQuestionIdWithUser(questionId);
+        List<Long> blockedIds = resolveBlockedIds(userDetails.getUserId());
+        List<Answer> answerList = answerRepository.findByQuestionIdWithUser(questionId, blockedIds);
 
         // 익명이 아닌 유저 프로필 조회
         List<Long> userIds = extractUserNotAnonymousQuestionAnswer(question, answerList);
@@ -245,6 +253,15 @@ public class QnaService {
         return clubRepository.searchClubsForQna(keyword);
     }
 
+
+    // =============================================
+    // 차단 관련
+    // =============================================
+
+    private List<Long> resolveBlockedIds(Long userId) {
+        List<Long> blockedIds = blockRepository.findBlockedIdsByBlockerId(userId);
+        return blockedIds.isEmpty() ? EMPTY_BLOCKED_IDS_SENTINEL : blockedIds;
+    }
 
     // =============================================
     // 익명 번호 관련

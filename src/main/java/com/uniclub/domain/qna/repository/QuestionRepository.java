@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.Optional;
 
 @Repository
@@ -35,9 +36,10 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             "AND (:clubId IS NULL OR q.club.clubId = :clubId) " +
             "AND (:answered = false OR q.answered = :answered) " +
             "AND (:userId IS NULL OR q.user.userId = :userId) " +
+            "AND (q.user IS NULL OR q.user.userId NOT IN :blockedIds) " +
             "AND q.deleted = false " +
             "ORDER BY q.updateAt DESC")
-    Slice<Object[]> searchQuestionsWithAnswerCount(String keyword, Long clubId, boolean answered, Long userId, Pageable pageable);
+    Slice<Object[]> searchQuestionsWithAnswerCount(String keyword, Long clubId, boolean answered, Long userId, Collection<Long> blockedIds, Pageable pageable);
 
     //Question Entity와 메핑된 Club 조회
     @Query("SELECT q FROM Question q " +
