@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,10 +24,12 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     boolean existsChildAnswersByParentId(Long answerId);
 
     //questionId로 답변과 User를 fetch join하여 호출 (삭제된 답변 제외하되, 자식답변이 있는 삭제된 답변은 포함)
+    //회장 답변(presidentAnswer=true)은 차단 여부와 무관하게 항상 포함
     @Query("SELECT a FROM Answer a LEFT JOIN FETCH a.user " +
            "WHERE a.question.questionId = :questionId " +
            "AND (a.deleted = false OR " +
            "(a.deleted = true AND EXISTS (SELECT 1 FROM Answer child WHERE child.parentAnswer.answerId = a.answerId AND child.deleted = false))) " +
+           "AND (a.presidentAnswer = true OR a.user IS NULL OR a.user.userId NOT IN :blockedIds) " +
            "ORDER BY a.createdAt ASC, a.answerId ASC")
-    List<Answer> findByQuestionIdWithUser(Long questionId);
+    List<Answer> findByQuestionIdWithUser(Long questionId, Collection<Long> blockedIds);
 }
