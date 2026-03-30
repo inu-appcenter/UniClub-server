@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -99,6 +100,6 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     List<Club> findRecruitmentStartedInLast24Hours();
 
     //n일 후 모집 마감되는 동아리
-    @Query("SELECT c FROM Club c WHERE DATE(c.endTime) = DATE(CURRENT_DATE + :days) AND c.status = 'ACTIVE'")
-    List<Club> findRecruitmentEndingInDays(@Param("days") int days);
+    @Query("SELECT c FROM Club c WHERE DATE(c.endTime) = :targetDate AND c.status = 'ACTIVE'")
+    List<Club> findRecruitmentEndingOnDate(@Param("targetDate") LocalDate targetDate);
 }
