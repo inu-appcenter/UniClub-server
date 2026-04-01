@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -79,6 +78,12 @@ public class ClubController implements ClubApiSpecification {
         clubService.deleteClub(clubId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
+    }
+
+    @PatchMapping("/role")
+    public ResponseEntity<Void> changeMemberRole(@Valid @RequestBody MemberRoleChangeRequestDto requestDto) {
+        clubService.changeMemberRole(requestDto);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }

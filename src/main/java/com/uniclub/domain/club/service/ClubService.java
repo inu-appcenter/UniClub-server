@@ -11,6 +11,7 @@ import com.uniclub.domain.club.repository.MembershipRepository;
 import com.uniclub.domain.favorite.entity.Favorite;
 import com.uniclub.domain.favorite.repository.FavoriteRepository;
 import com.uniclub.domain.user.entity.User;
+import com.uniclub.domain.user.repository.UserRepository;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.s3.S3Service;
@@ -34,12 +35,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ClubService {
 
+    private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final ClubRepository clubRepository;
     private final MembershipRepository membershipRepository;
     private final FavoriteRepository favoriteRepository;
     private final MediaRepository mediaRepository;
     private final S3Service s3Service;
+
 
     @Transactional(readOnly = true)
     public Slice<ClubResponseDto> getClubs(Long userId, String category, String sortBy, String cursorName, int size) {
@@ -198,10 +201,41 @@ public class ClubService {
         log.info("동아리 삭제 성공: clubId={}", clubId);
     }
 
+    //동아리 멤버 역할 변경
+    public void changeMemberRole(MemberRoleChangeRequestDto requestDto) {
+        User user = userRepository.findByStudentId(requestDto.getStudentId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_DELETED);
+        }
+
+        Club club = findActiveClub(requestDto.getClubId());
+
+        Role role = EnumConverter.stringToEnum(requestDto.getRole(), Role.class, ErrorCode.ROLE_NOT_FOUND);
+
+        //회장 권한 부여시: 기존 회장 MEMBER로 강등
+        if (role == Role.PRESIDENT) {
+            demoteExistingPresidents(club.getClubId(), user.getUserId());
+        }
+
+        membershipRepository.findByUserIdAndClubId(user.getUserId(), club.getClubId())
+                .ifPresentOrElse(
+                        membership -> membership.changeRole(role),
+                        () -> membershipRepository.save(
+                                MemberShip.builder()
+                                        .user(user)
+                                        .club(club)
+                                        .role(role)
+                                        .build()
+                        )
+                );
+        log.info("역할 변경 완료: studentId={}, clubId={}, role={}", requestDto.getStudentId(), club.getClubId(), role);
+    }
+
 
     //특정 동아리 유저 권한 확인 (정보 없으면 GUEST로 반환)
-    @Transactional(readOnly = true)
-    public Role checkRole(Long userId, Long clubId) {
+    private Role checkRole(Long userId, Long clubId) {
         return membershipRepository.findByUserIdAndClubId(userId, clubId)
                 .map(MemberShip::getRole)
                 .orElse(Role.GUEST);
@@ -295,5 +329,17 @@ public class ClubService {
             throw new CustomException(ErrorCode.CLUB_DELETED);
         }
         return club;
+    }
+
+    // 기존 회장 전원 MEMBER로 강등 (대상 유저 자신은 제외)
+    private void demoteExistingPresidents(Long clubId, Long excludeUserId) {
+        List<MemberShip> existingPresidents = membershipRepository.findAllByClubIdAndRole(clubId, Role.PRESIDENT);
+        for (MemberShip existing : existingPresidents) {
+            if (existing.getUser().getUserId().equals(excludeUserId)) {
+                continue;
+            }
+            existing.changeRole(Role.MEMBER);
+            log.info("기존 회장 강등 완료: clubId={}, userId={}", clubId, existing.getUser().getUserId());
+        }
     }
 }

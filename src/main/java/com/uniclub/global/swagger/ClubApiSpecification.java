@@ -374,4 +374,82 @@ public interface ClubApiSpecification {
             @PathVariable Long clubId
     );
 
+    @Operation(summary = "동아리 멤버 역할 변경", description = "동아리 멤버의 역할을 변경합니다. 회장(PRESIDENT) 부여 시 기존 회장은 자동으로 일반 회원(MEMBER)으로 강등됩니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "역할 변경 성공"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "유저 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "USER_NOT_FOUND",
+                      "message": "해당 유저를 찾을 수 없습니다."
+                    }
+                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "410",
+                    description = "삭제된 유저",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 410,
+                      "name": "USER_DELETED",
+                      "message": "삭제된 유저입니다."
+                    }
+                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "동아리 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "CLUB_NOT_FOUND",
+                      "message": "해당 동아리를 찾을 수 없습니다."
+                    }
+                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "410",
+                    description = "삭제된 동아리",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 410,
+                      "name": "CLUB_DELETED",
+                      "message": "삭제된 동아리입니다."
+                    }
+                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "역할 타입 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                    {
+                      "code": 404,
+                      "name": "ROLE_NOT_FOUND",
+                      "message": "해당 권한을 찾을 수 없습니다."
+                    }
+                    """)
+                    )
+            )
+    })
+    ResponseEntity<Void> changeMemberRole(
+            @Valid @RequestBody MemberRoleChangeRequestDto requestDto
+    );
+
 }
