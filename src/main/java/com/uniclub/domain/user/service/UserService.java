@@ -1,7 +1,8 @@
 package com.uniclub.domain.user.service;
 
 import com.uniclub.domain.auth.repository.INUAuthRepository;
-import com.uniclub.domain.club.entity.*;
+import com.uniclub.domain.club.entity.Media;
+import com.uniclub.domain.club.entity.MediaType;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.club.repository.MediaRepository;
 import com.uniclub.domain.club.repository.MembershipRepository;
@@ -25,8 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserService {
     private final UserRepository userRepository;
-    private final ClubRepository clubRepository;
-    private final MembershipRepository membershipRepository;
     private final MediaRepository mediaRepository;
     private final INUAuthRepository inuAuthRepository;
     private final S3Service s3Service;
@@ -86,40 +85,6 @@ public class UserService {
 
         user.softDelete();
         log.info("사용자 삭제 완료: 학번={}", user.getStudentId());
-    }
-
-
-    // 유저 권한부여 테스트용 API
-    public void addRole(UserRoleRequestDto userRoleRequestDto) {
-        User user = userRepository.findByStudentId(userRoleRequestDto.getStudentId()).
-                orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        Club club = clubRepository.findByName(userRoleRequestDto.getClubName()).
-                orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
-
-        Role role = EnumConverter.stringToEnum(userRoleRequestDto.getRole(), Role.class, ErrorCode.ROLE_NOT_FOUND);
-
-        if (role == Role.PRESIDENT) {
-            membershipRepository.findByClubIdAndRole(club.getClubId(), Role.PRESIDENT)
-                    .ifPresent(existingPresident -> {
-                        existingPresident.changeRole(Role.MEMBER);
-                        log.info("기존 회장 강등 완료: clubId={}, userId={}", club.getClubId(), existingPresident.getUser().getUserId());
-                    });
-        }
-
-        membershipRepository.findByUserIdAndClubId(user.getUserId(), club.getClubId())
-                .ifPresentOrElse(
-                        membership -> membership.changeRole(role),
-                        () -> membershipRepository.save(
-                                MemberShip.builder()
-                                        .user(user)
-                                        .club(club)
-                                        .role(role)
-                                        .build()
-                        )
-                );
-
-        log.info("사용자 권한 부여 완료: 학번={}, 권한={}", user.getStudentId(), role);
     }
 
     @Transactional(readOnly = true)
