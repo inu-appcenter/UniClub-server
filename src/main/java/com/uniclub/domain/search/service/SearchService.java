@@ -9,11 +9,13 @@ import com.uniclub.domain.favorite.repository.FavoriteRepository;
 import com.uniclub.global.s3.S3Service;
 import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -62,6 +64,7 @@ public class SearchService {
             clubResponseDtoList.add(ClubResponseDto.from(club, isFavorite, clubProfileUrl));
         }
 
+        log.info("동아리 검색 완료: userId={}, keyword={}", userDetails.getUserId(), keyword);
         return clubResponseDtoList;
     }
 }
