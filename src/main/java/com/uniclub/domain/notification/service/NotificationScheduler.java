@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -58,19 +59,19 @@ public class NotificationScheduler {
 
         try {
             // 7일 후 마감
-            List<Club> clubs7Days = clubRepository.findRecruitmentEndingInDays(7);
+            List<Club> clubs7Days = clubRepository.findRecruitmentEndingOnDate(LocalDate.now().plusDays(7));
             for (Club club : clubs7Days) {
                 notificationEventProcessor.clubRecruitmentDeadLine(club.getClubId(), 7);
             }
 
             // 3일 후 마감
-            List<Club> clubs3Days = clubRepository.findRecruitmentEndingInDays(3);
+            List<Club> clubs3Days = clubRepository.findRecruitmentEndingOnDate(LocalDate.now().plusDays(3));
             for (Club club : clubs3Days) {
                 notificationEventProcessor.clubRecruitmentDeadLine(club.getClubId(), 3);
             }
 
             // 1일 후 마감
-            List<Club> clubs1Day = clubRepository.findRecruitmentEndingInDays(1);
+            List<Club> clubs1Day = clubRepository.findRecruitmentEndingOnDate(LocalDate.now().plusDays(1));
             for (Club club : clubs1Day) {
                 notificationEventProcessor.clubRecruitmentDeadLine(club.getClubId(), 1);
             }

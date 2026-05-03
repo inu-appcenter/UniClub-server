@@ -222,8 +222,14 @@ public class NotificationEventProcessor {
 
     //동아리 회장 조회
     private Long getClubPresidentId(Long clubId) {
-        return membershipRepository.findUserIdByClubIdAndRole(clubId, Role.PRESIDENT)
-                .orElse(null);
+        List<Long> presidentIds = membershipRepository.findUserIdsByClubIdAndRole(clubId, Role.PRESIDENT);
+        if (presidentIds.isEmpty()) {
+            return null;
+        }
+        if (presidentIds.size() > 1) {
+            log.warn("동아리 회장이 복수 존재: clubId={}, count={}", clubId, presidentIds.size());
+        }
+        return presidentIds.getFirst();
     }
 
     //질문 내용 자르기

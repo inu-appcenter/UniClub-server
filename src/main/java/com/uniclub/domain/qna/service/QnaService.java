@@ -246,10 +246,11 @@ public class QnaService {
 
     @Transactional(readOnly = true)
     public List<QnaClubResponseDto> getSearchClubs(String keyword) {
-        //키워드 공란일시
         if (keyword == null || keyword.isBlank()) {
+            log.info("QnA 동아리 검색 완료: keyword={}", keyword);
             return clubRepository.searchAllClubsForQna();
         }
+        log.info("QnA 동아리 검색 완료: keyword={}", keyword);
         return clubRepository.searchClubsForQna(keyword);
     }
 
