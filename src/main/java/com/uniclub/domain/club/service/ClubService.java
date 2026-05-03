@@ -77,9 +77,11 @@ public class ClubService {
 
         if (isFavorite) {
             favoriteRepository.deleteByUserAndClub(user, club);
+            log.info("관심 동아리 취소: userId={}, clubId={}", user.getUserId(), clubId);
             return new ToggleFavoriteResponseDto("관심 동아리 등록 취소 완료");
         } else {
             favoriteRepository.save(new Favorite(user, club));
+            log.info("관심 동아리 등록: userId={}, clubId={}", user.getUserId(), clubId);
             return new ToggleFavoriteResponseDto("관심 동아리 등록 완료");
         }
     }

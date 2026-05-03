@@ -45,6 +45,7 @@ public class NotificationService {
             notifications = notificationRepository.findByUserIdAndRead(userDetails.getUserId(), isRead, pageable);
         }
         Page<NotificationResponseDto> notificationDtoPage= notifications.map(NotificationResponseDto::from);
+        log.info("알림 조회 완료: userId={}", userDetails.getUserId());
         return NotificationPageResponseDto.from(notificationDtoPage);
     }
 
@@ -53,11 +54,13 @@ public class NotificationService {
     public void markAsRead(UserDetailsImpl userDetails, Long notificationId) {
         Notification notification = findNotificationAndValidateOwner(userDetails.getUserId(), notificationId);
         notification.markAsRead();
+        log.info("알림 읽음 처리: userId={}, notificationId={}", userDetails.getUserId(), notificationId);
     }
 
     //알림 전체 읽음 처리
     public void markAsReadAll(UserDetailsImpl userDetails) {
         notificationRepository.markAllAsReadByUserId(userDetails.getUserId());
+        log.info("알림 전체 읽음 처리: userId={}", userDetails.getUserId());
     }
 
 
@@ -65,11 +68,13 @@ public class NotificationService {
     public void deleteNotification(UserDetailsImpl userDetails, Long notificationId) {
         Notification notification = findNotificationAndValidateOwner(userDetails.getUserId(), notificationId);
         notificationRepository.delete(notification);
+        log.info("알림 삭제: userId={}, notificationId={}", userDetails.getUserId(), notificationId);
     }
 
     //읽은 알림 전체 삭제
     public void deleteAllReadNotifications(UserDetailsImpl userDetails) {
         notificationRepository.deleteAllByUserIdAndReadTrue(userDetails.getUserId());
+        log.info("읽은 알림 전체 삭제: userId={}", userDetails.getUserId());
     }
 
 

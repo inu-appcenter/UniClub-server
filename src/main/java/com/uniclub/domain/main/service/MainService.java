@@ -44,6 +44,7 @@ public class MainService {
             String presignedUrl = s3Service.getDownloadPresignedUrl(media.getMediaLink());
             mainPageMediaDtoList.add(MainPageMediaResponseDto.from(media, presignedUrl));
         }
+        log.info("메인 배너 조회 완료");
         return mainPageMediaDtoList;
     }
 
@@ -74,6 +75,7 @@ public class MainService {
 
             mainPageClubResponseDtoList.add(responseDto);
         }
+        log.info("메인 동아리 목록 조회 완료: userId={}", userDetails.getUserId());
         return mainPageClubResponseDtoList;
     }
 

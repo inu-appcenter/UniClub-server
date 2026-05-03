@@ -11,11 +11,13 @@ import com.uniclub.domain.user.repository.UserRepository;
 import com.uniclub.global.exception.CustomException;
 import com.uniclub.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -30,6 +32,7 @@ public class BlockService {
                 .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_NOT_FOUND));
 
         block(blockerId, resolveAuthor(question.getUser()).getUserId());
+        log.info("질문으로 차단: userId={}, questionId={}", blockerId, questionId);
     }
 
     public void blockByAnswer(Long blockerId, Long answerId) {
@@ -37,6 +40,7 @@ public class BlockService {
                 .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_NOT_FOUND));
 
         block(blockerId, resolveAuthor(answer.getUser()).getUserId());
+        log.info("답변으로 차단: userId={}, answerId={}", blockerId, answerId);
     }
 
     private void block(Long blockerId, Long targetId) {
