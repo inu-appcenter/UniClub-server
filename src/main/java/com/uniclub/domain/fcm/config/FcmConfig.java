@@ -18,6 +18,11 @@ import java.io.InputStream;
 @Configuration
 public class FcmConfig {
 
+    // FCM HTTP 호출 타임아웃 (단위: ms)
+    // 무한 블로킹 방지를 위해 명시적으로 설정 (기본값 0 = 무한 대기)
+    private static final int CONNECT_TIMEOUT_MS = 5_000;
+    private static final int READ_TIMEOUT_MS = 10_000;
+
     private final ClassPathResource firebaseResource;
     private final String projectId;
 
@@ -32,14 +37,16 @@ public class FcmConfig {
         try {
             InputStream serviceAccount = firebaseResource.getInputStream();
 
-            FirebaseOptions options = new FirebaseOptions.Builder()
+            FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .setProjectId(projectId)
+                    .setConnectTimeout(CONNECT_TIMEOUT_MS)
+                    .setReadTimeout(READ_TIMEOUT_MS)
                     .build();
 
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
-                log.info("Firebase Admin SDK 초기화 완료 - Project ID: {}", projectId);
+                log.info("Firebase Admin SDK 초기화 완료 - Project ID: {}, connectTimeout: {}ms, readTimeout: {}ms", projectId, CONNECT_TIMEOUT_MS, READ_TIMEOUT_MS);
             }
 
         } catch (IOException e) {
