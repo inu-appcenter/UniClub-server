@@ -149,14 +149,14 @@ public class NotificationEventProcessor {
     //대댓글 알림
     @Async("messageExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void replyRegistered(Long questionId, Long answererId, String content) {
+    public void replyRegistered(Long questionId, Long parentAuthorId, String content) {
         log.info("대댓글 등록 푸시 알림 전송 시작: questionId={}", questionId);
 
         try {
             String title = truncateContent(content, 15);
             String message = "새로운 대댓글이 등록되었습니다.";
 
-            processNotification(List.of(answererId), title, message, NotificationType.QNA, questionId);
+            processNotification(List.of(parentAuthorId), title, message, NotificationType.QNA, questionId);
 
         } catch (Exception e) {
             log.warn("대댓글 알림 푸시 알림 전송 중 오류: questionId={}", questionId, e);
