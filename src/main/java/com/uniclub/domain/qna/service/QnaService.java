@@ -1,7 +1,6 @@
 package com.uniclub.domain.qna.service;
 
 import com.uniclub.domain.block.repository.BlockRepository;
-import com.uniclub.domain.block.service.BlockService;
 import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.entity.MemberShip;
 import com.uniclub.domain.club.entity.Role;
@@ -24,11 +23,17 @@ import com.uniclub.global.s3.S3Service;
 import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -189,14 +194,24 @@ public class QnaService {
         }
 
 
-        // 푸시 알림 전송 및 알림 엔티티 저장 (질문 작성자가 탈퇴한 경우 알림 생략)
-        if (question.getUser() != null && !question.getUser().isDeleted()) {
-            notificationEventProcessor.answerRegisterd(questionId, answer.getAnswerId(), question.getContent(), question.getUser().getUserId());
+        // 푸시 알림 전송 및 알림 엔티티 저장
+        Long currentUserId = userDetails.getUserId();
+
+        // 답변 알림 (질문 작성자에게)
+        // - 질문 작성자가 탈퇴한 경우 생략
+        // - 본인이 자기 질문에 답변한 경우 생략
+        User questionAuthor = question.getUser();
+        if (questionAuthor != null && !questionAuthor.isDeleted() && !questionAuthor.getUserId().equals(currentUserId)) {
+            notificationEventProcessor.answerRegisterd(questionId, answer.getAnswerId(), question.getContent(), questionAuthor.getUserId());
         }
-        if (parentsAnswer != null) {   // 대댓글 알림 (부모 답변 작성자가 탈퇴한 경우 알림 생략)
+
+        // 대댓글 알림 (부모 답변 작성자에게)
+        // - 부모 답변 작성자가 탈퇴한 경우 생략
+        // - 본인이 자기 답변에 대댓글을 단 경우 생략
+        if (parentsAnswer != null) {
             User parentAnswerUser = parentsAnswer.getUser();
-            if (parentAnswerUser != null && !parentAnswerUser.isDeleted()) {
-                notificationEventProcessor.replyRegistered(questionId, parentsAnswerId, question.getContent());
+            if (parentAnswerUser != null && !parentAnswerUser.isDeleted() && !parentAnswerUser.getUserId().equals(currentUserId)) {
+                notificationEventProcessor.replyRegistered(questionId, parentAnswerUser.getUserId(), question.getContent());
             }
         }
 
