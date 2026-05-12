@@ -3,6 +3,7 @@ package com.uniclub.domain.main.controller;
 import com.uniclub.domain.main.dto.MainMediaUploadRequestDto;
 import com.uniclub.domain.main.dto.MainPageClubResponseDto;
 import com.uniclub.domain.main.dto.MainPageMediaResponseDto;
+import com.uniclub.domain.club.dto.MediaDeleteRequestDto;
 import com.uniclub.domain.main.service.MainService;
 import com.uniclub.global.security.UserDetailsImpl;
 import com.uniclub.global.swagger.MainApiSpecification;
@@ -39,10 +40,9 @@ public class MainController implements MainApiSpecification {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    /*
     @DeleteMapping("/banner")
-    public ResponseEntity<Void> deleteMainPageMedia(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-
+    public ResponseEntity<Void> deleteMainBanner(@Valid @RequestBody MediaDeleteRequestDto mediaDeleteRequestDto) {
+        mainService.deleteMainMedia(mediaDeleteRequestDto);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-    */
 }

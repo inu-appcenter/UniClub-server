@@ -1,10 +1,8 @@
 package com.uniclub.domain.club.repository;
 
-import com.uniclub.domain.club.entity.Club;
 import com.uniclub.domain.club.entity.Media;
 import com.uniclub.domain.club.entity.MediaType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,23 +12,19 @@ import java.util.List;
 
 @Repository
 public interface MediaRepository extends JpaRepository<Media, Long> {
-    @Query("SELECT m FROM Media m WHERE m.club.clubId = :clubId")
+    @Query("SELECT m FROM Media m WHERE m.club.clubId = :clubId AND m.deleted = false")
     List<Media> findByClubId(Long clubId);
 
-    @Modifying
-    @Query("UPDATE Media m SET m.mainMedia = false WHERE m.club = :club AND m.mainMedia = true")
-    List<Media> findByClubAndIsMainTrue(Club club);
-
-    @Query("SELECT m FROM Media m WHERE m.mediaType = :mediaType")
+    @Query("SELECT m FROM Media m WHERE m.mediaType = :mediaType AND m.deleted = false")
     List<Media> findByMediaType(MediaType mediaType);
 
-    @Query("SELECT m FROM Media m JOIN FETCH m.club WHERE m.club.clubId IN :clubIds AND m.mediaType = 'CLUB_PROFILE'")
+    @Query("SELECT m FROM Media m JOIN FETCH m.club WHERE m.club.clubId IN :clubIds AND m.mediaType = 'CLUB_PROFILE' AND m.deleted = false")
     List<Media> findClubProfilesByClubIds(List<Long> clubIds);
 
-    @Modifying
-    @Query("DELETE FROM Media m WHERE m.club.clubId = :clubId AND m.mediaType = :mediaType")
-    void deleteByClubIdAndMediaType(Long clubId,MediaType mediaType);
+    @Query("SELECT m FROM Media m WHERE m.club.clubId = :clubId AND m.mediaType = :mediaType AND m.deleted = false")
+    List<Media> findByClubIdAndMediaType(@Param("clubId") Long clubId, @Param("mediaType") MediaType mediaType);
 
     @Query("SELECT m FROM Media m WHERE m.deleted = true AND m.deletedAt < :cutoffDate")
     List<Media> findDeletedMediaBeforeDate(@Param("cutoffDate") LocalDateTime cutoffDate);
+
 }

@@ -235,6 +235,49 @@ public class ClubService {
         log.info("역할 변경 완료: studentId={}, clubId={}, role={}", requestDto.getStudentId(), club.getClubId(), role);
     }
 
+    //동아리 미디어 삭제 (soft delete)
+    public void deleteClubMedia(UserDetailsImpl userDetails, Long clubId, MediaDeleteRequestDto mediaDeleteRequestDto) {
+        List<Long> mediaIds = mediaDeleteRequestDto.getMediaIds();
+        log.info("동아리 미디어 삭제 시작: clubId={}, userId={}, mediaIds={}", clubId, userDetails.getUserId(), mediaIds);
+
+        //동아리 존재/활성 상태 검증
+        findActiveClub(clubId);
+
+        //해당 동아리의 운영진인지 확인
+        Role userRole = checkRole(userDetails.getUserId(), clubId);
+        if (userRole != Role.PRESIDENT && userRole != Role.ADMIN) {
+            throw new CustomException(ErrorCode.INSUFFICIENT_PERMISSION);
+        }
+
+        //요청된 ID로 미디어 조회
+        List<Media> mediaList = mediaRepository.findAllById(mediaIds);
+
+        //존재하지 않는 ID가 있는지 검증
+        if (mediaList.size() != mediaIds.size()) {
+            throw new CustomException(ErrorCode.MEDIA_NOT_FOUND);
+        }
+
+        //모든 미디어가 해당 동아리 소속이며, MAIN_PAGE가 아니고, 아직 삭제되지 않았는지 검증
+        for (Media media : mediaList) {
+            if (media.getClub() == null || !media.getClub().getClubId().equals(clubId)) {
+                throw new CustomException(ErrorCode.MEDIA_CLUB_MISMATCH);
+            }
+            if (media.getMediaType() == MediaType.MAIN_PAGE) {
+                throw new CustomException(ErrorCode.MEDIA_TYPE_MISMATCH);
+            }
+            if (media.isDeleted()) {
+                throw new CustomException(ErrorCode.MEDIA_ALREADY_DELETED);
+            }
+        }
+
+        //soft delete 수행 (실제 S3 삭제는 MediaDeleteScheduler가 6개월 뒤 처리)
+        for (Media media : mediaList) {
+            media.softDelete();
+        }
+        log.info("동아리 미디어 삭제 완료: clubId={}, userId={}, deletedCount={}, mediaIds={}",
+                clubId, userDetails.getUserId(), mediaList.size(), mediaIds);
+    }
+
 
     //특정 동아리 유저 권한 확인 (정보 없으면 GUEST로 반환)
     private Role checkRole(Long userId, Long clubId) {
@@ -306,21 +349,27 @@ public class ClubService {
     }
 
     private void deleteExistingUniqueMediaType(Long clubId, List<ClubMediaUploadRequestDto> clubMediaUploadRequestDtoList) {
-        //새로 업로드 되는 것 확인
-        Set<String> newMediaTypes = clubMediaUploadRequestDtoList.stream()
-                .map(ClubMediaUploadRequestDto::getMediaType)
+        //새로 업로드 되는 것 확인 (String → MediaType 변환하여 Set 구성)
+        Set<MediaType> newMediaTypes = clubMediaUploadRequestDtoList.stream()
+                .map(dto -> EnumConverter.stringToEnum(dto.getMediaType(), MediaType.class, ErrorCode.MEDIA_TYPE_NOT_FOUND))
                 .collect(Collectors.toSet());
 
-        //CLUB_PROFILE이 새로 업로드될 예정이면 기존 파일 삭제
+        //CLUB_PROFILE이 새로 업로드될 예정이면 기존 파일 soft delete
         if (newMediaTypes.contains(MediaType.CLUB_PROFILE)) {
-            mediaRepository.deleteByClubIdAndMediaType(clubId, MediaType.CLUB_PROFILE);
-            log.info("기존 동아리 프로필 이미지 삭제: clubId={}", clubId);
+            List<Media> existing = mediaRepository.findByClubIdAndMediaType(clubId, MediaType.CLUB_PROFILE);
+            existing.forEach(Media::softDelete);
+            if (!existing.isEmpty()) {
+                log.info("기존 동아리 프로필 이미지 soft delete: clubId={}, count={}", clubId, existing.size());
+            }
         }
 
-        //CLUB_BACKGROUND가 새로 업로드될 예정이면 기존 파일 삭제
+        //CLUB_BACKGROUND가 새로 업로드될 예정이면 기존 파일 soft delete
         if (newMediaTypes.contains(MediaType.CLUB_BACKGROUND)) {
-            mediaRepository.deleteByClubIdAndMediaType(clubId, MediaType.CLUB_BACKGROUND);
-            log.info("기존 동아리 배경 이미지 삭제: clubId={}", clubId);
+            List<Media> existing = mediaRepository.findByClubIdAndMediaType(clubId, MediaType.CLUB_BACKGROUND);
+            existing.forEach(Media::softDelete);
+            if (!existing.isEmpty()) {
+                log.info("기존 동아리 배경 이미지 soft delete: clubId={}, count={}", clubId, existing.size());
+            }
         }
     }
 
