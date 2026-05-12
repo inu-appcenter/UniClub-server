@@ -451,5 +451,70 @@ public interface ClubApiSpecification {
     ResponseEntity<Void> changeMemberRole(
             @Valid @RequestBody MemberRoleChangeRequestDto requestDto
     );
+    @Operation(summary = "동아리 미디어 삭제", description = "동아리 미디어 다건 삭제 (soft delete, 6개월 후 S3에서 물리 삭제). 회장/관리자만 가능.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "삭제 성공"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "다른 동아리의 미디어이거나 메인 페이지 미디어",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                {
+                  "code": 400,
+                  "name": "MEDIA_CLUB_MISMATCH",
+                  "message": "해당 동아리에 속하지 않은 미디어입니다."
+                }
+                """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "권한 없음",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                {
+                  "code": 403,
+                  "name": "INSUFFICIENT_PERMISSION",
+                  "message": "사용 권한이 없습니다."
+                }
+                """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "동아리 또는 미디어 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                {
+                  "code": 404,
+                  "name": "MEDIA_NOT_FOUND",
+                  "message": "해당 미디어를 찾을 수 없습니다."
+                }
+                """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "410",
+                    description = "이미 삭제된 미디어 또는 동아리",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                {
+                  "code": 410,
+                  "name": "MEDIA_ALREADY_DELETED",
+                  "message": "이미 삭제된 미디어입니다."
+                }
+                """)
+                    )
+            )
+    })
+    ResponseEntity<Void> deleteClubMedia(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long clubId,
+            @Valid @RequestBody MediaDeleteRequestDto mediaDeleteRequestDto
+    );
 
 }

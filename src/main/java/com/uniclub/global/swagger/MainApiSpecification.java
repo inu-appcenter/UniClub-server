@@ -1,5 +1,6 @@
 package com.uniclub.global.swagger;
 
+import com.uniclub.domain.club.dto.MediaDeleteRequestDto;
 import com.uniclub.domain.main.dto.MainMediaUploadRequestDto;
 import com.uniclub.domain.main.dto.MainPageClubResponseDto;
 import com.uniclub.domain.main.dto.MainPageMediaResponseDto;
@@ -90,5 +91,58 @@ public interface MainApiSpecification {
     })
     ResponseEntity<Void> uploadClubMedia(
             @RequestBody List<MainMediaUploadRequestDto> mainMediaUploadRequestDtoList
+    );
+
+    @Operation(summary = "메인페이지 배너 삭제", description = "메인페이지 배너 미디어 다건 삭제 (soft delete, 6개월 후 S3에서 물리 삭제)")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "삭제 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "요청한 미디어 타입과 일치하지 않음",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                {
+                  "code": 400,
+                  "name": "MEDIA_TYPE_MISMATCH",
+                  "message": "요청한 미디어 타입과 일치하지 않습니다."
+                }
+                """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "미디어 찾기 실패",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                {
+                  "code": 404,
+                  "name": "MEDIA_NOT_FOUND",
+                  "message": "해당 미디어를 찾을 수 없습니다."
+                }
+                """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "410",
+                    description = "이미 삭제된 미디어",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject("""
+                {
+                  "code": 410,
+                  "name": "MEDIA_ALREADY_DELETED",
+                  "message": "이미 삭제된 미디어입니다."
+                }
+                """)
+                    )
+            )
+    })
+    ResponseEntity<Void> deleteMainBanner(
+            @RequestBody MediaDeleteRequestDto mediaDeleteRequestDto
     );
 }

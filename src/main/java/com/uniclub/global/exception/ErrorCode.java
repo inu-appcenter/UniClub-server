@@ -40,8 +40,10 @@ public enum ErrorCode {
     FILE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, 400, "업로드 가능한 파일 개수를 초과했습니다."),
     S3_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "파일 저장소 연결에 실패했습니다."),
     DUPLICATE_MEDIA_TYPE(HttpStatus.BAD_REQUEST, 400, "해당 타입의 이미지는 동아리만 하나만 등록 가능합니다."),
-
-
+    MEDIA_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "해당 미디어를 찾을 수 없습니다."),
+    MEDIA_ALREADY_DELETED(HttpStatus.GONE, 410, "이미 삭제된 미디어입니다."),
+    MEDIA_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, 400, "요청한 미디어 타입과 일치하지 않습니다."),
+    MEDIA_CLUB_MISMATCH(HttpStatus.BAD_REQUEST, 400, "해당 동아리에 속하지 않은 미디어입니다."),
 
     //JWT
     JWT_ENTRY_POINT(HttpStatus.UNAUTHORIZED, 401, "인증되지 않은 사용자입니다."),

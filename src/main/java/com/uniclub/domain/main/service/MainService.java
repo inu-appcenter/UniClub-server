@@ -1,14 +1,15 @@
 package com.uniclub.domain.main.service;
 
-import com.uniclub.domain.club.entity.Club;
+import com.uniclub.domain.club.dto.MediaDeleteRequestDto;
 import com.uniclub.domain.club.entity.Media;
 import com.uniclub.domain.club.entity.MediaType;
 import com.uniclub.domain.club.repository.ClubRepository;
 import com.uniclub.domain.club.repository.MediaRepository;
-import com.uniclub.domain.favorite.repository.FavoriteRepository;
 import com.uniclub.domain.main.dto.MainMediaUploadRequestDto;
 import com.uniclub.domain.main.dto.MainPageClubResponseDto;
 import com.uniclub.domain.main.dto.MainPageMediaResponseDto;
+import com.uniclub.global.exception.CustomException;
+import com.uniclub.global.exception.ErrorCode;
 import com.uniclub.global.s3.S3Service;
 import com.uniclub.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -30,7 +29,6 @@ public class MainService {
 
     private final ClubRepository clubRepository;
     private final MediaRepository mediaRepository;
-    private final FavoriteRepository favoriteRepository;
     private final S3Service s3Service;
 
 
@@ -97,6 +95,36 @@ public class MainService {
             uploadedMediaInfo.add("MAIN_PAGE" + ":" + fileName);
         }
         log.info("메인페이지 미디어 업로드 완료: upload_media={}", uploadedMediaInfo);
+    }
+
+    //메인 페이지 배너 미디어 삭제 (soft delete)
+    public void deleteMainMedia(MediaDeleteRequestDto mediaDeleteRequestDto) {
+        List<Long> mediaIds = mediaDeleteRequestDto.getMediaIds();
+        log.info("메인페이지 배너 삭제 요청: mediaIds={}", mediaIds);
+
+        //요청된 ID로 미디어 조회
+        List<Media> mediaList = mediaRepository.findAllById(mediaIds);
+
+        //존재하지 않는 ID가 있는지 검증
+        if (mediaList.size() != mediaIds.size()) {
+            throw new CustomException(ErrorCode.MEDIA_NOT_FOUND);
+        }
+
+        //타입 및 삭제 여부 검증
+        for (Media media : mediaList) {
+            if (media.getMediaType() != MediaType.MAIN_PAGE) {
+                throw new CustomException(ErrorCode.MEDIA_TYPE_MISMATCH);
+            }
+            if (media.isDeleted()) {
+                throw new CustomException(ErrorCode.MEDIA_ALREADY_DELETED);
+            }
+        }
+
+        //soft delete 수행 (실제 S3 삭제는 MediaDeleteScheduler가 6개월 뒤 처리)
+        for (Media media : mediaList) {
+            media.softDelete();
+        }
+        log.info("메인페이지 배너 삭제 완료: deletedCount={}, mediaIds={}", mediaList.size(), mediaIds);
     }
 
 

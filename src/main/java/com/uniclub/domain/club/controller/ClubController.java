@@ -86,4 +86,13 @@ public class ClubController implements ClubApiSpecification {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @DeleteMapping("/{clubId}/images")
+    public ResponseEntity<Void> deleteClubMedia(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long clubId,
+            @Valid @RequestBody MediaDeleteRequestDto mediaDeleteRequestDto) {
+        clubService.deleteClubMedia(userDetails, clubId, mediaDeleteRequestDto);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 }
