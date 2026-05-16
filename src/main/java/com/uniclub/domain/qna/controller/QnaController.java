@@ -105,5 +105,7 @@ public class QnaController implements QnaApiSpecification {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    //차단
+
 
 }
